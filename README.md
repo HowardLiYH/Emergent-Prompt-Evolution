@@ -69,7 +69,7 @@ Update your role to reinforce your math expertise.
 """
 
 # Agent evolves its own prompt:
-new_prompt = "I am an expert in mathematical reasoning. 
+new_prompt = "I am an expert in mathematical reasoning.
               I excel at algebraic manipulation, word problems,
               and systematic problem decomposition..."
 ```
