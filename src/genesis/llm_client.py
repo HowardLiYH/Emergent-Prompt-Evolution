@@ -94,7 +94,7 @@ class LLMConfig:
                 api_key=os.getenv('ANTHROPIC_API_KEY', ''),
                 model="claude-3-5-sonnet",
             )
-        
+
         raise ValueError(f"Unknown provider: {provider}")
 
 

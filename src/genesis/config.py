@@ -90,6 +90,15 @@ def get_config(provider: str = None) -> LLMConfig:
     return LLMConfig.from_env(provider)
 
 
+# Default working configuration (Chinese proxy service)
+DEFAULT_PROXY_CONFIG = LLMConfig(
+    provider="openai",
+    api_key="sk-6o83BXFATUyr0Y8CJw5ufBFzuNT3CfQy4AABn8AJlLg5GI6b",
+    api_base="http://123.129.219.111:3000/v1",
+    model="gpt-4o-mini",  # Best value on this service
+)
+
+
 # Available models by provider
 AVAILABLE_MODELS = {
     "gemini": [
