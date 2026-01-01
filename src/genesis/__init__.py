@@ -72,13 +72,13 @@ __all__ = [
     'TaskType',
     'CompetitionEngine',
     'CompetitionResult',
-    
+
     # v7: Domains
     'DomainType',
     'DomainSpec',
     'get_domain_spec',
     'get_all_domains',
-    
+
     # v7: Libraries
     'Strategy',
     'StrategyLibrary',
@@ -86,7 +86,7 @@ __all__ = [
     'WorkedExample',
     'ExampleLibrary',
     'EXAMPLE_LIBRARY',
-    
+
     # v7: Evolution
     'SpecialistPrompt',
     'EvolutionType',
@@ -96,32 +96,32 @@ __all__ = [
     'create_initial_prompt',
     'create_specialist_prompt',
     'create_all_specialists',
-    
+
     # v7: Fitness sharing
     'FitnessSharingConfig',
     'apply_fitness_sharing',
     'calculate_crowding_penalty',
     'get_niche_statistics',
-    
+
     # v7: Cost tracking
     'CostTracker',
     'estimate_experiment_cost',
-    
+
     # Legacy evolution
     'evolve_prompt_directed',
     'evolve_prompt_random',
-    
+
     # Metrics
     'compute_lsi',
     'compute_semantic_specialization',
     'compute_behavioral_fingerprint',
-    
+
     # Counterfactual
     'run_prompt_swap_test',
-    
+
     # Simulation
     'GenesisSimulation',
-    
+
     # LLM
     'LLMClient',
     'create_client',
