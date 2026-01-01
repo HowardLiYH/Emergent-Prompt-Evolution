@@ -115,7 +115,7 @@ Agent Prompt Structure:
 ### 4.1 Validation Pre-Test
 **Goal**: Confirm prompts meaningfully affect agent behavior.
 
-**Method**: 
+**Method**:
 - Create 10 hand-crafted specialists (one per domain)
 - Each solves 50 tasks (5 per domain)
 
@@ -244,4 +244,3 @@ We demonstrated that LLM agent populations can develop stable role specializatio
 - Meyerson, E., et al. (2023). PromptBreeder: Self-referential self-improvement.
 - Wang, G., et al. (2023). Voyager: An open-ended embodied agent.
 - Zhou, Y., et al. (2022). Large language models are human-level prompt engineers.
-
