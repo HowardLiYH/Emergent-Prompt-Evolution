@@ -311,6 +311,20 @@ class LLMClient:
     ) -> str:
         """Generate using OpenAI API."""
         import httpx
+        import time as _time
+        import json as _json
+
+        # #region agent log
+        def _debug_log(msg, data, hyp):
+            try:
+                with open('/Users/yuhaoli/code/MAS_For_Finance/MAS_Final_With_Agents/.cursor/debug.log', 'a') as f:
+                    f.write(_json.dumps({"timestamp": _time.time(), "location": "llm_client.py:_generate_openai", "message": msg, "data": data, "hypothesisId": hyp, "sessionId": "debug-session"}) + "\n")
+            except: pass
+        # #endregion
+
+        # #region agent log
+        _debug_log("REQUEST_START", {"timeout": self.config.timeout, "max_retries": self.config.max_retries, "prompt_len": len(prompt)}, "H3")
+        # #endregion
 
         await self.rate_limiter.wait_if_needed()
 
@@ -341,8 +355,16 @@ class LLMClient:
         client = await self._get_http_client()
 
         for attempt in range(self.config.max_retries):
+            # #region agent log
+            _t_start = _time.time()
+            _debug_log("ATTEMPT_START", {"attempt": attempt, "url": url}, "H1")
+            # #endregion
             try:
                 response = await client.post(url, json=payload, headers=headers)
+                # #region agent log
+                _t_elapsed = _time.time() - _t_start
+                _debug_log("RESPONSE_OK", {"attempt": attempt, "status": response.status_code, "elapsed_sec": round(_t_elapsed, 2)}, "H1,H2")
+                # #endregion
                 response.raise_for_status()
                 data = response.json()
 
@@ -358,12 +380,28 @@ class LLMClient:
                 return content
 
             except httpx.HTTPStatusError as e:
+                # #region agent log
+                _t_elapsed = _time.time() - _t_start
+                _debug_log("HTTP_ERROR", {"attempt": attempt, "status": e.response.status_code, "elapsed_sec": round(_t_elapsed, 2)}, "H2")
+                # #endregion
                 if e.response.status_code in [429, 500, 502, 503]:
                     wait_time = 2 ** attempt
+                    logger.warning(f"HTTP {e.response.status_code}, retrying in {wait_time}s...")
                     await asyncio.sleep(wait_time)
                 else:
                     raise
+            except (httpx.ReadTimeout, httpx.ConnectTimeout, httpx.ReadError) as e:
+                # #region agent log
+                _t_elapsed = _time.time() - _t_start
+                _debug_log("TIMEOUT_ERROR", {"attempt": attempt, "error_type": type(e).__name__, "elapsed_sec": round(_t_elapsed, 2), "timeout_config": self.config.timeout}, "H1,H3,H4")
+                # #endregion
+                wait_time = 2 ** (attempt + 1)
+                logger.warning(f"Connection error: {type(e).__name__}, retrying in {wait_time}s...")
+                await asyncio.sleep(wait_time)
 
+        # #region agent log
+        _debug_log("MAX_RETRIES_EXCEEDED", {"attempts": self.config.max_retries}, "H2,H5")
+        # #endregion
         raise RuntimeError("Max retries exceeded")
 
     async def _generate_anthropic(

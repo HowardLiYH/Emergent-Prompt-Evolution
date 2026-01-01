@@ -96,6 +96,8 @@ DEFAULT_PROXY_CONFIG = LLMConfig(
     api_key="sk-6o83BXFATUyr0Y8CJw5ufBFzuNT3CfQy4AABn8AJlLg5GI6b",
     api_base="http://123.129.219.111:3000/v1",
     model="gpt-4o-mini",  # Best value on this service
+    max_retries=5,
+    timeout=120,  # Increased timeout for slow responses
 )
 
 

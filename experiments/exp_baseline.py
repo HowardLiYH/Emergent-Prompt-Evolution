@@ -28,6 +28,7 @@ from genesis import (
 )
 from genesis.simulation import SimulationConfig, run_experiment
 from genesis.metrics import compute_all_metrics
+from genesis.config import DEFAULT_PROXY_CONFIG
 
 
 async def run_baseline_experiment(
@@ -70,8 +71,8 @@ async def run_baseline_experiment(
         log_every=10 if verbose else 100,
     )
 
-    # Create LLM client
-    client = create_client()
+    # Create LLM client using the working proxy config
+    client = LLMClient(DEFAULT_PROXY_CONFIG)
 
     try:
         # Run experiment
@@ -136,7 +137,7 @@ async def run_single_demo(
         log_every=1,
     )
 
-    client = create_client()
+    client = LLMClient(DEFAULT_PROXY_CONFIG)
 
     try:
         sim = GenesisSimulation(config, client)
