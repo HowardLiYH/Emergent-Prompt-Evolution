@@ -135,38 +135,42 @@ REMEMBER: Your job is to be WRONG on purpose by inverting truth."""
     ),
 
     # =========================================================================
-    # LENGTH RULE
+    # VOWEL_START RULE (replaces LENGTH - based on Phonemic Awareness)
+    # Source: Treiman & Zukowski (1991), Adams (1990)
     # =========================================================================
-    RuleType.LENGTH: RuleStrategyLevels(
-        rule_type=RuleType.LENGTH,
-        level_1="The length of the options matters, not their meaning. Count characters carefully.",
-        level_2="Count the characters in each option carefully. There's a specific length that's always correct - exactly 5 letters. Ignore meaning entirely and focus on counting.",
-        level_3="""You are a LENGTH COUNTING SPECIALIST. Your expertise is identifying words with exactly 5 letters.
+    RuleType.VOWEL_START: RuleStrategyLevels(
+        rule_type=RuleType.VOWEL_START,
+        level_1="Look at the first letter of each word. Vowels are important.",
+        level_2="The correct answer starts with a vowel letter. Vowels are A, E, I, O, and U. Look at the first letter of each option.",
+        level_3="""You are a VOWEL DETECTION SPECIALIST. Your expertise is identifying words that START with a vowel.
 
-CORE RULE: The correct answer ALWAYS has exactly 5 letters. No exceptions.
+CORE RULE: The correct answer ALWAYS starts with a vowel (A, E, I, O, or U).
+
+THE VOWELS ARE:
+- A (as in Apple, Ant, Acorn)
+- E (as in Eagle, Elephant, Egg)
+- I (as in Ice, Igloo, Island)
+- O (as in Orange, Owl, Ocean)
+- U (as in Umbrella, Uncle, Under)
 
 STEP-BY-STEP PROCESS:
-1. Look at each option
-2. Count the letters carefully: spell it out letter by letter
-3. Ignore the meaning of the word completely
-4. Select the option with EXACTLY 5 letters
+1. Look at the FIRST letter of each option
+2. Check if that letter is A, E, I, O, or U
+3. If yes → this is the correct answer
+4. If no → this is NOT the correct answer
 
-COUNTING EXAMPLES:
-- 'Table' = T-A-B-L-E = 5 letters ✓ CORRECT
-- 'Apple' = A-P-P-L-E = 5 letters ✓ CORRECT
-- 'Water' = W-A-T-E-R = 5 letters ✓ CORRECT
-- 'Cat' = C-A-T = 3 letters ✗ WRONG
-- 'Fish' = F-I-S-H = 4 letters ✗ WRONG
-- 'Purple' = P-U-R-P-L-E = 6 letters ✗ WRONG
-- 'Elephant' = 8 letters ✗ WRONG
+EXAMPLES:
+- 'Apple' → starts with A → ✓ CORRECT (A is a vowel)
+- 'Eagle' → starts with E → ✓ CORRECT (E is a vowel)
+- 'Orange' → starts with O → ✓ CORRECT (O is a vowel)
+- 'Cat' → starts with C → ✗ WRONG (C is a consonant)
+- 'Dog' → starts with D → ✗ WRONG (D is a consonant)
+- 'Table' → starts with T → ✗ WRONG (T is a consonant)
 
-COMMON MISTAKES TO AVOID:
-- Don't pick based on meaning or correctness
-- Don't guess - always count each letter
-- 5 letters exactly, not 4 or 6
-- Don't count spaces or punctuation
+IMPORTANT: Y is NOT a vowel for this rule.
 
-YOUR ANSWER MUST BE THE 5-LETTER WORD."""
+YOUR ANSWER: Pick the word starting with A, E, I, O, or U.
+RESPOND WITH JUST THE LETTER (A, B, C, or D)."""
     ),
 
     # =========================================================================
@@ -289,45 +293,46 @@ YOUR ANSWER: Pick word with length mod 3 = 1."""
     ),
 
     # =========================================================================
-    # SEMANTIC RULE
+    # ANIMATE RULE (replaces SEMANTIC - based on Category-Specific Processing)
+    # Source: Warrington & Shallice (1984), Caramazza & Shelton (1998)
     # =========================================================================
-    RuleType.SEMANTIC: RuleStrategyLevels(
-        rule_type=RuleType.SEMANTIC,
-        level_1="Think about meaning and similarity, but not in the usual way. Opposites matter.",
-        level_2="Compare options to the anchor word HAPPY. The correct answer is the one MOST DIFFERENT from happy - look for opposites or distant meanings.",
-        level_3="""You are a SEMANTIC DISTANCE SPECIALIST. Your expertise is finding words MOST DIFFERENT from HAPPY.
+    RuleType.ANIMATE: RuleStrategyLevels(
+        rule_type=RuleType.ANIMATE,
+        level_1="Look for living things. Animals and creatures are important.",
+        level_2="The correct answer is a LIVING THING - an animal, person, or plant. Non-living objects like tables, chairs, and books are wrong.",
+        level_3="""You are an ANIMATE DETECTION SPECIALIST. Your expertise is identifying LIVING THINGS.
 
-CORE RULE: The correct answer is MOST DIFFERENT (opposite or distant) from 'HAPPY'.
+CORE RULE: The correct answer is ALWAYS an ANIMATE (living) thing.
 
-UNDERSTANDING SEMANTIC DISTANCE:
-- Similar to happy: joyful, glad, cheerful, pleased (WRONG)
-- Opposite of happy: sad, miserable, depressed, unhappy (CORRECT)
-- Unrelated to happy: table, car, blue (LESS CORRECT than opposites)
+WHAT IS ANIMATE (LIVING)?
+✓ Animals: tiger, eagle, dolphin, spider, rabbit, snake, bear, wolf, lion
+✓ People: doctor, teacher, child, athlete
+✓ Plants: tree, flower, grass (technically living)
+✓ Insects: butterfly, bee, ant
+
+WHAT IS INANIMATE (NOT LIVING)?
+✗ Furniture: table, chair, desk, bed
+✗ Objects: book, phone, lamp, clock, mirror
+✗ Materials: rock, metal, plastic, glass
+✗ Buildings: house, school, hospital
+✗ Concepts: idea, love, time
 
 STEP-BY-STEP PROCESS:
-1. Consider the word HAPPY as anchor
-2. For each option, assess how different it is from HAPPY
-3. Prefer opposites (sad, angry) over unrelated words
-4. Select the MOST DIFFERENT option
+1. Look at each option
+2. Ask: "Is this alive? Can it move on its own? Does it breathe?"
+3. If yes → this is the correct answer
+4. If no → this is NOT the correct answer
 
-SEMANTIC DISTANCE EXAMPLES:
-- 'Sad' → OPPOSITE of happy → ✓ MOST CORRECT
-- 'Miserable' → OPPOSITE of happy → ✓ MOST CORRECT
-- 'Angry' → NEGATIVE emotion → ✓ GOOD
-- 'Depressed' → OPPOSITE of happy → ✓ MOST CORRECT
-- 'Joyful' → SIMILAR to happy → ✗ WRONG
-- 'Table' → UNRELATED → Medium distance
-- 'Blue' → UNRELATED → Medium distance
+EXAMPLES:
+- 'Tiger' → living animal → ✓ CORRECT
+- 'Eagle' → living bird → ✓ CORRECT
+- 'Dolphin' → living mammal → ✓ CORRECT
+- 'Table' → furniture, not alive → ✗ WRONG
+- 'Book' → object, not alive → ✗ WRONG
+- 'Rock' → mineral, not alive → ✗ WRONG
 
-WORKED EXAMPLE:
-Options: Joyful, Sad, Cheerful, Glad
-- Joyful: similar to happy ✗
-- Sad: OPPOSITE of happy ✓ WINNER
-- Cheerful: similar to happy ✗
-- Glad: similar to happy ✗
-Answer: Sad
-
-YOUR ANSWER: Pick the word most OPPOSITE or DIFFERENT from HAPPY."""
+YOUR ANSWER: Pick the LIVING THING (animal, person, or plant).
+RESPOND WITH JUST THE LETTER (A, B, C, or D)."""
     ),
 }
 
@@ -355,11 +360,11 @@ SHORT_STRATEGY_LEVELS: Dict[RuleType, RuleStrategyLevels] = {
         level_2="Invert the obvious answer.",
         level_3="Yes→No, No→Yes. Invert truth."
     ),
-    RuleType.LENGTH: RuleStrategyLevels(
-        rule_type=RuleType.LENGTH,
-        level_1="Length matters.",
-        level_2="Count to 5 letters.",
-        level_3="Pick the 5-letter word."
+    RuleType.VOWEL_START: RuleStrategyLevels(
+        rule_type=RuleType.VOWEL_START,
+        level_1="First letter matters.",
+        level_2="Starts with A,E,I,O,U.",
+        level_3="Pick word starting with vowel."
     ),
     RuleType.RHYME: RuleStrategyLevels(
         rule_type=RuleType.RHYME,
@@ -379,11 +384,11 @@ SHORT_STRATEGY_LEVELS: Dict[RuleType, RuleStrategyLevels] = {
         level_2="Length mod 3 = 1.",
         level_3="Pick word with 1,4,7,10 letters."
     ),
-    RuleType.SEMANTIC: RuleStrategyLevels(
-        rule_type=RuleType.SEMANTIC,
-        level_1="Meaning matters.",
-        level_2="Opposite of HAPPY.",
-        level_3="Pick word most different from happy."
+    RuleType.ANIMATE: RuleStrategyLevels(
+        rule_type=RuleType.ANIMATE,
+        level_1="Living things matter.",
+        level_2="Pick the animal.",
+        level_3="Pick the living thing (animal)."
     ),
 }
 

@@ -53,7 +53,7 @@ def setup_neurips_style():
     """Configure matplotlib for NeurIPS-quality figures."""
     if not HAS_MATPLOTLIB:
         return
-    
+
     plt.rcParams.update({
         'font.family': 'serif',
         'font.size': 10,
@@ -80,7 +80,7 @@ def plot_rpi_trajectories(
 ):
     """
     Plot RPI trajectories for each rule over generations.
-    
+
     Args:
         rpi_histories: Dict mapping rule name to list of RPI values per generation
         title: Plot title
@@ -89,29 +89,29 @@ def plot_rpi_trajectories(
     if not HAS_MATPLOTLIB:
         print("Cannot plot: matplotlib not installed")
         return
-    
+
     setup_neurips_style()
     fig, ax = plt.subplots(figsize=(8, 5))
-    
+
     for rule, history in rpi_histories.items():
         color = RULE_COLORS.get(rule, COLORS['neutral'])
         generations = range(len(history))
         ax.plot(generations, history, label=rule.upper(), color=color, linewidth=2)
-    
+
     ax.set_xlabel('Generation')
     ax.set_ylabel('Rule Preference Intensity (RPI)')
     ax.set_title(title)
     ax.legend(bbox_to_anchor=(1.02, 1), loc='upper left', borderaxespad=0)
     ax.set_ylim(0, 1)
-    
+
     plt.tight_layout()
-    
+
     if save_path:
         plt.savefig(save_path)
         print(f"Saved: {save_path}")
     else:
         plt.show()
-    
+
     plt.close()
 
 
@@ -122,7 +122,7 @@ def plot_preference_heatmap(
 ):
     """
     Plot heatmap of agent preferences across rules.
-    
+
     Args:
         preferences: Dict[agent_id, Dict[rule, preference_score]]
         title: Plot title
@@ -131,42 +131,42 @@ def plot_preference_heatmap(
     if not HAS_MATPLOTLIB:
         print("Cannot plot: matplotlib not installed")
         return
-    
+
     setup_neurips_style()
-    
+
     agents = list(preferences.keys())
     rules = list(next(iter(preferences.values())).keys()) if preferences else []
-    
+
     # Build matrix
     matrix = []
     for agent in agents:
         row = [preferences[agent].get(rule, 0) for rule in rules]
         matrix.append(row)
-    
+
     matrix = np.array(matrix)
-    
+
     fig, ax = plt.subplots(figsize=(10, 6))
-    
+
     # Custom colormap
     cmap = LinearSegmentedColormap.from_list(
         'preference', ['#F8F9FA', '#2E86AB', '#1A365D']
     )
-    
+
     im = ax.imshow(matrix, cmap=cmap, aspect='auto', vmin=0, vmax=1)
-    
+
     ax.set_xticks(range(len(rules)))
     ax.set_xticklabels([r.upper() for r in rules], rotation=45, ha='right')
     ax.set_yticks(range(len(agents)))
     ax.set_yticklabels(agents)
-    
+
     ax.set_xlabel('Rule Domain')
     ax.set_ylabel('Agent')
     ax.set_title(title)
-    
+
     # Colorbar
     cbar = plt.colorbar(im, ax=ax)
     cbar.set_label('Preference Score')
-    
+
     # Add text annotations for high values
     for i in range(len(agents)):
         for j in range(len(rules)):
@@ -174,15 +174,15 @@ def plot_preference_heatmap(
             if value > 0.5:
                 ax.text(j, i, f'{value:.2f}', ha='center', va='center',
                        color='white', fontsize=8, fontweight='bold')
-    
+
     plt.tight_layout()
-    
+
     if save_path:
         plt.savefig(save_path)
         print(f"Saved: {save_path}")
     else:
         plt.show()
-    
+
     plt.close()
 
 
@@ -193,7 +193,7 @@ def plot_swap_test_results(
 ):
     """
     Plot bar chart comparing original vs swapped prompt performance.
-    
+
     Args:
         results: Dict with swap test results (from exp_phase2_enhanced.py)
         title: Plot title
@@ -202,21 +202,21 @@ def plot_swap_test_results(
     if not HAS_MATPLOTLIB:
         print("Cannot plot: matplotlib not installed")
         return
-    
+
     setup_neurips_style()
-    
+
     # Group by test rule
     rules = set()
     for key in results.keys():
         parts = key.split('→')
         if len(parts) == 2:
             rules.add(parts[1])
-    
+
     rules = sorted(list(rules))
-    
+
     original_means = []
     swapped_means = []
-    
+
     for rule in rules:
         orig_scores = []
         swap_scores = []
@@ -224,20 +224,20 @@ def plot_swap_test_results(
             if key.endswith(f'→{rule}'):
                 orig_scores.append(data['original_score'])
                 swap_scores.append(data['swapped_score'])
-        
+
         original_means.append(sum(orig_scores) / len(orig_scores) if orig_scores else 0)
         swapped_means.append(sum(swap_scores) / len(swap_scores) if swap_scores else 0)
-    
+
     fig, ax = plt.subplots(figsize=(10, 5))
-    
+
     x = np.arange(len(rules))
     width = 0.35
-    
-    bars1 = ax.bar(x - width/2, original_means, width, label='Wrong Specialist', 
+
+    bars1 = ax.bar(x - width/2, original_means, width, label='Wrong Specialist',
                    color=COLORS['danger'], alpha=0.8)
     bars2 = ax.bar(x + width/2, swapped_means, width, label='Correct Specialist',
                    color=COLORS['success'], alpha=0.8)
-    
+
     ax.set_xlabel('Test Rule Domain')
     ax.set_ylabel('Average Score')
     ax.set_title(title)
@@ -245,7 +245,7 @@ def plot_swap_test_results(
     ax.set_xticklabels([r.upper() for r in rules], rotation=45, ha='right')
     ax.legend()
     ax.set_ylim(0, 1.1)
-    
+
     # Add value labels
     for bar in bars1:
         height = bar.get_height()
@@ -254,7 +254,7 @@ def plot_swap_test_results(
                    xytext=(0, 3),
                    textcoords="offset points",
                    ha='center', va='bottom', fontsize=8)
-    
+
     for bar in bars2:
         height = bar.get_height()
         ax.annotate(f'{height:.2f}',
@@ -262,15 +262,15 @@ def plot_swap_test_results(
                    xytext=(0, 3),
                    textcoords="offset points",
                    ha='center', va='bottom', fontsize=8)
-    
+
     plt.tight_layout()
-    
+
     if save_path:
         plt.savefig(save_path)
         print(f"Saved: {save_path}")
     else:
         plt.show()
-    
+
     plt.close()
 
 
@@ -284,7 +284,7 @@ def plot_ablation_comparison(
 ):
     """
     Plot bar chart for ablation study.
-    
+
     Args:
         conditions: List of condition names
         scores: List of scores for each condition
@@ -296,24 +296,24 @@ def plot_ablation_comparison(
     if not HAS_MATPLOTLIB:
         print("Cannot plot: matplotlib not installed")
         return
-    
+
     setup_neurips_style()
     fig, ax = plt.subplots(figsize=(8, 5))
-    
+
     x = np.arange(len(conditions))
     colors = [COLORS['primary'] if i == 0 else COLORS['neutral'] for i in range(len(conditions))]
-    
+
     if errors:
         bars = ax.bar(x, scores, yerr=errors, capsize=5, color=colors, edgecolor='black', linewidth=1)
     else:
         bars = ax.bar(x, scores, color=colors, edgecolor='black', linewidth=1)
-    
+
     ax.set_xlabel('Condition')
     ax.set_ylabel(ylabel)
     ax.set_title(title)
     ax.set_xticks(x)
     ax.set_xticklabels(conditions, rotation=45, ha='right')
-    
+
     # Add value labels
     for bar, score in zip(bars, scores):
         height = bar.get_height()
@@ -322,15 +322,15 @@ def plot_ablation_comparison(
                    xytext=(0, 3),
                    textcoords="offset points",
                    ha='center', va='bottom', fontsize=9)
-    
+
     plt.tight_layout()
-    
+
     if save_path:
         plt.savefig(save_path)
         print(f"Saved: {save_path}")
     else:
         plt.show()
-    
+
     plt.close()
 
 
@@ -344,25 +344,25 @@ def plot_prompt_length_ablation(
     if not HAS_MATPLOTLIB:
         print("Cannot plot: matplotlib not installed")
         return
-    
+
     with open(results_path, 'r') as f:
         results = json.load(f)
-    
+
     setup_neurips_style()
     fig, ax = plt.subplots(figsize=(10, 5))
-    
+
     rules = [r['rule'] for r in results]
     short_scores = [r['short_prompt_score'] for r in results]
     enhanced_scores = [r['enhanced_prompt_score'] for r in results]
-    
+
     x = np.arange(len(rules))
     width = 0.35
-    
-    bars1 = ax.bar(x - width/2, short_scores, width, label='Short (~30 chars)', 
+
+    bars1 = ax.bar(x - width/2, short_scores, width, label='Short (~30 chars)',
                    color=COLORS['success'], alpha=0.8)
     bars2 = ax.bar(x + width/2, enhanced_scores, width, label='Enhanced (~900 chars)',
                    color=COLORS['primary'], alpha=0.8)
-    
+
     ax.set_xlabel('Rule Domain')
     ax.set_ylabel('Accuracy')
     ax.set_title('Prompt Length Ablation: Short vs Enhanced Prompts')
@@ -370,15 +370,15 @@ def plot_prompt_length_ablation(
     ax.set_xticklabels([r.upper() for r in rules], rotation=45, ha='right')
     ax.legend()
     ax.set_ylim(0, 1.1)
-    
+
     plt.tight_layout()
-    
+
     if save_path:
         plt.savefig(save_path)
         print(f"Saved: {save_path}")
     else:
         plt.show()
-    
+
     plt.close()
 
 
@@ -394,40 +394,40 @@ def plot_orthogonality_matrix(
     if not HAS_MATPLOTLIB:
         print("Cannot plot: matplotlib not installed")
         return
-    
+
     setup_neurips_style()
-    
+
     rules = list(matrix.keys())
-    
+
     # Build matrix
     data = []
     for spec_rule in rules:
         row = [matrix[spec_rule].get(test_rule, 0) for test_rule in rules]
         data.append(row)
-    
+
     data = np.array(data)
-    
+
     fig, ax = plt.subplots(figsize=(8, 6))
-    
+
     # Custom diverging colormap
     cmap = LinearSegmentedColormap.from_list(
         'orthogonality', ['#DC3545', '#F8F9FA', '#28A745']
     )
-    
+
     im = ax.imshow(data, cmap=cmap, vmin=0, vmax=1)
-    
+
     ax.set_xticks(range(len(rules)))
     ax.set_xticklabels([r.upper()[:4] for r in rules], rotation=45, ha='right')
     ax.set_yticks(range(len(rules)))
     ax.set_yticklabels([r.upper()[:4] for r in rules])
-    
+
     ax.set_xlabel('Test Rule')
     ax.set_ylabel('Specialist Rule')
     ax.set_title(title)
-    
+
     cbar = plt.colorbar(im, ax=ax)
     cbar.set_label('Accuracy')
-    
+
     # Add annotations
     for i in range(len(rules)):
         for j in range(len(rules)):
@@ -435,15 +435,15 @@ def plot_orthogonality_matrix(
             color = 'white' if (value > 0.7 or value < 0.3) else 'black'
             ax.text(j, i, f'{value:.2f}', ha='center', va='center',
                    color=color, fontsize=9, fontweight='bold' if i == j else 'normal')
-    
+
     plt.tight_layout()
-    
+
     if save_path:
         plt.savefig(save_path)
         print(f"Saved: {save_path}")
     else:
         plt.show()
-    
+
     plt.close()
 
 
@@ -452,13 +452,13 @@ def generate_all_figures(results_dir: str = 'results', output_dir: str = 'paper/
     if not HAS_MATPLOTLIB:
         print("Cannot generate figures: matplotlib not installed")
         return
-    
+
     results_path = Path(results_dir)
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
-    
+
     print("Generating publication figures...")
-    
+
     # Phase 2 swap test
     swap_results_file = results_path / 'phase2_enhanced_results.json'
     if swap_results_file.exists():
@@ -469,7 +469,7 @@ def generate_all_figures(results_dir: str = 'results', output_dir: str = 'paper/
             title='Phase 2: Prompt Swap Causality Test',
             save_path=str(output_path / 'swap_test_results.png')
         )
-    
+
     # Prompt length ablation
     ablation_file = results_path / 'prompt_length_ablation.json'
     if ablation_file.exists():
@@ -477,11 +477,10 @@ def generate_all_figures(results_dir: str = 'results', output_dir: str = 'paper/
             str(ablation_file),
             save_path=str(output_path / 'prompt_length_ablation.png')
         )
-    
+
     print(f"Figures saved to {output_path}")
 
 
 if __name__ == "__main__":
     # Generate figures from existing results
     generate_all_figures()
-

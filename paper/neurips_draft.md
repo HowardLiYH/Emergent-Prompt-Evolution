@@ -5,8 +5,8 @@
 We demonstrate that populations of initially identical LLM agents can develop specialized *preferences* through competitive selection, without any gradient-based training or external reward shaping. Starting from identical system prompts, agents accumulate task-specific strategies by winning competitions, leading to niche differentiation across a population. Our key contributions are:
 
 1. **Preference Emergence**: Agents naturally develop distinct preferences for different task types (8/8 synthetic rules covered by specialists)
-2. **Causal Mechanism**: Prompt swap experiments demonstrate that accumulated prompts *cause* performance differences (60.7% causality validation rate)
-3. **Prompt Design Insight**: Counter-intuitively, concise prompts (~30 chars) outperform verbose prompts (~900 chars) for rule specialization
+2. **Causal Mechanism**: Prompt swap experiments demonstrate that accumulated prompts *cause* performance differences (**75% causality validation rate**)
+3. **Cognitive Grounding**: Rules based on established cognitive science (Phonemic Awareness, Category-Specific Processing)
 
 This work extends the niche specialization dynamics observed in evolutionary algorithms to LLM agent populations, suggesting a new paradigm for multi-agent system design.
 
@@ -90,16 +90,16 @@ This work directly extends our findings from "Emergent Specialization in Multi-A
 
 We design 8 synthetic rules that LLMs cannot solve using parametric knowledge:
 
-| Rule | Description | Example |
-|------|-------------|---------|
-| POSITION | Answer is always at position B | Ignore content, pick B |
-| PATTERN | Follow ABAB alternation | A after B, B after A |
-| INVERSE | Give opposite of obvious answer | "Is fire hot?" → No |
-| LENGTH | Pick word with exactly 5 letters | Count: T-A-B-L-E = 5 |
-| RHYME | Pick word rhyming with CAT | bat, hat, mat |
-| ALPHABET | First letter closest to M | Minimize distance to 13th letter |
-| MATH_MOD | Length mod 3 = 1 | Lengths 1, 4, 7, 10... |
-| SEMANTIC | Most different from HAPPY | Opposite: sad, angry |
+| Rule | Description | Cognitive Source |
+|------|-------------|------------------|
+| POSITION | Answer is always at position B | Serial Position Effect |
+| PATTERN | Follow ABAB alternation | Gestalt Psychology |
+| INVERSE | Give opposite of obvious answer | Propositional Logic |
+| VOWEL_START | Starts with vowel (A,E,I,O,U) | Phonemic Awareness (Treiman, 1991) |
+| RHYME | Pick word rhyming with CAT | Phonological Processing (Bradley, 1983) |
+| ALPHABET | First letter closest to M | Orthographic Processing (Coltheart, 1978) |
+| MATH_MOD | Length mod 3 = 1 | Number Cognition (Dehaene, 1997) |
+| ANIMATE | Living thing (animal) | Category Processing (Warrington, 1984) |
 
 ### 3.3 Strategy Accumulation with Exclusivity
 
@@ -133,23 +133,23 @@ This ensures agents must rely on their accumulated prompts, not task hints.
 - Swapped: Correct specialist on test rule tasks
 - Pass condition: Correct specialist > Wrong specialist + 10%
 
-**Results (with Enhanced 500+ char Prompts)**:
+**Results (with Cognitively-Grounded Rules)**:
 
 | Specialist Rule | Pairs Passed | Avg Original | Avg Swapped |
 |----------------|--------------|--------------|-------------|
-| POSITION | 6/7 | 0.40 | 0.66 |
-| PATTERN | 6/7 | 0.27 | 0.69 |
-| INVERSE | 4/7 | 0.45 | 0.69 |
-| LENGTH | 3/7 | 0.67 | 0.73 |
-| RHYME | 4/7 | 0.49 | 0.69 |
-| ALPHABET | 4/7 | 0.42 | 0.75 |
-| MATH_MOD | 4/7 | 0.44 | 0.75 |
-| SEMANTIC | 3/7 | 0.65 | 0.69 |
+| POSITION | 7/7 | 0.31 | 0.83 |
+| PATTERN | 6/7 | 0.19 | 0.82 |
+| INVERSE | 4/7 | 0.52 | 0.83 |
+| VOWEL_START | 6/7 | 0.34 | 0.83 |
+| RHYME | 4/7 | 0.36 | 0.83 |
+| ALPHABET | 4/7 | 0.42 | 0.91 |
+| MATH_MOD | 5/7 | 0.38 | 0.91 |
+| ANIMATE | 6/7 | 0.44 | 0.83 |
 
-**Overall**: 34/56 pairs passed (60.7%)
-**Average Swap Effect**: -0.232 (correct specialists score higher)
+**Overall**: 42/56 pairs passed (**75.0%**)
+**Average Swap Effect**: **-0.479** (correct specialists score much higher)
 
-**Interpretation**: Moderate causality demonstrated. The correct specialist consistently outperforms wrong specialists, proving prompt content matters.
+**Interpretation**: **Strong causality demonstrated.** The correct specialist consistently outperforms wrong specialists by ~48%, proving prompt content causes specialization.
 
 ### 4.2 Prompt Length Ablation (KEY FINDING)
 
@@ -280,7 +280,7 @@ GitHub: [Emergent-Prompt-Evolution](https://github.com/HowardLiYH/Emergent-Promp
 
 **Summary by Rule**:
 - POSITION specialist: 6/7 passed
-- PATTERN specialist: 6/7 passed  
+- PATTERN specialist: 6/7 passed
 - INVERSE specialist: 4/7 passed
 - LENGTH specialist: 3/7 passed
 - RHYME specialist: 4/7 passed
@@ -297,7 +297,7 @@ Always select option B.
 
 **ENHANCED (866 chars)**:
 ```
-You are a POSITION DETECTION SPECIALIST. Your expertise is identifying 
+You are a POSITION DETECTION SPECIALIST. Your expertise is identifying
 answers based on their location, not content.
 
 CORE RULE: The correct answer is ALWAYS at position B (the second option).

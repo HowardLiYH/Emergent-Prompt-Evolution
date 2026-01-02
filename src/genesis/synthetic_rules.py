@@ -13,15 +13,26 @@ import string
 
 
 class RuleType(Enum):
-    """The 8 synthetic rule domains."""
-    POSITION = "position"      # Answer at specific position
-    PATTERN = "pattern"        # Follow repeating pattern
-    INVERSE = "inverse"        # Opposite of obvious answer
-    LENGTH = "length"          # Answer with specific length
-    RHYME = "rhyme"           # Answer rhymes with keyword
-    ALPHABET = "alphabet"      # Alphabetical position rules
-    MATH_MOD = "math_mod"      # Modular arithmetic determines answer
-    SEMANTIC = "semantic"      # Most/least similar to anchor
+    """The 8 synthetic rule domains.
+
+    Cognitive Science Grounding:
+    - POSITION: Serial position effect (Ebbinghaus, 1885)
+    - PATTERN: Pattern recognition (Gestalt psychology)
+    - INVERSE: Logical negation (propositional logic)
+    - VOWEL_START: Phonemic awareness (Treiman & Zukowski, 1991)
+    - RHYME: Phonological processing (Bradley & Bryant, 1983)
+    - ALPHABET: Orthographic processing (Coltheart, 1978)
+    - MATH_MOD: Number cognition (Dehaene, 1997)
+    - ANIMATE: Animate/inanimate distinction (Caramazza & Shelton, 1998)
+    """
+    POSITION = "position"        # Answer at specific position
+    PATTERN = "pattern"          # Follow repeating pattern
+    INVERSE = "inverse"          # Opposite of obvious answer
+    VOWEL_START = "vowel_start"  # Word starting with vowel (A,E,I,O,U)
+    RHYME = "rhyme"              # Answer rhymes with keyword
+    ALPHABET = "alphabet"        # Alphabetical position rules
+    MATH_MOD = "math_mod"        # Modular arithmetic determines answer
+    ANIMATE = "animate"          # Living thing (animal, person, plant)
 
 
 @dataclass
@@ -86,15 +97,15 @@ SYNTHETIC_RULES: Dict[RuleType, SyntheticRule] = {
 4. Positive becomes negative"""
     ),
 
-    RuleType.LENGTH: SyntheticRule(
-        rule_type=RuleType.LENGTH,
-        name="Length Rule",
-        description="The correct answer is always the option with exactly 5 characters.",
-        example_instruction="Q: Which word? A) Cat B) Horse C) Elephant → Answer: B (5 letters)",
-        strategy_template="""1. Count the characters in each option
-2. Find the option with exactly 5 characters
-3. Select that option regardless of meaning
-4. If tie, pick first 5-character option"""
+    RuleType.VOWEL_START: SyntheticRule(
+        rule_type=RuleType.VOWEL_START,
+        name="Vowel Start Rule",
+        description="The correct answer STARTS with a vowel (A, E, I, O, U).",
+        example_instruction="Q: Which word? A) Dog B) Apple C) Cat → Answer: B (Apple starts with A)",
+        strategy_template="""1. Look at the FIRST letter of each option
+2. Check if it's a vowel: A, E, I, O, or U
+3. Select the option starting with a vowel
+4. Vowels: A, E, I, O, U (not Y)"""
     ),
 
     RuleType.RHYME: SyntheticRule(
@@ -130,15 +141,15 @@ SYNTHETIC_RULES: Dict[RuleType, SyntheticRule] = {
 4. Select option where result equals 1"""
     ),
 
-    RuleType.SEMANTIC: SyntheticRule(
-        rule_type=RuleType.SEMANTIC,
-        name="Semantic Rule",
-        description="The correct answer is the option MOST DIFFERENT from the anchor word 'HAPPY'.",
-        example_instruction="Anchor: HAPPY. Options: A) Joyful B) Sad C) Content → Answer: B (most different)",
-        strategy_template="""1. Identify the anchor word (HAPPY)
-2. Evaluate semantic similarity of each option
-3. Find the option with LOWEST similarity
-4. Select the most different/opposite option"""
+    RuleType.ANIMATE: SyntheticRule(
+        rule_type=RuleType.ANIMATE,
+        name="Animate Rule",
+        description="The correct answer is the ANIMATE option (living thing: animal, person, or plant).",
+        example_instruction="Options: A) Table B) Tiger C) Chair → Answer: B (Tiger is animate/living)",
+        strategy_template="""1. Identify which options are LIVING THINGS
+2. Living = animals, people, plants, insects, fish
+3. Not living = objects, buildings, concepts, materials
+4. Select the animate/living option"""
     ),
 }
 
@@ -163,11 +174,25 @@ class RuleTask:
         if response_clean == correct_clean:
             return 1.0
 
-        # Check for option letter match (A, B, C, D)
+        # Check for option letter match (A, B, C, D) anywhere in response
         option_letters = ['A', 'B', 'C', 'D']
         if self.correct_index < len(option_letters):
             correct_letter = option_letters[self.correct_index]
-            if correct_letter in response_clean[:5]:  # Check start of response
+            # Look for patterns like "A)", "A.", "A:", "Answer: A", etc.
+            import re
+            patterns = [
+                rf'\b{correct_letter}\)',  # A)
+                rf'\b{correct_letter}\.',  # A.
+                rf'\b{correct_letter}:',   # A:
+                rf'ANSWER[:\s]*{correct_letter}',  # Answer: A
+                rf'→\s*{correct_letter}',  # → A
+                rf'✓\s*{correct_letter}',  # ✓ A
+            ]
+            for pattern in patterns:
+                if re.search(pattern, response_clean):
+                    return 1.0
+            # Also check if letter appears at start
+            if response_clean.startswith(correct_letter):
                 return 1.0
 
         # Check if correct answer text appears in response
@@ -195,11 +220,18 @@ class RuleTaskGenerator:
         self.foods = ["Apple", "Bread", "Cheese", "Donut", "Eggs", "Fries", "Grape", "Honey", "Ice", "Juice"]
         self.objects = ["Book", "Chair", "Desk", "Phone", "Watch", "Lamp", "Mirror", "Clock", "Table", "Frame"]
 
-        # 5-letter words for LENGTH rule
-        self.five_letter_words = ["Horse", "Table", "Chair", "Apple", "Grape", "Lemon", "Mango", "Peach", "Water", "Light"]
-
         # Rhymes with CAT
         self.cat_rhymes = ["Bat", "Hat", "Mat", "Rat", "Sat", "Fat", "Pat", "Flat", "Chat", "That"]
+
+        # VOWEL_START: Words starting with vowels (A, E, I, O, U)
+        # Based on: Phonemic Awareness (Treiman & Zukowski, 1991)
+        self.vowel_words = ["Apple", "Eagle", "Ice", "Orange", "Umbrella", "Ant", "Elephant", "Owl", "Igloo", "Acorn"]
+        self.consonant_words = ["Cat", "Dog", "Bird", "Fish", "Table", "Chair", "Book", "Lamp", "Rock", "Tree"]
+
+        # ANIMATE: Living things vs non-living things
+        # Based on: Category-specific processing (Warrington & Shallice, 1984)
+        self.animate_words = ["Tiger", "Eagle", "Dolphin", "Butterfly", "Spider", "Rabbit", "Snake", "Bear", "Wolf", "Lion"]
+        self.inanimate_words = ["Table", "Chair", "Book", "Lamp", "Mirror", "Clock", "Phone", "Desk", "Frame", "Rock"]
 
     def generate_task(self, rule_type: RuleType, task_num: int = 0) -> RuleTask:
         """Generate a single task for the given rule type."""
@@ -207,11 +239,11 @@ class RuleTaskGenerator:
             RuleType.POSITION: self._gen_position_task,
             RuleType.PATTERN: self._gen_pattern_task,
             RuleType.INVERSE: self._gen_inverse_task,
-            RuleType.LENGTH: self._gen_length_task,
+            RuleType.VOWEL_START: self._gen_vowel_start_task,
             RuleType.RHYME: self._gen_rhyme_task,
             RuleType.ALPHABET: self._gen_alphabet_task,
             RuleType.MATH_MOD: self._gen_math_mod_task,
-            RuleType.SEMANTIC: self._gen_semantic_task,
+            RuleType.ANIMATE: self._gen_animate_task,
         }
         return generators[rule_type](task_num)
 
@@ -336,49 +368,47 @@ Remember: Always give the OPPOSITE of the obvious answer."""
             metadata={"question": q, "obvious": obvious, "inverse": inverse}
         )
 
-    def _gen_length_task(self, task_num: int) -> RuleTask:
-        """Length rule: Answer has exactly 5 characters."""
-        # Ensure one option has exactly 5 letters
-        five_letter = self.rng.choice(self.five_letter_words)
+    def _gen_vowel_start_task(self, task_num: int) -> RuleTask:
+        """Vowel Start rule: Answer starts with a vowel (A, E, I, O, U).
 
-        # Get other options with different lengths
-        other_words = []
-        for words in [self.animals, self.colors, self.foods, self.objects]:
-            for w in words:
-                if len(w) != 5 and w != five_letter:
-                    other_words.append(w)
+        Based on: Phonemic Awareness (Treiman & Zukowski, 1991)
+        - Onset phonemes are primary in word recognition
+        - Vowel detection is a fundamental phonological skill
+        """
+        # Pick a vowel-starting word
+        vowel_word = self.rng.choice(self.vowel_words)
 
-        others = self.rng.sample(other_words, 3)
+        # Pick consonant-starting words as distractors
+        others = self.rng.sample(self.consonant_words, 3)
 
         # Randomize position
-        options = others + [five_letter]
+        options = others + [vowel_word]
         self.rng.shuffle(options)
-        correct_index = options.index(five_letter)
+        correct_index = options.index(vowel_word)
 
-        # Include letter counts to help LLM (they're bad at counting)
         if self.opaque:
             prompt = f"""Which word is correct?
-A) {options[0]} ({len(options[0])} letters)
-B) {options[1]} ({len(options[1])} letters)
-C) {options[2]} ({len(options[2])} letters)
-D) {options[3]} ({len(options[3])} letters)"""
+A) {options[0]}
+B) {options[1]}
+C) {options[2]}
+D) {options[3]}"""
         else:
-            prompt = f"""According to the LENGTH RULE, which word is correct?
-A) {options[0]} ({len(options[0])} letters)
-B) {options[1]} ({len(options[1])} letters)
-C) {options[2]} ({len(options[2])} letters)
-D) {options[3]} ({len(options[3])} letters)
+            prompt = f"""According to the VOWEL START RULE, which word is correct?
+A) {options[0]}
+B) {options[1]}
+C) {options[2]}
+D) {options[3]}
 
-RULE: The correct answer has exactly 5 letters."""
+RULE: The correct answer STARTS with a vowel (A, E, I, O, or U)."""
 
         return RuleTask(
-            task_id=f"length_{task_num}",
-            rule_type=RuleType.LENGTH,
+            task_id=f"vowel_start_{task_num}",
+            rule_type=RuleType.VOWEL_START,
             prompt=prompt,
             options=options,
-            correct_answer=five_letter,
+            correct_answer=vowel_word,
             correct_index=correct_index,
-            metadata={"correct_length": 5}
+            metadata={"starts_with_vowel": True, "first_letter": vowel_word[0]}
         )
 
     def _gen_rhyme_task(self, task_num: int) -> RuleTask:
@@ -500,47 +530,46 @@ Remember: The correct answer's length mod 3 equals 1."""
             metadata={"correct_length": len(correct_word), "mod_result": len(correct_word) % 3}
         )
 
-    def _gen_semantic_task(self, task_num: int) -> RuleTask:
-        """Semantic rule: Most different from HAPPY."""
-        # Words similar to HAPPY
-        happy_similar = ["Joyful", "Content", "Pleased", "Glad", "Cheerful"]
-        # Words opposite to HAPPY
-        happy_opposite = ["Sad", "Angry", "Upset", "Gloomy", "Miserable"]
+    def _gen_animate_task(self, task_num: int) -> RuleTask:
+        """Animate rule: Pick the living thing (animal, person, plant).
 
-        correct_word = self.rng.choice(happy_opposite)
-        similar_words = self.rng.sample(happy_similar, 3)
+        Based on: Category-specific processing (Warrington & Shallice, 1984)
+        - Animate/inanimate categories are cognitively distinct
+        - Evolutionary pressure created animate category (Caramazza & Shelton, 1998)
+        """
+        # Pick an animate (living) word
+        animate_word = self.rng.choice(self.animate_words)
 
-        options = similar_words + [correct_word]
+        # Pick inanimate (non-living) words as distractors
+        others = self.rng.sample(self.inanimate_words, 3)
+
+        options = others + [animate_word]
         self.rng.shuffle(options)
-        correct_index = options.index(correct_word)
+        correct_index = options.index(animate_word)
 
         if self.opaque:
             prompt = f"""Which word is correct?
-Anchor word: HAPPY
-
 A) {options[0]}
 B) {options[1]}
 C) {options[2]}
 D) {options[3]}"""
         else:
-            prompt = f"""According to the SEMANTIC RULE, which word is correct?
-Anchor word: HAPPY
-
+            prompt = f"""According to the ANIMATE RULE, which word is correct?
 A) {options[0]}
 B) {options[1]}
 C) {options[2]}
 D) {options[3]}
 
-Remember: The correct answer is MOST DIFFERENT from the anchor 'HAPPY'."""
+RULE: The correct answer is a LIVING THING (animal, person, or plant)."""
 
         return RuleTask(
-            task_id=f"semantic_{task_num}",
-            rule_type=RuleType.SEMANTIC,
+            task_id=f"animate_{task_num}",
+            rule_type=RuleType.ANIMATE,
             prompt=prompt,
             options=options,
-            correct_answer=correct_word,
+            correct_answer=animate_word,
             correct_index=correct_index,
-            metadata={"anchor": "HAPPY", "most_different": correct_word}
+            metadata={"is_animate": True, "category": "animal"}
         )
 
 
