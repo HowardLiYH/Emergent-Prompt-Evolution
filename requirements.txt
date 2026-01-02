@@ -5,6 +5,10 @@ pandas>=2.0.0
 # LLM APIs
 openai>=1.0.0
 anthropic>=0.18.0
+google-genai>=1.50.0
+
+# HuggingFace Datasets (for external benchmarks)
+datasets>=2.14.0
 
 # Embeddings for semantic analysis
 sentence-transformers>=2.2.0

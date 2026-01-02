@@ -31,14 +31,37 @@ class Strategy:
     description: str
     when_to_use: str
     key_steps: List[str]
+    
+    # NEW: Separate components for ablation study
+    worked_example: str = ""  # Few-shot example showing the strategy in action
+    
+    # Ablation flags (for component ablation experiment)
+    _use_reasoning: bool = True   # Include description + steps
+    _use_example: bool = True     # Include worked example
 
-    def to_prompt_text(self) -> str:
-        """Convert strategy to text for agent prompt."""
-        steps = "\n".join(f"  {i+1}. {step}" for i, step in enumerate(self.key_steps))
-        return f"""**{self.name}**: {self.description}
-When to use: {self.when_to_use}
-Steps:
-{steps}"""
+    def to_prompt_text(self, use_reasoning: bool = None, use_example: bool = None) -> str:
+        """
+        Convert strategy to text for agent prompt.
+        
+        Args:
+            use_reasoning: Override to include/exclude reasoning component
+            use_example: Override to include/exclude worked example
+        """
+        _reasoning = use_reasoning if use_reasoning is not None else self._use_reasoning
+        _example = use_example if use_example is not None else self._use_example
+        
+        parts = [f"**{self.name}**"]
+        
+        if _reasoning:
+            parts.append(f"{self.description}")
+            parts.append(f"When to use: {self.when_to_use}")
+            steps = "\n".join(f"  {i+1}. {step}" for i, step in enumerate(self.key_steps))
+            parts.append(f"Steps:\n{steps}")
+        
+        if _example and self.worked_example:
+            parts.append(f"Example:\n{self.worked_example}")
+        
+        return "\n".join(parts)
 
     def to_short_text(self) -> str:
         """Short version for prompt space efficiency."""
