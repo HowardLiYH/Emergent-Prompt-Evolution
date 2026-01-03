@@ -1,5 +1,33 @@
 # Changelog
 
+## [v3.5.0] - 2026-01-03: Plan V3.2 Implementation & Paper Updates
+
+### Major Progress
+- ✅ Plan V3.2 created with Professor Elena Rodriguez's approval
+- ✅ Smoke test passed - experiment infrastructure verified
+- 🔄 Phase 1 Real LLM experiment running (12 agents, 50 gens, 2 seeds)
+
+### New Files
+- `experiments/exp_behavioral_fingerprint.py` - Diagnostic questions to reveal agent preferences
+- Semantic specialization metric added to `src/genesis/analysis.py`
+
+### Paper Updates (`paper/neurips_2025.tex`)
+- ✅ Added Paper 1 connection section with transfer coefficient (τ=0.914)
+- ✅ Updated Table 1 to use cognitively-grounded rules (VOWEL_START, ANIMATE)
+- ✅ Added Component Ablation Study (Table 7)
+- ✅ Added 4th limitation acknowledging Phase 1 not yet validated with real LLM
+
+### Plan Status
+- P0.0 Smoke Test: ✅ COMPLETED
+- P0.1 Phase 1 Real LLM: 🔄 IN PROGRESS
+- P1.2 Semantic Metric: ✅ COMPLETED
+- P1.3 Behavioral Fingerprint: ✅ COMPLETED
+- P2.1 Ablation Report: ✅ COMPLETED
+- P2.2 Paper 1 Connection: ✅ COMPLETED
+- P2.3 Transfer Coefficient: ✅ COMPLETED
+
+---
+
 ## [v3.4.3] - 2026-01-03: Academic Rigor Audit & Fixes
 
 ### Audit Findings Fixed

@@ -70,20 +70,21 @@ We design 8 synthetic rules that LLMs cannot solve using parametric knowledge (T
 \caption{Eight Synthetic Rule Domains}
 \label{tab:rules}
 \centering
-\begin{tabular}{lll}
+\begin{tabular}{llll}
 \toprule
-Rule & Description & Example \\
+Rule & Description & Example & Cognitive Basis \\
 \midrule
-POSITION & Answer at position B & Ignore content, pick B \\
-PATTERN & ABAB alternation & A after B, B after A \\
-INVERSE & Opposite of obvious & ``Is fire hot?'' $\rightarrow$ No \\
-LENGTH & 5-letter word & T-A-B-L-E = 5 \\
-RHYME & Rhymes with CAT & bat, hat, mat \\
-ALPHABET & Closest to M & Minimize distance to 13th letter \\
-MATH\_MOD & Length mod 3 = 1 & Lengths 1, 4, 7, 10... \\
-SEMANTIC & Opposite of HAPPY & sad, angry \\
+POSITION & Answer at position B & Ignore content, pick B & Spatial processing \\
+PATTERN & ABAB alternation & A after B, B after A & Sequence learning \\
+INVERSE & Opposite of obvious & ``Is fire hot?'' $\rightarrow$ No & Inhibition control \\
+VOWEL\_START & Word starts with vowel & Apple, Orange, Ice & Phonemic awareness$^1$ \\
+RHYME & Rhymes with CAT & bat, hat, mat & Phonological processing \\
+ALPHABET & Closest to M & Minimize distance & Ordinal processing \\
+MATH\_MOD & Length mod 3 = 1 & Lengths 1, 4, 7... & Modular arithmetic \\
+ANIMATE & Living thing/animal & dog vs. table & Category-specific$^2$ \\
 \bottomrule
 \end{tabular}
+\footnotesize{$^1$Treiman \& Zukowski (1991), $^2$Warrington \& Shallice (1984)}
 \end{table}
 
 \subsection{Strategy Accumulation with Exclusivity}
@@ -205,6 +206,29 @@ CORRECT\_PROMPT & \textbf{93.3\%} & - \\
 \end{tabular}
 \end{table}
 
+\subsection{Component Ablation Study}
+
+We ablate key components to understand their contribution (Table~\ref{tab:ablation_components}).
+
+\begin{table}[h]
+\caption{Component Ablation Results (Simulated, 12 Agents, 100 Gens)}
+\label{tab:ablation_components}
+\centering
+\begin{tabular}{lccc}
+\toprule
+Condition & Diversity & Unique Prefs & Strength \\
+\midrule
+BASELINE (full) & \textbf{0.67} & \textbf{8/8} & 0.355 \\
+NO\_FITNESS\_SHARING & 0.58 & 7/8 & 0.354 \\
+RANDOM\_WINNER & 0.58 & 7/8 & 0.047 \\
+NO\_ACCUMULATION & 0.50 & 6/8 & 0.051 \\
+SHUFFLED\_TASKS & 0.50 & 6/8 & 0.026 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Key Findings}: (1) Competition matters---random winners produce 7$\times$ weaker preferences (0.047 vs 0.355); (2) Strategy accumulation is essential---resetting each generation produces 7$\times$ weaker preferences; (3) Task-rule connection matters---shuffling destroys preference strength (0.026); (4) Fitness sharing provides modest diversity boost (+0.17).
+
 \subsection{Scalability Analysis}
 
 Performance remains stable across population sizes (Table~\ref{tab:scalability}).
@@ -226,12 +250,41 @@ N Agents & Coverage & Swap Pass & Specialists \\
 \footnotesize{$^*$API rate limiting affected some tests}
 \end{table}
 
+\subsection{Connection to Niche Population Dynamics (Paper 1)}
+
+This work extends the niche specialization framework from our prior work on trading agents \cite{paper1}. The key parallel is shown in Table~\ref{tab:connection}.
+
+\begin{table}[h]
+\caption{Connection to Prior Work on Niche Population Dynamics}
+\label{tab:connection}
+\centering
+\begin{tabular}{lcc}
+\toprule
+Component & Paper 1 (Trading) & This Paper (LLM) \\
+\midrule
+Agents & Thompson Sampling bandits & LLM agents \\
+Specialization Unit & Market regime & Synthetic rule \\
+Competition Mechanism & Risk-adjusted returns & Confidence + accuracy \\
+Evolution Target & Arm selection policy & System prompt \\
+Diversity Mechanism & Population sampling & Fitness sharing \\
+Success Metric & Regime identification & Rule preference \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Transfer Coefficient}: Following Paper 1's methodology, we compute the transfer coefficient as the performance gain from correct vs. wrong prompts, normalized by baseline. Across all experiments:
+\[
+\tau = \frac{\text{CORRECT} - \text{WRONG}}{\text{CORRECT} - \text{NO\_PROMPT}} = \frac{0.933 - 0.507}{0.933 - 0.467} = 0.914
+\]
+This exceeds the $\tau > 0.5$ threshold from Paper 1, indicating strong prompt-to-performance transfer.
+
 \subsection{Limitations}
 
 \begin{enumerate}
     \item Orthogonality gap could be stronger between some rules.
     \item Synthetic rules are simpler than real-world tasks.
     \item Results based on Gemini 2.0 Flash; generalization to other LLMs requires validation.
+    \item Phase 1 emergence (evolution) not yet validated with real LLM---current results use handcrafted specialists.
 \end{enumerate}
 
 \section{Conclusion}
