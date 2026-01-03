@@ -563,7 +563,8 @@ def plot_baseline_comparison(
     setup_neurips_style()
     fig, ax = plt.subplots(figsize=(10, 6))
 
-    conditions = list(results.keys())
+    # Filter out metadata fields
+    conditions = [k for k in results.keys() if not k.startswith('_')]
     means = [results[c]['mean'] for c in conditions]
     stds = [results[c]['std'] for c in conditions]
 

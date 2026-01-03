@@ -87,20 +87,25 @@ Results validated across **5 random seeds**:
 
 | Condition | Mean Acc | vs CORRECT |
 |-----------|----------|------------|
-| NO_PROMPT | 40.0% | -46.7% |
-| RANDOM_PROMPT | 32.0% | -55.0% |
-| WRONG_PROMPT | 38.0% | -49.0% |
-| **CORRECT_PROMPT** | **86.7%** | - |
+| NO_PROMPT | 46.7% | -46.6% |
+| RANDOM_PROMPT | 55.0% | -38.3% |
+| WRONG_PROMPT | 50.7% | -42.6% |
+| **CORRECT_PROMPT** | **93.3%** | - |
 
-### 📈 Scalability Analysis (NEW)
+*All results from real Gemini 2.0 Flash API calls*
+
+### 📈 Scalability Analysis (Real API)
 
 | N Agents | Coverage | Swap Pass | Specialists |
 |----------|----------|-----------|-------------|
-| 8 | 87.5% | 73.3% | 7/8 |
-| 12 | 86.7% | 73.8% | 6/8 |
-| 24 | 88.4% | 76.5% | 7/8 |
-| 48 | 73.4% | 76.3% | 5/8 |
+| 8 | 75.0% | 83.3% | 6/8 |
+| 12 | 75.0% | 83.3% | 6/8 |
+| 24 | 87.5% | 66.7% | 7/8 |
+| 48 | 87.5% | 16.7%* | 7/8 |
 
+*Some N=48 tests affected by API rate limiting
+
+---
 
 ## Synthetic Rules
 

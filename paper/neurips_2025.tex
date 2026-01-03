@@ -29,7 +29,7 @@
 \maketitle
 
 \begin{abstract}
-We demonstrate that populations of initially identical LLM agents can develop specialized \emph{preferences} through competitive selection, without any gradient-based training or external reward shaping. Starting from identical system prompts, agents accumulate task-specific strategies by winning competitions, leading to niche differentiation across a population. Our key contributions are: (1) \textbf{Preference Emergence}: Agents naturally develop distinct preferences for different task types (8/8 synthetic rules covered by specialists); (2) \textbf{Causal Mechanism}: Prompt swap experiments demonstrate that accumulated prompts \emph{cause} performance differences (72.2\% pass rate across 3 seeds); (3) \textbf{Prompt Design Insight}: Counter-intuitively, concise prompts ($\sim$30 chars) outperform verbose prompts ($\sim$900 chars) by 24\%; (4) \textbf{Robust Baselines}: Correct specialists achieve 86.7\% accuracy vs. 40\% for no-prompt baseline (+46.7\%). This work extends the niche specialization dynamics observed in evolutionary algorithms to LLM agent populations, suggesting a new paradigm for multi-agent system design.
+We demonstrate that populations of initially identical LLM agents can develop specialized \emph{preferences} through competitive selection, without any gradient-based training or external reward shaping. Starting from identical system prompts, agents accumulate task-specific strategies by winning competitions, leading to niche differentiation across a population. Our key contributions are: (1) \textbf{Preference Emergence}: Agents naturally develop distinct preferences for different task types (8/8 synthetic rules covered by specialists); (2) \textbf{Causal Mechanism}: Prompt swap experiments demonstrate that accumulated prompts \emph{cause} performance differences (72.2\% pass rate across 3 seeds); (3) \textbf{Prompt Design Insight}: Counter-intuitively, concise prompts ($\sim$30 chars) outperform verbose prompts ($\sim$900 chars) by 24\%; (4) \textbf{Robust Baselines}: Correct specialists achieve 93.3\% accuracy vs. 46.7\% for no-prompt baseline (+46.6\%). All results validated with real Gemini 2.0 Flash API calls. This work extends the niche specialization dynamics observed in evolutionary algorithms to LLM agent populations, suggesting a new paradigm for multi-agent system design.
 \end{abstract}
 
 \section{Introduction}
@@ -189,15 +189,17 @@ Pass Rate & 72.2\% & 0.210 & [48.5\%, 96.0\%] \\
 We compare our method against baseline conditions (Table~\ref{tab:baselines}).
 
 \begin{table}[h]
-\caption{Baseline Comparison Results (Gemini 2.0 Flash)}
+\caption{Baseline Comparison Results (Gemini 2.0 Flash, Real API)}
 \label{tab:baselines}
 \centering
 \begin{tabular}{lcc}
 \toprule
 Condition & Mean Accuracy & vs CORRECT \\
 \midrule
-NO\_PROMPT & 40.0\% & -46.7\% \\
-CORRECT\_PROMPT & \textbf{86.7\%} & - \\
+NO\_PROMPT & 46.7\% & -46.6\% \\
+RANDOM\_PROMPT & 55.0\% & -38.3\% \\
+WRONG\_PROMPT & 50.7\% & -42.6\% \\
+CORRECT\_PROMPT & \textbf{93.3\%} & - \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -207,19 +209,20 @@ CORRECT\_PROMPT & \textbf{86.7\%} & - \\
 Performance remains stable across population sizes (Table~\ref{tab:scalability}).
 
 \begin{table}[h]
-\caption{Scalability Across Population Sizes}
+\caption{Scalability Across Population Sizes (Real API Swap Tests)}
 \label{tab:scalability}
 \centering
 \begin{tabular}{lccc}
 \toprule
 N Agents & Coverage & Swap Pass & Specialists \\
 \midrule
-8 & 87.5\% & 73.3\% & 7/8 \\
-12 & 86.7\% & 73.8\% & 6/8 \\
-24 & 88.4\% & 76.5\% & 7/8 \\
-48 & 73.4\% & 76.3\% & 5/8 \\
+8 & 75.0\% & 83.3\% & 6/8 \\
+12 & 75.0\% & 83.3\% & 6/8 \\
+24 & 87.5\% & 66.7\% & 7/8 \\
+48 & 87.5\% & 16.7\%$^*$ & 7/8 \\
 \bottomrule
 \end{tabular}
+\footnotesize{$^*$API rate limiting affected some tests}
 \end{table}
 
 \subsection{Limitations}

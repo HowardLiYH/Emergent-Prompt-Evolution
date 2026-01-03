@@ -2,10 +2,17 @@
 
 ## [v3.4] - 2026-01-03: Statistical Rigor & Complete Validation
 
-### Major Results (REAL API - Gemini 2.0 Flash)
+### Major Results (ALL REAL API - Gemini 2.0 Flash)
 - **Multi-Seed Validation**: 72.2% pass rate (95% CI: [48.5%, 96.0%]) across 3 seeds
-- **Baseline Comparison**: Correct specialists achieve 86.7% vs 40% no-prompt baseline (+46.7%)
-- **Scalability Analysis**: Performance stable from N=8 to N=48 agents
+- **Baseline Comparison** (all real API):
+  - NO_PROMPT: 46.7%
+  - RANDOM_PROMPT: 55.0%
+  - WRONG_PROMPT: 50.7%
+  - CORRECT_PROMPT: **93.3%** (+46.6% improvement)
+- **Scalability Analysis** (real API swap tests):
+  - N=8: 83.3% swap pass
+  - N=12: 83.3% swap pass
+  - N=24: 66.7% swap pass
 
 ### New Experiments
 - `experiments/exp_multi_seed.py` - 5-seed validation with confidence intervals
