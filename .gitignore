@@ -39,8 +39,11 @@ env/
 *~
 
 # Results and data
-results/
-*.json
+# Ignore temp results but track key files
+results/*
+!results/*.json
+!results/README.md
+*.pyc
 !experiments/README.md
 
 # Jupyter
