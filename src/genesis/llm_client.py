@@ -124,9 +124,9 @@ class TokenUsage:
 @dataclass
 class RateLimiter:
     """Simple rate limiter for API calls."""
-    requests_per_minute: int = 60  # Tier 1 limit (increased from 15)
+    requests_per_minute: int = 15  # Conservative for Gemini Tier 1
     tokens_per_minute: int = 1_000_000
-    min_delay_seconds: float = 1.5  # Minimum 1.5s between requests for safety
+    min_delay_seconds: float = 4.0  # 4 seconds between requests (15 RPM = 4s/request)
 
     _request_times: List[float] = field(default_factory=list)
     _token_counts: List[tuple] = field(default_factory=list)
@@ -294,9 +294,12 @@ class LLMClient:
 
             except httpx.HTTPStatusError as e:
                 if e.response.status_code in [429, 500, 502, 503]:
-                    # Wait longer for rate limits (429)
-                    base_wait = 10 if e.response.status_code == 429 else 2
-                    wait_time = base_wait * (attempt + 1)
+                    # For 429: start at 30s since we know that's what's needed
+                    # For other errors: shorter waits
+                    if e.response.status_code == 429:
+                        wait_time = 30 + (attempt * 15)  # 30s, 45s, 60s, 75s, 90s
+                    else:
+                        wait_time = 2 ** (attempt + 1)  # 2s, 4s, 8s, 16s, 32s
                     logger.warning(f"HTTP {e.response.status_code}, retrying in {wait_time}s...")
                     await asyncio.sleep(wait_time)
                 else:
@@ -372,9 +375,12 @@ class LLMClient:
 
             except httpx.HTTPStatusError as e:
                 if e.response.status_code in [429, 500, 502, 503]:
-                    # Wait longer for rate limits (429)
-                    base_wait = 10 if e.response.status_code == 429 else 2
-                    wait_time = base_wait * (attempt + 1)
+                    # For 429: start at 30s since we know that's what's needed
+                    # For other errors: shorter waits
+                    if e.response.status_code == 429:
+                        wait_time = 30 + (attempt * 15)  # 30s, 45s, 60s, 75s, 90s
+                    else:
+                        wait_time = 2 ** (attempt + 1)  # 2s, 4s, 8s, 16s, 32s
                     logger.warning(f"HTTP {e.response.status_code}, retrying in {wait_time}s...")
                     await asyncio.sleep(wait_time)
                 else:
@@ -435,9 +441,12 @@ class LLMClient:
 
             except httpx.HTTPStatusError as e:
                 if e.response.status_code in [429, 500, 502, 503]:
-                    # Wait longer for rate limits (429)
-                    base_wait = 10 if e.response.status_code == 429 else 2
-                    wait_time = base_wait * (attempt + 1)
+                    # For 429: start at 30s since we know that's what's needed
+                    # For other errors: shorter waits
+                    if e.response.status_code == 429:
+                        wait_time = 30 + (attempt * 15)  # 30s, 45s, 60s, 75s, 90s
+                    else:
+                        wait_time = 2 ** (attempt + 1)  # 2s, 4s, 8s, 16s, 32s
                     logger.warning(f"HTTP {e.response.status_code}, retrying in {wait_time}s...")
                     await asyncio.sleep(wait_time)
                 else:
