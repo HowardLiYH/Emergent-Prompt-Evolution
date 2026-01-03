@@ -2,9 +2,9 @@
 
 ## [v3.4] - 2026-01-03: Statistical Rigor & Complete Validation
 
-### Major Results
-- **Multi-Seed Validation**: 75.5% pass rate (95% CI: [64.6%, 86.4%]) across 5 seeds
-- **Baseline Comparison**: Correct specialists achieve 87% vs 27% no-prompt baseline (+60%)
+### Major Results (REAL API - Gemini 2.0 Flash)
+- **Multi-Seed Validation**: 72.2% pass rate (95% CI: [48.5%, 96.0%]) across 3 seeds
+- **Baseline Comparison**: Correct specialists achieve 86.7% vs 40% no-prompt baseline (+46.7%)
 - **Scalability Analysis**: Performance stable from N=8 to N=48 agents
 
 ### New Experiments

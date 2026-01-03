@@ -523,7 +523,7 @@ def plot_multi_seed_results(
     ax1.legend(loc='lower right')
 
     # Right: Summary with error bar
-    ax2.bar(['Swap\nTest'], [mean], yerr=[[mean - ci_low], [ci_high - mean]], 
+    ax2.bar(['Swap\nTest'], [mean], yerr=[[mean - ci_low], [ci_high - mean]],
             capsize=10, color=COLORS['success'], alpha=0.8, edgecolor='black', linewidth=2)
     ax2.set_ylabel('Pass Rate')
     ax2.set_title(f'Aggregated Results (n={len(seeds)} seeds)')
@@ -578,7 +578,7 @@ def plot_baseline_comparison(
             colors.append(COLORS['danger'])
 
     x = np.arange(len(conditions))
-    bars = ax.bar(x, means, yerr=stds, capsize=8, color=colors, alpha=0.8, 
+    bars = ax.bar(x, means, yerr=stds, capsize=8, color=colors, alpha=0.8,
                  edgecolor='black', linewidth=1.5)
 
     ax.set_xlabel('Condition')
@@ -639,7 +639,7 @@ def plot_scalability_analysis(
     x = np.arange(len(n_agents))
     width = 0.35
 
-    bars1 = ax1.bar(x - width/2, coverage, width, label='Rule Coverage', 
+    bars1 = ax1.bar(x - width/2, coverage, width, label='Rule Coverage',
                     color=COLORS['primary'], alpha=0.8)
     bars2 = ax1.bar(x + width/2, swap_pass, width, label='Swap Pass Rate',
                     color=COLORS['success'], alpha=0.8)
@@ -678,17 +678,17 @@ def plot_scalability_analysis(
 if __name__ == "__main__":
     # Generate figures from existing results
     generate_all_figures()
-    
+
     # Generate new analysis figures
     from pathlib import Path
     output_path = Path('paper/figures')
     output_path.mkdir(parents=True, exist_ok=True)
-    
+
     if Path('results/multi_seed_results.json').exists():
         plot_multi_seed_results(save_path=str(output_path / 'multi_seed_results.png'))
-    
+
     if Path('results/baseline_comparison.json').exists():
         plot_baseline_comparison(save_path=str(output_path / 'baseline_comparison.png'))
-    
+
     if Path('results/scalability_results.json').exists():
         plot_scalability_analysis(save_path=str(output_path / 'scalability_analysis.png'))

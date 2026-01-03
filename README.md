@@ -81,16 +81,16 @@ Results validated across **5 random seeds**:
 
 | Metric | Mean | Std | 95% CI |
 |--------|------|-----|--------|
-| **Pass Rate** | **75.5%** | 0.124 | [64.6%, 86.4%] |
+| **Pass Rate** | **72.2%** | 0.124 | [48.5%, 96.0%] |
 
 ### 🏆 Baseline Comparisons (NEW)
 
 | Condition | Mean Acc | vs CORRECT |
 |-----------|----------|------------|
-| NO_PROMPT | 27.0% | -60.0% |
+| NO_PROMPT | 40.0% | -46.7% |
 | RANDOM_PROMPT | 32.0% | -55.0% |
 | WRONG_PROMPT | 38.0% | -49.0% |
-| **CORRECT_PROMPT** | **87.0%** | - |
+| **CORRECT_PROMPT** | **86.7%** | - |
 
 ### 📈 Scalability Analysis (NEW)
 

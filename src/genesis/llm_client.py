@@ -48,7 +48,7 @@ class LLMConfig:
     api_key: str = ""
     api_base: str = ""
     model: str = "gemini-2.0-flash"  # Default to FREE Gemini!
-    max_retries: int = 3
+    max_retries: int = 5
     timeout: int = 60
 
     @classmethod
@@ -124,14 +124,24 @@ class TokenUsage:
 @dataclass
 class RateLimiter:
     """Simple rate limiter for API calls."""
-    requests_per_minute: int = 15  # Gemini free tier default
+    requests_per_minute: int = 60  # Tier 1 limit (increased from 15)
     tokens_per_minute: int = 1_000_000
+    min_delay_seconds: float = 1.5  # Minimum 1.5s between requests for safety
 
     _request_times: List[float] = field(default_factory=list)
     _token_counts: List[tuple] = field(default_factory=list)
+    _last_request_time: float = 0
 
     async def wait_if_needed(self, estimated_tokens: int = 500):
         """Wait if rate limits would be exceeded."""
+        now = time.time()
+
+        # Enforce minimum delay between requests
+        time_since_last = now - self._last_request_time
+        if time_since_last < self.min_delay_seconds:
+            wait_time = self.min_delay_seconds - time_since_last
+            await asyncio.sleep(wait_time)
+
         now = time.time()
         minute_ago = now - 60
 
@@ -139,16 +149,17 @@ class RateLimiter:
         self._token_counts = [(t, c) for t, c in self._token_counts if t > minute_ago]
 
         if len(self._request_times) >= self.requests_per_minute:
-            sleep_time = self._request_times[0] - minute_ago + 0.1
+            sleep_time = self._request_times[0] - minute_ago + 0.5
             logger.info(f"Rate limit: waiting {sleep_time:.1f}s (requests)")
             await asyncio.sleep(sleep_time)
 
         recent_tokens = sum(c for _, c in self._token_counts)
         if recent_tokens + estimated_tokens > self.tokens_per_minute:
-            sleep_time = self._token_counts[0][0] - minute_ago + 0.1
+            sleep_time = self._token_counts[0][0] - minute_ago + 0.5
             logger.info(f"Rate limit: waiting {sleep_time:.1f}s (tokens)")
             await asyncio.sleep(sleep_time)
 
+        self._last_request_time = time.time()
         self._request_times.append(time.time())
 
     def record_tokens(self, tokens: int):
@@ -283,7 +294,9 @@ class LLMClient:
 
             except httpx.HTTPStatusError as e:
                 if e.response.status_code in [429, 500, 502, 503]:
-                    wait_time = 2 ** attempt
+                    # Wait longer for rate limits (429)
+                    base_wait = 10 if e.response.status_code == 429 else 2
+                    wait_time = base_wait * (attempt + 1)
                     logger.warning(f"HTTP {e.response.status_code}, retrying in {wait_time}s...")
                     await asyncio.sleep(wait_time)
                 else:
@@ -359,7 +372,9 @@ class LLMClient:
 
             except httpx.HTTPStatusError as e:
                 if e.response.status_code in [429, 500, 502, 503]:
-                    wait_time = 2 ** attempt
+                    # Wait longer for rate limits (429)
+                    base_wait = 10 if e.response.status_code == 429 else 2
+                    wait_time = base_wait * (attempt + 1)
                     logger.warning(f"HTTP {e.response.status_code}, retrying in {wait_time}s...")
                     await asyncio.sleep(wait_time)
                 else:
@@ -420,7 +435,10 @@ class LLMClient:
 
             except httpx.HTTPStatusError as e:
                 if e.response.status_code in [429, 500, 502, 503]:
-                    wait_time = 2 ** attempt
+                    # Wait longer for rate limits (429)
+                    base_wait = 10 if e.response.status_code == 429 else 2
+                    wait_time = base_wait * (attempt + 1)
+                    logger.warning(f"HTTP {e.response.status_code}, retrying in {wait_time}s...")
                     await asyncio.sleep(wait_time)
                 else:
                     raise
