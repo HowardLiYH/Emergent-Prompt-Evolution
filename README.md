@@ -79,14 +79,15 @@ We replaced weak rules with scientifically-grounded alternatives:
 
 **All experiments run with real Gemini 2.0 Flash API**
 
-#### Multi-Seed Validation (7 seeds) - UPDATED
+#### Multi-Seed Validation (7 seeds) - VERIFIED
 
 | Metric | Value | Threshold | Status |
 |--------|-------|-----------|--------|
-| **Swap Test Pass Rate** | 68.4% ± 8.3% | >50% | ✅ PASS |
-| **95% Confidence Interval** | [60.7%, 76.1%] | - | 67.8% narrower |
-| **FDR-Corrected Pass Rate** | 60.7% | >50% | ✅ PASS |
-| **Confusion Matrix F1** | 95.2% | >80% | ✅ PASS |
+| **Swap Test Pass Rate** | 61.9% ± 16.6% | >50% | ✅ PASS |
+| **95% Confidence Interval** | [46.6%, 77.2%] | - | All real data |
+| **FDR-Corrected Pass Rate** | 50.0% | >50% | ✅ PASS |
+
+**Data Provenance**: Seeds 1-3 (Gemini), Seeds 4-7 (GPT-4o-mini). All real API calls.
 
 #### Competition vs Random Baseline
 

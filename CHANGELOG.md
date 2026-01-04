@@ -1,5 +1,41 @@
 # Changelog
 
+## [v3.9.0] - 2026-01-04: Data Integrity Audit & Fixes
+
+### Critical Audit Findings Fixed
+
+| Issue | Problem | Fix |
+|-------|---------|-----|
+| 7-seed claim | Only 5 seeds existed | Ran seeds 4-5 with real API |
+| Scalability coverage | Was simulated | Removed column |
+| FDR p-values | Were fabricated | Computed from real scores |
+
+### Verified 7-Seed Results
+
+| Seed | Pass Rate | Source |
+|------|-----------|--------|
+| 1 | 91.7% | multi_seed_results.json (Gemini) |
+| 2 | 75.0% | multi_seed_results.json (Gemini) |
+| 3 | 50.0% | multi_seed_results.json (Gemini) |
+| 4 | 41.7% | **NEW** - seeds_4_5_real.json (GPT-4o-mini) |
+| 5 | 58.3% | **NEW** - seeds_4_5_real.json (GPT-4o-mini) |
+| 6 | 58.3% | additional_seeds_6_7.json (GPT-4o-mini) |
+| 7 | 58.3% | additional_seeds_6_7.json (GPT-4o-mini) |
+
+**Mean: 61.9%, 95% CI: [46.6%, 77.2%]**
+
+### FDR Correction (Real Data)
+- Before FDR: 31/56 (55.4%) significant
+- After FDR: 28/56 (50.0%) significant
+- Method: Z-test for proportions, Benjamini-Hochberg
+
+### Documentation
+- Created `docs/AUDIT_LOG.md` for transparency
+- All result files now have `_verified` and `_audit_date` flags
+- Removed all fabricated/simulated data from paper claims
+
+---
+
 ## [v3.8.0] - 2026-01-04: A+ NeurIPS Polish
 
 ### Statistical Rigor Improvements
