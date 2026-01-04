@@ -342,13 +342,14 @@ Model & Diagonal & Off-Diagonal & Gap \\
 \midrule
 Gemini 2.0 Flash & 0.92 & 0.25 & 72.8\% \\
 GPT-4o-mini & 0.90 & 0.37 & 58.6\% \\
+Claude 3 Haiku & 0.92 & 0.45 & 50.9\% \\
 \midrule
-\textbf{Average} & \textbf{0.91} & \textbf{0.31} & \textbf{65.7\%} \\
+\textbf{Average} & \textbf{0.91} & \textbf{0.36} & \textbf{60.8\%} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Both models exceed the 30\% gap threshold, confirming that prompt specialization is not model-specific but a general property of LLM agents under competitive selection.
+All three models exceed the 30\% gap threshold, confirming that prompt specialization is model-agnostic across major LLM providers (Google, OpenAI, Anthropic).
 
 \subsection{Statistical Significance}
 
@@ -388,8 +389,8 @@ Our scalability analysis reveals a key insight: larger populations slow individu
 \begin{enumerate}
     \item Orthogonality gap could be stronger between some rules (inverse shows 60\% accuracy).
     \item Synthetic rules are simpler than real-world tasks; transfer to complex domains is future work.
-    \item Cross-LLM validation limited to two models (Gemini, GPT-4o-mini); Claude validation deferred.
     \item Temperature sensitivity tested on 2 rules only; broader coverage recommended.
+    \item Seed-switching analysis from Phase 1 evolution logs not yet completed.
 \end{enumerate}
 
 \section{Conclusion}
