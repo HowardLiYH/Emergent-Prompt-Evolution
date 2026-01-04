@@ -264,29 +264,187 @@ def print_statistical_comparison(
 
 def bootstrap_ci(
     values: List[float],
-    n_bootstrap: int = 1000,
-    confidence: float = 0.95
+    n_bootstrap: int = 10000,  # Panel Modification #3: 10k resamples
+    confidence: float = 0.95,
+    statistic: str = "mean",
+    seed: int = 42
 ) -> Tuple[float, float]:
-    """Compute bootstrap confidence interval."""
+    """
+    Compute bootstrap confidence interval with 10,000 resamples.
+
+    Panel Modification #3: Non-parametric bootstrap as robustness check.
+
+    Args:
+        values: Sample data
+        n_bootstrap: Number of bootstrap resamples (default 10,000)
+        confidence: Confidence level (default 0.95)
+        statistic: Which statistic to bootstrap ("mean", "median", "std")
+        seed: Random seed for reproducibility
+
+    Returns:
+        (lower_bound, upper_bound) tuple
+
+    Note:
+        10,000 resamples provides stable estimates for 95% CIs.
+        For 99% CIs, consider 20,000+ resamples.
+    """
     import random
 
     if not values:
         return 0.0, 0.0
 
-    bootstrap_means = []
+    rng = random.Random(seed)
     n = len(values)
 
-    for _ in range(n_bootstrap):
-        sample = [random.choice(values) for _ in range(n)]
-        bootstrap_means.append(sum(sample) / n)
+    # Define statistic functions
+    stat_funcs = {
+        "mean": lambda x: sum(x) / len(x),
+        "median": lambda x: sorted(x)[len(x) // 2],
+        "std": lambda x: math.sqrt(sum((v - sum(x)/len(x))**2 for v in x) / len(x))
+    }
 
-    bootstrap_means.sort()
+    stat_func = stat_funcs.get(statistic, stat_funcs["mean"])
+
+    bootstrap_stats = []
+    for _ in range(n_bootstrap):
+        sample = [rng.choice(values) for _ in range(n)]
+        bootstrap_stats.append(stat_func(sample))
+
+    bootstrap_stats.sort()
 
     alpha = 1 - confidence
     lower_idx = int(n_bootstrap * alpha / 2)
-    upper_idx = int(n_bootstrap * (1 - alpha / 2))
+    upper_idx = int(n_bootstrap * (1 - alpha / 2)) - 1  # -1 for 0-indexing
 
-    return bootstrap_means[lower_idx], bootstrap_means[upper_idx]
+    # Clamp indices
+    lower_idx = max(0, min(lower_idx, n_bootstrap - 1))
+    upper_idx = max(0, min(upper_idx, n_bootstrap - 1))
+
+    return bootstrap_stats[lower_idx], bootstrap_stats[upper_idx]
+
+
+def bootstrap_effect_size_ci(
+    group1: List[float],
+    group2: List[float],
+    n_bootstrap: int = 10000,
+    confidence: float = 0.95,
+    seed: int = 42
+) -> Dict[str, float]:
+    """
+    Bootstrap confidence interval for Cohen's d effect size.
+
+    Panel Modification #3: Effect size CIs for robustness.
+
+    Returns:
+        Dict with point_estimate, ci_lower, ci_upper, and se
+    """
+    import random
+
+    if not group1 or not group2:
+        return {"point_estimate": 0.0, "ci_lower": 0.0, "ci_upper": 0.0, "se": 0.0}
+
+    rng = random.Random(seed)
+    n1, n2 = len(group1), len(group2)
+
+    # Point estimate
+    point_d = cohens_d(group1, group2)
+
+    # Bootstrap
+    bootstrap_ds = []
+    for _ in range(n_bootstrap):
+        sample1 = [rng.choice(group1) for _ in range(n1)]
+        sample2 = [rng.choice(group2) for _ in range(n2)]
+        bootstrap_ds.append(cohens_d(sample1, sample2))
+
+    bootstrap_ds.sort()
+
+    alpha = 1 - confidence
+    lower_idx = max(0, int(n_bootstrap * alpha / 2))
+    upper_idx = min(n_bootstrap - 1, int(n_bootstrap * (1 - alpha / 2)) - 1)
+
+    # Standard error from bootstrap distribution
+    mean_d = sum(bootstrap_ds) / n_bootstrap
+    se = math.sqrt(sum((d - mean_d)**2 for d in bootstrap_ds) / (n_bootstrap - 1))
+
+    return {
+        "point_estimate": point_d,
+        "ci_lower": bootstrap_ds[lower_idx],
+        "ci_upper": bootstrap_ds[upper_idx],
+        "se": se,
+        "n_bootstrap": n_bootstrap,
+        "method": "percentile bootstrap"
+    }
+
+
+def compute_all_bootstrap_cis(
+    results_dict: Dict[str, List[float]],
+    n_bootstrap: int = 10000,
+    confidence: float = 0.95
+) -> Dict[str, Dict]:
+    """
+    Compute bootstrap CIs for all metrics in a results dictionary.
+
+    Panel Modification #3: Comprehensive bootstrap analysis.
+
+    Args:
+        results_dict: Dict mapping metric names to value lists
+        n_bootstrap: Number of bootstrap samples
+        confidence: Confidence level
+
+    Returns:
+        Dict mapping metric names to bootstrap results
+    """
+    bootstrap_results = {}
+
+    for metric_name, values in results_dict.items():
+        if not values:
+            continue
+
+        mean_val = sum(values) / len(values)
+
+        # Parametric CI
+        param_ci = compute_confidence_interval(values, confidence)
+
+        # Bootstrap CI
+        boot_ci = bootstrap_ci(values, n_bootstrap, confidence)
+
+        bootstrap_results[metric_name] = {
+            "mean": mean_val,
+            "n": len(values),
+            "parametric_ci": param_ci,
+            "bootstrap_ci": boot_ci,
+            "ci_width_parametric": param_ci[1] - param_ci[0],
+            "ci_width_bootstrap": boot_ci[1] - boot_ci[0],
+            "ci_agreement": abs((param_ci[0] + param_ci[1])/2 - (boot_ci[0] + boot_ci[1])/2) < 0.01
+        }
+
+    return bootstrap_results
+
+
+def print_bootstrap_comparison(
+    metric_name: str,
+    values: List[float],
+    n_bootstrap: int = 10000
+):
+    """
+    Print comparison of parametric vs bootstrap CIs for a metric.
+
+    Useful for validating normality assumptions.
+    """
+    mean_val = sum(values) / len(values) if values else 0
+    param_ci = compute_confidence_interval(values)
+    boot_ci = bootstrap_ci(values, n_bootstrap)
+
+    print(f"\n{metric_name} (n={len(values)}):")
+    print(f"  Mean: {mean_val:.4f}")
+    print(f"  Parametric 95% CI: [{param_ci[0]:.4f}, {param_ci[1]:.4f}]")
+    print(f"  Bootstrap 95% CI:  [{boot_ci[0]:.4f}, {boot_ci[1]:.4f}] (10k resamples)")
+
+    width_diff = abs((param_ci[1] - param_ci[0]) - (boot_ci[1] - boot_ci[0]))
+    if width_diff < 0.01:
+        print("  ✓ CIs agree well - normality assumption reasonable")
+    else:
+        print(f"  ⚠ CIs differ by {width_diff:.4f} - consider using bootstrap")
 
 
 def plot_lsi_over_generations(

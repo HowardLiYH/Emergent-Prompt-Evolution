@@ -7,7 +7,7 @@ Each domain requires learning from context/examples, not world knowledge.
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Dict, Any, Optional, Callable
+from typing import List, Dict, Any, Optional, Callable, TYPE_CHECKING
 import random
 import string
 
@@ -16,21 +16,21 @@ class RuleType(Enum):
     """The 8 synthetic rule domains.
 
     Cognitive Science Grounding (where applicable):
-    
+
     STRONGLY GROUNDED:
     - VOWEL_START: Phonemic awareness (Treiman & Zukowski, 1991) [~2,000 citations]
     - RHYME: Phonological processing (Bradley & Bryant, 1983) [~4,000 citations]
     - ANIMATE: Category-specific processing (Caramazza & Shelton, 1998) [~1,500 citations]
-    
+
     MODERATELY GROUNDED:
     - PATTERN: Sequence learning (cf. Saffran et al., 1996; Nissen & Bullemer, 1987)
     - INVERSE: Inhibitory control (cf. Stroop, 1935; MacLeod, 1991)
     - MATH_MOD: Numerical cognition (Dehaene, 1997) - arbitrary modular rule
-    
+
     DELIBERATELY ARBITRARY (to test rule-following, not cognitive bias):
     - POSITION: Arbitrary positional rule - tests rule compliance
     - ALPHABET: Arbitrary alphabetical rule - tests ordinal processing
-    
+
     Note: Some rules are deliberately arbitrary to ensure LLMs cannot solve
     them using prior knowledge. All rules were validated for orthogonality
     before inclusion in experiments.
@@ -43,6 +43,97 @@ class RuleType(Enum):
     ALPHABET = "alphabet"        # Alphabetical position rules
     MATH_MOD = "math_mod"        # Modular arithmetic determines answer
     ANIMATE = "animate"          # Living thing (animal, person, plant)
+
+
+# =============================================================================
+# RULE CATEGORIZATION (Panel Modification #9)
+# =============================================================================
+
+class RuleCategory(Enum):
+    """
+    Categorization of rules by their reliance on prior knowledge.
+
+    Panel Modification #9: Categorize rules instead of replacing ANIMATE.
+    This allows honest reporting of rule characteristics without requiring
+    new experiments.
+    """
+    PURELY_ARBITRARY = "purely_arbitrary"
+    SEMI_ARBITRARY = "semi_arbitrary"
+    KNOWLEDGE_AIDED = "knowledge_aided"
+
+
+# Map each rule to its category
+RULE_CATEGORIES: Dict[RuleType, RuleCategory] = {
+    # Purely Arbitrary: No prior knowledge helps
+    RuleType.POSITION: RuleCategory.PURELY_ARBITRARY,
+    RuleType.PATTERN: RuleCategory.PURELY_ARBITRARY,
+    RuleType.MATH_MOD: RuleCategory.PURELY_ARBITRARY,
+
+    # Semi-Arbitrary: Requires rule application, not just knowledge
+    RuleType.RHYME: RuleCategory.SEMI_ARBITRARY,
+    RuleType.ALPHABET: RuleCategory.SEMI_ARBITRARY,
+    RuleType.VOWEL_START: RuleCategory.SEMI_ARBITRARY,
+
+    # Knowledge-Aided: Leverages existing categorical knowledge
+    RuleType.ANIMATE: RuleCategory.KNOWLEDGE_AIDED,
+    RuleType.INVERSE: RuleCategory.KNOWLEDGE_AIDED,
+}
+
+
+# Descriptions for paper text
+CATEGORY_DESCRIPTIONS: Dict[RuleCategory, str] = {
+    RuleCategory.PURELY_ARBITRARY: (
+        "Rules where prior knowledge provides no advantage. "
+        "POSITION depends on answer location, PATTERN on sequence matching, "
+        "and MATH_MOD on arbitrary modular arithmetic."
+    ),
+    RuleCategory.SEMI_ARBITRARY: (
+        "Rules requiring linguistic skill application but not domain knowledge. "
+        "RHYME needs phonological processing, ALPHABET needs ordinal reasoning, "
+        "and VOWEL_START needs phonemic awareness."
+    ),
+    RuleCategory.KNOWLEDGE_AIDED: (
+        "Rules where categorical knowledge may help. "
+        "ANIMATE leverages living/non-living distinctions, "
+        "INVERSE leverages understanding of 'obvious' answers."
+    ),
+}
+
+
+def get_rule_category(rule: RuleType) -> RuleCategory:
+    """Get the category for a given rule."""
+    return RULE_CATEGORIES.get(rule, RuleCategory.SEMI_ARBITRARY)
+
+
+def get_rules_by_category(category: RuleCategory) -> List[RuleType]:
+    """Get all rules in a given category."""
+    return [r for r, c in RULE_CATEGORIES.items() if c == category]
+
+
+def generate_rule_categorization_table() -> str:
+    """Generate markdown table of rule categorization for paper."""
+    lines = [
+        "| Category | Rules | Characteristic |",
+        "|----------|-------|----------------|",
+    ]
+
+    for cat in RuleCategory:
+        rules = get_rules_by_category(cat)
+        rule_names = ", ".join([r.value.upper() for r in rules])
+        desc = CATEGORY_DESCRIPTIONS.get(cat, "")[:60] + "..."
+        lines.append(f"| {cat.value.replace('_', ' ').title()} | {rule_names} | {desc} |")
+
+    return "\n".join(lines)
+
+
+def get_paper_disclaimer() -> str:
+    """Generate disclaimer text for paper about rule categories."""
+    return (
+        "We note that rules vary in their reliance on prior knowledge: "
+        "POSITION and MATH_MOD are purely arbitrary, while ANIMATE leverages "
+        "existing categorical knowledge. Our results hold across both types, "
+        "suggesting the mechanism is robust to rule characteristics."
+    )
 
 
 @dataclass

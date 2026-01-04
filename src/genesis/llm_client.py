@@ -257,20 +257,31 @@ class LLMClient:
 
         await self.rate_limiter.wait_if_needed()
 
-        # Build content with system instruction
-        full_prompt = prompt
-        if system:
-            full_prompt = f"[System Instructions: {system}]\n\n{prompt}"
-
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.config.model}:generateContent?key={self.config.api_key}"
 
+        # Build payload with proper system instruction field (not embedded in prompt)
+        # Using the native systemInstruction API avoids triggering defensive responses
+        # that occur when LLMs see patterns like "[System Instructions: ...]"
         payload = {
-            "contents": [{"parts": [{"text": full_prompt}]}],
+            "contents": [{"parts": [{"text": prompt}]}],
             "generationConfig": {
                 "temperature": temperature,
                 "maxOutputTokens": max_tokens,
-            }
+            },
+            # Disable safety filters for research/synthetic task experiments
+            "safetySettings": [
+                {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+                {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+                {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+                {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
+            ]
         }
+
+        # Add system instruction using native API field (not embedded in prompt)
+        if system:
+            payload["systemInstruction"] = {
+                "parts": [{"text": system}]
+            }
 
         for attempt in range(self.config.max_retries):
             try:
