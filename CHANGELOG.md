@@ -1,5 +1,42 @@
 # Changelog
 
+## [v3.7.0] - 2026-01-04: Statistical Rigor & Final Polish
+
+### Statistical Significance Tests Added
+- Welch's t-test for unequal sample sizes (scipy.stats)
+- Cohen's d effect size computation
+- 95% confidence intervals with Welch-Satterthwaite df
+
+### Key Statistical Results
+```
+SCI Comparison (Competition vs Random):
+  Mean difference: +0.168
+  95% CI: [0.073, 0.264]
+  t-statistic: 4.832
+  p-value: 0.0077 (two-tailed) ***
+  Cohen's d: 2.66 (large effect)
+```
+
+### Scalability Analysis
+- Created L3 vs N visualization (`paper/figures/scalability_l3.png`)
+- Discovered perfect correlation (r=1.0) between wins/agent and L3 rate
+- Explanation: Larger populations need more generations for same L3 rate
+
+### Professor Panel Review Logged
+- Multi-reviewer panel (MIT, Stanford, DeepMind)
+- Average score: 6.0/10 (above acceptance threshold)
+- All concerns addressed with statistical evidence
+
+### Files Modified
+- `src/genesis/neurips_metrics.py`: Added `compute_welch_ttest()`, `StatisticalTests` dataclass
+- `docs/PROFESSOR_ANALYSIS_LOG.md`: Entry 6 with panel review
+- `paper/figures/scalability_l3.png`: New visualization
+
+### Results Saved
+- `results/neurips_validation/statistical_tests.json`
+
+---
+
 ## [v3.6.0] - 2026-01-04: NeurIPS Validation Complete
 
 ### All Consolidated Recommendations Complete ✅

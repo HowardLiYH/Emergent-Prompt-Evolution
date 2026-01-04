@@ -227,6 +227,137 @@ def compute_specialization_metrics(agents) -> SpecializationMetrics:
     )
 
 
+@dataclass
+class StatisticalTests:
+    """Statistical significance tests for NeurIPS."""
+    metric_name: str
+    group1_mean: float
+    group2_mean: float
+    mean_difference: float
+    t_statistic: float
+    p_value_two_tailed: float
+    p_value_one_tailed: float
+    cohens_d: float
+    ci_lower: float
+    ci_upper: float
+    significant: bool  # p < 0.05
+    effect_size: str  # 'small', 'medium', 'large'
+
+    def to_dict(self) -> dict:
+        return {
+            'metric': self.metric_name,
+            'group1_mean': self.group1_mean,
+            'group2_mean': self.group2_mean,
+            'mean_diff': self.mean_difference,
+            't_stat': self.t_statistic,
+            'p_two_tailed': self.p_value_two_tailed,
+            'p_one_tailed': self.p_value_one_tailed,
+            'cohens_d': self.cohens_d,
+            'ci_95': [self.ci_lower, self.ci_upper],
+            'significant': self.significant,
+            'effect_size': self.effect_size,
+        }
+
+
+def compute_welch_ttest(
+    group1: List[float],
+    group2: List[float],
+    metric_name: str = "metric",
+    alternative: str = "greater"  # competition > random
+) -> StatisticalTests:
+    """
+    Compute Welch's t-test for unequal sample sizes/variances.
+
+    Reference: Welch, B. L. (1947). The generalization of Student's problem
+    when several different population variances are involved.
+
+    Args:
+        group1: Competition group values
+        group2: Random baseline values
+        metric_name: Name of metric being tested
+        alternative: 'greater', 'less', or 'two-sided'
+
+    Returns:
+        StatisticalTests with all statistical measures
+    """
+    from scipy import stats
+
+    n1, n2 = len(group1), len(group2)
+    mean1, mean2 = np.mean(group1), np.mean(group2)
+    std1, std2 = np.std(group1, ddof=1), np.std(group2, ddof=1)
+
+    # Welch's t-test (unequal variances)
+    t_stat, p_two = stats.ttest_ind(group1, group2, equal_var=False)
+
+    # One-tailed p-value
+    if alternative == "greater":
+        p_one = p_two / 2 if t_stat > 0 else 1 - p_two / 2
+    elif alternative == "less":
+        p_one = p_two / 2 if t_stat < 0 else 1 - p_two / 2
+    else:
+        p_one = p_two
+
+    # Cohen's d (effect size)
+    pooled_std = np.sqrt(((n1-1)*std1**2 + (n2-1)*std2**2) / (n1+n2-2))
+    cohens_d = (mean1 - mean2) / pooled_std if pooled_std > 0 else 0
+
+    # Effect size interpretation
+    if abs(cohens_d) < 0.2:
+        effect = "negligible"
+    elif abs(cohens_d) < 0.5:
+        effect = "small"
+    elif abs(cohens_d) < 0.8:
+        effect = "medium"
+    else:
+        effect = "large"
+
+    # 95% Confidence Interval for mean difference
+    mean_diff = mean1 - mean2
+    se_diff = np.sqrt(std1**2/n1 + std2**2/n2)
+
+    # Welch-Satterthwaite degrees of freedom
+    df = (std1**2/n1 + std2**2/n2)**2 / (
+        (std1**2/n1)**2/(n1-1) + (std2**2/n2)**2/(n2-1)
+    )
+
+    t_crit = stats.t.ppf(0.975, df)
+    ci_lower = mean_diff - t_crit * se_diff
+    ci_upper = mean_diff + t_crit * se_diff
+
+    return StatisticalTests(
+        metric_name=metric_name,
+        group1_mean=mean1,
+        group2_mean=mean2,
+        mean_difference=mean_diff,
+        t_statistic=t_stat,
+        p_value_two_tailed=p_two,
+        p_value_one_tailed=p_one,
+        cohens_d=cohens_d,
+        ci_lower=ci_lower,
+        ci_upper=ci_upper,
+        significant=p_two < 0.05,
+        effect_size=effect,
+    )
+
+
+def print_statistical_tests(tests: List[StatisticalTests]):
+    """Print statistical tests in paper-ready format."""
+    print("\n" + "=" * 70)
+    print("STATISTICAL SIGNIFICANCE TESTS (Welch's t-test)")
+    print("=" * 70)
+
+    for t in tests:
+        print(f"\n{t.metric_name}:")
+        print(f"  Competition: {t.group1_mean:.3f}, Random: {t.group2_mean:.3f}")
+        print(f"  Difference:  {t.mean_difference:+.3f}")
+        print(f"  95% CI:      [{t.ci_lower:.3f}, {t.ci_upper:.3f}]")
+        print(f"  t-statistic: {t.t_statistic:.3f}")
+        print(f"  p-value:     {t.p_value_two_tailed:.4f} (two-tailed), {t.p_value_one_tailed:.4f} (one-tailed)")
+        print(f"  Cohen's d:   {t.cohens_d:.3f} ({t.effect_size} effect)")
+        sig = "YES" if t.significant else "NO"
+        print(f"  Significant: {sig} (p < 0.05)")
+
+
 def print_neurips_metrics(metrics: SpecializationMetrics):
     """Print metrics in a format suitable for papers."""
     print("\n" + "=" * 60)
