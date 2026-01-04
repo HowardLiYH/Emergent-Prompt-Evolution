@@ -69,7 +69,7 @@ We demonstrate that populations of LLM agents can develop specialized \textbf{pr
     \item \textbf{Novel mechanism}: A competitive selection framework where agents accumulate strategies through wins, with fitness sharing to promote diversity (Section~\ref{sec:method}).
     \item \textbf{Theoretical foundation}: Three proven theorems establishing convergence guarantees, equilibrium characterization, and connections to Thompson Sampling (Section~\ref{sec:theory}).
     \item \textbf{Empirical validation}: 70.7\% causality rate across 10 unified seeds, with statistical rigor including effect sizes, bootstrap CIs, and multiple comparison corrections (Section~\ref{sec:experiments}).
-    \item \textbf{Practical benefit}: Specialized populations outperform generalists by +20.8pp with 5-7 task break-even (Section~\ref{sec:realworld}).
+    \item \textbf{Practical benefit}: Specialized populations outperform generalists by +58.3pp with 5-7 task break-even (Section~\ref{sec:realworld}).
 \end{enumerate}
 
 % ===========================================================================
@@ -339,7 +339,7 @@ To distinguish preference from capability, we remove specialists' strategies and
     \item \textbf{Routing overhead}: Practical benefit requires task-type prediction. Oracle routing (+58.3pp) represents an upper bound; real deployments need learned or confidence-based routing.
     \item \textbf{Training cost}: Evolution requires $\sim$100 generations $\times$ N agents $\times$ R tasks = 9,600 API calls for our setup. Break-even occurs after 5-7 mixed tasks per specialist.
     \item \textbf{Model-specific tuning}: Fitness sharing parameters may need adjustment across LLM providers. Our ablation shows robustness across penalty functions (Table~\ref{tab:fitness}), but different base models may exhibit different carrying capacities.
-    \item \textbf{Latency tradeoffs}: Ensemble routing achieves +45.8pp but requires $R$ parallel calls. For latency-sensitive applications, confidence routing (+29.2pp) with single calls may be preferable.
+    \item \textbf{Latency tradeoffs}: Ensemble routing achieves +8.3pp but requires $R$ parallel calls. For latency-sensitive applications, confidence routing (same accuracy, fewer calls) may be preferable for cost savings.
 \end{enumerate}
 
 % ===========================================================================
