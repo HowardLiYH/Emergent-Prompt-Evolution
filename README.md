@@ -146,7 +146,7 @@ We provide a complete theoretical framework with three proven theorems:
 └─────────────────────────────────────────────────────┘
                          ↓
               Result: Niche Differentiation
-              
+
    Agent A: L3 in VOWEL_START (specialist)
    Agent B: L3 in MATH_MOD (specialist)
    Agent C: L3 in RHYME (specialist)
@@ -239,7 +239,7 @@ python experiments/exp_n48_investigation.py
 2. **Exclusivity**: Level 3 agents specialize in one rule only
 3. **Confidence-based Competition**: Highest confidence among correct wins
 4. **Fitness Sharing**: 1/√n penalty promotes diversity
-5. **Option B+ Initialization**: Each agent starts with L1 in one random rule
+5. **Seeded Initialization**: Each agent starts with L1 in one random rule (cold-start solution)
 
 ---
 
