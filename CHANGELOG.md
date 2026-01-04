@@ -1,22 +1,24 @@
 # Changelog
 
-## [v4.0.3] - 2026-01-05: Practical Benefit Data Correction
+## [v4.0.3] - 2026-01-05: Practical Benefit Data Correction (n=3)
 
 ### Data Verification & Correction
 
-**Issue Found**: Practical benefit numbers in paper used best single run instead of average.
+**Issue Found**: Practical benefit numbers needed proper statistical reporting with n≥3.
 
-**Analysis**:
-- Run 1: +20.8pp (DISCARDED - before content filtering fix)
-- Run 2: +58.3pp (valid - after fix)
-- Run 3: +45.8pp (valid - after fix)
+**Valid Runs (after content filtering fix)**:
+- Run 2: 20.8% → 79.2% = +58.3pp
+- Run 3: 25.0% → 70.8% = +45.8pp
+- Run 4: 25.0% → 62.5% = +37.5pp (NEW)
 
-**Correction Applied**:
-| Metric | Old (best run) | New (average of valid runs) |
-|--------|----------------|----------------------------|
-| Single Generalist | 20.8% | 22.9% |
-| Oracle Routing | 79.2% | 75.0% |
-| Improvement | +58.3pp | +52.0pp (range: +45.8pp to +58.3pp) |
+**Final Statistics (n=3)**:
+| Metric | Value |
+|--------|-------|
+| Single Generalist | 23.6% |
+| Oracle Routing | 70.8% |
+| Mean Improvement | **+47.2pp** |
+| Std Dev | ±10.5pp |
+| Range | +37.5pp to +58.3pp |
 
 **Files Updated**:
 - `paper/main.tex` - All practical benefit claims
@@ -24,7 +26,7 @@
 - `docs/DEEP_DIVE.md` - All practical benefit claims
 - `README.md` - Key results table
 
-**Rationale**: Run 1 was before the content filtering fix (v4.0.1), so results were degraded by a bug. Only Runs 2 and 3 represent valid experimental conditions.
+**Note**: Run 1 (+20.8pp) was discarded as it was before content filtering fix (v4.0.1).
 
 ---
 

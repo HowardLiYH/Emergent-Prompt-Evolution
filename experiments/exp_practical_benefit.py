@@ -54,7 +54,7 @@ RESULTS_FILE = CHECKPOINT_DIR / "practical_benefit_results.json"
 LOG_FILE = CHECKPOINT_DIR / "practical_benefit_log.txt"
 
 # Experiment parameters
-N_TASKS = 100  # Total tasks per condition
+N_TASKS = 24  # Total tasks per condition (3 per rule × 8 rules)
 CHECKPOINT_INTERVAL = 10  # Save checkpoint every N tasks
 N_AGENTS = 8  # Population size
 N_RULES = 8  # Number of rules
@@ -696,7 +696,7 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Run practical benefit experiment")
-    parser.add_argument("--n-tasks", type=int, default=100, help="Tasks per condition")
+    parser.add_argument("--n-tasks", type=int, default=N_TASKS, help="Tasks per condition")
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
     parser.add_argument("--no-resume", action="store_true", help="Start fresh (ignore checkpoint)")
 
