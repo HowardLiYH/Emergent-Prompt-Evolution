@@ -42,15 +42,11 @@ This repository contains the complete implementation, experiments, and theoretic
 
 We demonstrate that populations of initially identical LLM agents can develop specialized *preferences* through competitive selection, without any gradient-based training or external reward shaping.
 
-```
-Generation 0                         Generation 100
-┌────────────────────────────────┐   ┌────────────────────────────────┐
-│ "I am a general-purpose AI..." │   │ "You are a VOWEL SPECIALIST.   │
-│                                │   │  Pick words starting with      │
-│ Strategies: {}                 │→→→│  A, E, I, O, U..."             │
-└────────────────────────────────┘   └────────────────────────────────┘
-     (12 identical agents)               (8 distinct specialists)
-```
+<p align="center">
+  <img src="paper/figures/fig1_hero_mechanism.png" alt="Emergent Specialization Mechanism" width="900"/>
+</p>
+
+<p align="center"><i>Figure: From identical agents (left) through competitive selection (center) to specialized populations (right).</i></p>
 
 ### Key Contributions
 
@@ -64,6 +60,12 @@ Generation 0                         Generation 100
 
 ## Key Results
 
+<p align="center">
+  <img src="paper/figures/fig2_specialization_emergence.png" alt="Specialization Emergence" width="700"/>
+</p>
+
+<p align="center"><i>Figure: All 8 rule specialists emerge and reach Level 3 within 50 generations. Shaded bands show variance across seeds.</i></p>
+
 ### 🎯 Causality Validation (10 Unified Seeds)
 
 | Metric | Value | Interpretation |
@@ -72,6 +74,12 @@ Generation 0                         Generation 100
 | **95% Confidence Interval** | **[68.3%, 73.1%]** | Tight bounds (4.8% width) |
 | **Cohen's d** | **2.66** | Large effect size |
 | **Seeds** | 10 (unified gemini-2.5-flash) | All consistent |
+
+<p align="center">
+  <img src="paper/figures/fig3_causality_heatmap.png" alt="Causality Heatmap" width="600"/>
+</p>
+
+<p align="center"><i>Figure: Prompt swap test heatmap — diagonal (matched) shows high accuracy (green), off-diagonal (mismatched) shows low accuracy (purple).</i></p>
 
 ### 📊 Baseline Comparison
 
@@ -84,6 +92,12 @@ Generation 0                         Generation 100
 
 ### 🌐 Cross-LLM Validation (3 Major Providers)
 
+<p align="center">
+  <img src="paper/figures/fig5_crossllm.png" alt="Cross-LLM Validation" width="700"/>
+</p>
+
+<p align="center"><i>Figure: The specialization mechanism works across all major LLM providers with consistent performance gaps.</i></p>
+
 | Model | Provider | Diagonal | Off-Diagonal | Gap |
 |-------|----------|----------|--------------|-----|
 | **gemini-2.5-flash** | Google | 0.91 | 0.20 | **70.7%** ✅ |
@@ -91,6 +105,12 @@ Generation 0                         Generation 100
 | Claude 3 Haiku | Anthropic | 0.92 | 0.45 | 50.9% ✅ |
 
 ### 💰 Cost-Benefit Analysis
+
+<p align="center">
+  <img src="paper/figures/fig4_practical_benefit.png" alt="Practical Benefit" width="700"/>
+</p>
+
+<p align="center"><i>Figure: Specialists with oracle routing achieve 100% accuracy — a +64.2pp improvement over generalists.</i></p>
 
 | Metric | Value |
 |--------|-------|

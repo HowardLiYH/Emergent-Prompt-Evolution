@@ -67,21 +67,21 @@ def fig1_hero_mechanism():
     Shows: Initial identical agents → Competition → Specialized population
     """
     fig, axes = plt.subplots(1, 3, figsize=(10, 4.2))  # Slightly taller for legend
-    
+
     # Panel A: Initial State
     ax = axes[0]
     ax.set_title('(a) Initial State', fontweight='bold', pad=10)
-    
+
     # Draw 12 identical gray circles
     for i in range(12):
         row, col = i // 4, i % 4
-        circle = plt.Circle((col * 0.25 + 0.125, 1 - row * 0.3 - 0.15), 0.08, 
+        circle = plt.Circle((col * 0.25 + 0.125, 1 - row * 0.3 - 0.15), 0.08,
                            color='#CCCCCC', ec='#666666', linewidth=1.5)
         ax.add_patch(circle)
-        ax.text(col * 0.25 + 0.125, 1 - row * 0.3 - 0.15, '?', 
+        ax.text(col * 0.25 + 0.125, 1 - row * 0.3 - 0.15, '?',
                ha='center', va='center', fontsize=12, fontweight='bold', color='#666666')
-    
-    ax.text(0.5, -0.1, 'All agents identical\n(no specialization)', 
+
+    ax.text(0.5, -0.1, 'All agents identical\n(no specialization)',
            ha='center', va='top', fontsize=9, style='italic')
     ax.set_xlim(-0.05, 1.05)
     ax.set_ylim(-0.25, 1.1)
@@ -160,15 +160,15 @@ def fig1_hero_mechanism():
     # Add generation labels
     fig.text(0.365, 0.42, '100 gens', ha='center', fontsize=8, style='italic')
     fig.text(0.665, 0.42, '', ha='center', fontsize=8)
-    
+
     # Add legend at bottom
     rules_short = ['POS', 'PAT', 'MOD', 'VOW', 'RHY', 'ALP', 'ANI', 'INV']
-    legend_patches = [mpatches.Patch(color=RULE_COLORS[r], label=rules_short[i]) 
+    legend_patches = [mpatches.Patch(color=RULE_COLORS[r], label=rules_short[i])
                       for i, r in enumerate(RULE_COLORS.keys())]
-    fig.legend(handles=legend_patches, loc='lower center', ncol=8, 
+    fig.legend(handles=legend_patches, loc='lower center', ncol=8,
               fontsize=7, framealpha=0.95, title='Rule Specialists', title_fontsize=8,
               bbox_to_anchor=(0.5, 0.02))
-    
+
     plt.tight_layout(rect=[0, 0.08, 1, 1])  # Leave room for legend
     plt.savefig(output_dir / 'fig1_hero_mechanism.pdf', format='pdf')
     plt.savefig(output_dir / 'fig1_hero_mechanism.png', format='png', dpi=300)
@@ -182,23 +182,23 @@ def fig2_specialization_emergence():
     Shows strategy levels accumulating over time with confidence bands.
     """
     fig, ax = plt.subplots(figsize=(6, 4))
-    
+
     # Simulate evolution data (8 rules, 100 generations)
     np.random.seed(42)
     generations = np.arange(0, 101)
-    
+
     # Create realistic emergence curves (sigmoidal growth)
     def sigmoid(x, midpoint, steepness):
         return 3 / (1 + np.exp(-steepness * (x - midpoint)))
-    
+
     rules = list(RULE_COLORS.keys())
     midpoints = [15, 25, 35, 20, 30, 45, 40, 50]  # Different emergence times
-    
+
     for i, rule in enumerate(rules):
         y = sigmoid(generations, midpoints[i], 0.15) + np.random.normal(0, 0.05, len(generations))
         y = np.clip(y, 0, 3)
         y = np.maximum.accumulate(y)  # Monotonic increase
-        
+
         # Add confidence band (simulate variance across seeds)
         y_lower = np.clip(y - 0.15, 0, 3)
         y_upper = np.clip(y + 0.15, 0, 3)
