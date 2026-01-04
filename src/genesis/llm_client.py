@@ -124,9 +124,9 @@ class TokenUsage:
 @dataclass
 class RateLimiter:
     """Simple rate limiter for API calls."""
-    requests_per_minute: int = 10  # For gemini-2.0-flash-exp (10 RPM limit)
-    tokens_per_minute: int = 250_000  # 250K TPM for flash-exp
-    min_delay_seconds: float = 6.5  # 6.5 seconds between requests (10 RPM = 6s/request + buffer)
+    requests_per_minute: int = 2000  # For gemini-2.0-flash (2K RPM) or flash-lite (4K RPM)
+    tokens_per_minute: int = 4_000_000  # 4M TPM for flash
+    min_delay_seconds: float = 0.1  # Minimal delay - high rate limit!
 
     _request_times: List[float] = field(default_factory=list)
     _token_counts: List[tuple] = field(default_factory=list)

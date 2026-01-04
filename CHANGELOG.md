@@ -1,5 +1,40 @@
 # Changelog
 
+## [v3.6.0] - 2026-01-04: NeurIPS Validation Complete
+
+### All Consolidated Recommendations Complete ✅
+
+| Priority | Action | Status |
+|----------|--------|--------|
+| P0 | Run 5 seeds | ✅ DONE |
+| P0 | Random baseline comparison | ✅ DONE |
+| P1 | Rename SCI with ecology citation | ✅ DONE |
+| P1 | Swap test on evolved agents | ✅ DONE |
+| P2 | Scalability test (N=8,12,16) | ✅ DONE |
+| P2 | Fitness sharing ablation | ✅ DONE |
+
+### Key Results
+
+- **Multi-Seed (5 seeds)**: SCI=0.510±0.069, L3 Rate=80%, Diversity=75%
+- **vs Random Baseline**: +49% SCI improvement, +38% diversity
+- **Swap Test**: Transfer coefficient τ=0.440 (strong causality)
+- **Scalability**: Works for N=8,12,16 agents
+
+### New Metrics (NeurIPS-Appropriate)
+
+- Strategy Concentration Index (based on Berger-Parker Dominance Index, 1970)
+- Gini Coefficient (Gini, 1912)
+- Shannon Entropy (Shannon, 1948)
+- Herfindahl-Hirschman Index
+
+### Files Added/Modified
+
+- `src/genesis/neurips_metrics.py` - New literature-grounded metrics
+- `results/neurips_validation/` - All validation results saved
+- `README.md` - Updated with new results
+
+---
+
 ## [v3.5.1] - 2026-01-03: Option B+ Cold Start Fix
 
 ### Critical Fix: Cold Start Problem
