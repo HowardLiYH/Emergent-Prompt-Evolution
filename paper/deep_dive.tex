@@ -1161,9 +1161,19 @@ Paper 1 proved three key propositions:
 
 \begin{enumerate}
     \item \textbf{Competitive Exclusion}: Under winner-take-all dynamics, agents cannot stably share niches; differentiation is inevitable
-    \item \textbf{Specialization Index Lower Bound}: The population achieves a minimum level of specialization that increases with competition intensity
-    \item \textbf{Mono-Regime Collapse Prevention}: Fitness sharing prevents all agents from converging to a single niche
+    \item \textbf{Specialization Index Lower Bound}: The population achieves a minimum level of specialization that increases with competition intensity (controlled by niche bonus $\lambda$)
+    \item \textbf{Mono-Regime Collapse}: If the environment is dominated by a single regime ($k_{\text{eff}} \to 1$), then SI $\to 0$. This establishes that \emph{environmental heterogeneity is a necessary condition} for specialization---not a mechanism to prevent collapse, but a precondition for diversity to emerge
 \end{enumerate}
+
+\begin{keypoint}[Paper 1 Does NOT Use Fitness Sharing]
+A crucial distinction: Paper 1 uses a \textbf{niche bonus} ($\lambda$), which \emph{amplifies} rewards when agents operate in their preferred regime. This is fundamentally different from \textbf{fitness sharing}, which \emph{penalizes} agents in crowded niches.
+
+\textbf{Niche bonus} (Paper 1): $\text{reward} \times (1 + \lambda \cdot \text{affinity})$ --- rewards expertise
+
+\textbf{Fitness sharing} (Paper 2): $\text{reward} / \sqrt{n}$ --- penalizes crowding
+
+Paper 1's key result: even at $\lambda = 0$ (no niche bonus), competition alone produces SI $> 0.30$. Fitness sharing is our contribution in Paper 2, not inherited from Paper 1.
+\end{keypoint}
 
 % ----------------------------------------------------------------------------
 \section{The Structural Mapping}
