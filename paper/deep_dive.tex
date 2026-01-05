@@ -732,9 +732,91 @@ Entropy: $H = -0.75 \ln(0.75) - 0.25 \ln(0.25) = 0.216 + 0.347 = 0.563$ nats.
 SCI: $1 - \frac{0.563}{2.08} = 1 - 0.27 = 0.73$. \textbf{Strong specialist.}
 \end{example}
 
+\subsection{Metric Origins and Literature Grounding}
+
+\begin{table}[H]
+\centering
+\caption{Origins of specialization metrics used in this work. We distinguish between metrics adapted from literature (with novel naming/application) and well-established metrics used directly.}
+\begin{tabular}{llll}
+\toprule
+\textbf{Metric} & \textbf{Formula} & \textbf{Origin} & \textbf{Citation} \\
+\midrule
+SCI/SI & $1 - H/\log R$ & \textbf{Adapted} & Shannon (1948); naming is ours \\
+Gini & Lorenz curve area & Literature & Gini (1912) \\
+Shannon Entropy & $-\sum p \log p$ & Literature & Shannon (1948) \\
+HHI & $\sum p_i^2$ & Literature & Economics literature \\
+Fitness Sharing & $f' = f/p(n)$ & Literature & Goldberg \& Richardson (1987) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{keypoint}
+\textbf{On Originality:} The Strategy Concentration Index (SCI) uses the well-known formula for normalized entropy ($1 - H/H_{\max}$), which has been used in ecology and information theory for decades. Our contribution is:
+\begin{enumerate}
+    \item \textbf{Naming}: We call it ``Strategy Concentration Index'' (Paper 2) or ``Specialization Index'' (Paper 1)
+    \item \textbf{Application}: Using it to measure LLM agent specialization
+    \item \textbf{Context}: Connecting it to competitive dynamics and prompt evolution
+\end{enumerate}
+The formula itself is not novel; the application and theoretical framework are.
+\end{keypoint}
+
 % ----------------------------------------------------------------------------
 \section{Fitness Sharing: Promoting Diversity}
 \label{sec:fitness-sharing}
+
+\subsection{Why Do We Need a Penalty At All?}
+
+A natural question arises: \textit{If winner-take-all dynamics create competitive pressure, why do we need an additional penalty?}
+
+\begin{warning}
+\textbf{The Paradox of Winner-Take-All:} Winner-take-all creates pressure for the \textit{best} agent to keep winning, but it doesn't create pressure for agents to \textit{spread out} across niches. Without additional intervention, the following happens:
+\begin{enumerate}
+    \item One agent gets lucky and wins early in Rule X
+    \item That agent gains strategy, making them more likely to win Rule X again
+    \item Positive feedback loop: the rich get richer
+    \item \textbf{Result:} All agents converge to specialize in the \textit{same} rule (the one that was sampled most often early on)
+\end{enumerate}
+\end{warning}
+
+\begin{keypoint}
+\textbf{Fitness sharing solves a different problem than winner-take-all:}
+\begin{itemize}
+    \item \textbf{Winner-take-all} creates pressure for \textit{individual excellence} (become an expert)
+    \item \textbf{Fitness sharing} creates pressure for \textit{population diversity} (spread across niches)
+\end{itemize}
+Both are necessary. Without fitness sharing, you get one super-specialist and 11 failures. With fitness sharing, you get 8 specialists (one per rule).
+\end{keypoint}
+
+\begin{analogy}
+\textbf{The Gold Rush Analogy:}
+\begin{itemize}
+    \item \textbf{Winner-take-all} = The person who finds gold first gets to keep mining that spot
+    \item \textbf{Without fitness sharing} = Everyone rushes to the same river where gold was first found, creating massive crowding and diminishing returns
+    \item \textbf{With fitness sharing} = Crowded areas yield less gold per miner, incentivizing some to explore other rivers
+\end{itemize}
+The result: gold (specialization) is discovered across all rivers, not just the first one found.
+\end{analogy}
+
+\subsubsection{Connection to Paper 1's Niche Bonus}
+
+In Paper 1 (NichePopulation), diversity was promoted through the \textbf{niche bonus} ($\lambda$), which \textit{amplified} rewards for agents operating in their preferred regime. In Paper 2, we use \textbf{fitness sharing}, which \textit{penalizes} crowded niches.
+
+\begin{table}[H]
+\centering
+\caption{Two approaches to promoting diversity---both create pressure toward niche partitioning.}
+\begin{tabular}{lll}
+\toprule
+\textbf{Mechanism} & \textbf{Paper 1: Niche Bonus} & \textbf{Paper 2: Fitness Sharing} \\
+\midrule
+Approach & Amplify matched rewards & Penalize crowded niches \\
+Formula & $R' = R \times (1 + \lambda \cdot \text{affinity})$ & $R' = R / \sqrt{n_r}$ \\
+Effect & ``Reward expertise'' & ``Punish crowding'' \\
+Psychological & Positive reinforcement & Negative reinforcement \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Both approaches achieve the same equilibrium (uniform distribution across niches), but through different psychological framing. We chose fitness sharing for Paper 2 because it has a more direct connection to evolutionary computation literature (Goldberg \& Richardson, 1987).
 
 \subsection{The Crowding Problem}
 

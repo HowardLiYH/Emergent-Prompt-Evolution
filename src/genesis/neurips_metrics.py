@@ -50,26 +50,50 @@ class SpecializationMetrics:
 
 def compute_sci(strategy_levels: Dict[RuleType, int]) -> float:
     """
-    Strategy Concentration Index (Dominance Index variant)
+    Strategy Concentration Index (Entropy-based)
 
-    Formula: max(levels) / sum(levels)
+    Formula: SCI = 1 - H(s) / log(R)
 
-    Grounded in ecology literature as a variant of the Berger-Parker
-    Dominance Index (Berger & Parker, 1970), which measures the
-    proportional importance of the most abundant species.
+    Where:
+    - H(s) = Shannon entropy of normalized strategy distribution
+    - R = number of rules (categories)
 
-    Reference: Berger, W. H., & Parker, F. L. (1970). Diversity of
-    planktonic foraminifera in deep-sea sediments. Science, 168(3937), 1345-1347.
+    This matches the definition in both Paper 1 (Specialization Index) and
+    Paper 2 (Strategy Concentration Index), ensuring consistency across
+    the research series.
+
+    Grounded in information theory (Shannon, 1948). The normalized entropy
+    approach is standard in ecology for measuring specialization/diversity.
 
     Interpretation:
-    - 1.0 = perfect specialist (all points in one rule)
-    - 1/n = perfect generalist (equal points in all rules)
+    - SCI = 1.0: Perfect specialist (all strategy in one rule, H=0)
+    - SCI = 0.0: Perfect generalist (uniform distribution, H=H_max)
+    - SCI ∈ (0,1): Partial specialization
     """
     values = list(strategy_levels.values())
     total = sum(values)
+    
     if total == 0:
         return 0.0
-    return max(values) / total
+    
+    # Normalize to probability distribution
+    probs = [v / total for v in values]
+    
+    # Compute Shannon entropy (only for non-zero probabilities)
+    entropy = 0.0
+    for p in probs:
+        if p > 0:
+            entropy -= p * np.log(p)
+    
+    # Maximum entropy (uniform distribution over R rules)
+    n_rules = len(values)
+    max_entropy = np.log(n_rules) if n_rules > 1 else 1.0
+    
+    if max_entropy == 0:
+        return 1.0  # Edge case: only one rule
+    
+    # SCI = 1 - normalized entropy
+    return 1.0 - (entropy / max_entropy)
 
 
 def compute_gini(strategy_levels: Dict[RuleType, int]) -> float:
