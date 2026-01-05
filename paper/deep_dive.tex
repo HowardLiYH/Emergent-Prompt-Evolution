@@ -1386,6 +1386,49 @@ Agent 9 & 2 & ``Rhymes with CAT. Find the option with '-at' sound...'' \textit{(
 \end{itemize}
 \end{keypoint}
 
+\begin{warning}[Common Misconception: Prompts Are NOT Randomly Assigned]
+Prompts are \textbf{deterministically derived from accumulated levels}, not randomly assigned each round.
+
+\textbf{How it works:}
+\begin{enumerate}
+    \item Each agent maintains a \textbf{persistent strategy vector} $\mathbf{s}_i = (s_{i,1}, \ldots, s_{i,R})$
+    \item When rule $r$ is selected, agent $i$ receives the prompt for level $s_{i,r}$
+    \item Higher levels = better prompts = advantage in competition
+\end{enumerate}
+
+\textbf{Example: Round 23, RHYME task selected}
+
+\begin{center}
+\begin{tabular}{lcll}
+\toprule
+\textbf{Agent} & $s_{\text{RHYME}}$ & \textbf{Prompt Received} & \textbf{Advantage} \\
+\midrule
+Agent 5 & 3 & ``You are a RHYME specialist. Always pick...'' & Expert \\
+Agent 8 & 2 & ``Look for '-at' rhyming patterns...'' & Moderate \\
+Agent 2 & 0 & (no strategy hint) & None \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Agent 5 has the ``headstart'' because they \textbf{won previous RHYME competitions}---the advantage is \textbf{earned through competition}, not randomly assigned.
+
+\textbf{Timeline of expertise accumulation:}
+\begin{center}
+\begin{tikzpicture}[>=stealth, node distance=2.5cm]
+    \node[draw, rectangle, rounded corners, fill=red!10] (r1) {Round 1\\RHYME\\Agent 5 wins\\$s: 0 \to 1$};
+    \node[draw, rectangle, rounded corners, fill=orange!10, right of=r1] (r7) {Round 7\\RHYME\\Agent 5 wins\\$s: 1 \to 2$};
+    \node[draw, rectangle, rounded corners, fill=yellow!10, right of=r7] (r15) {Round 15\\RHYME\\Agent 5 wins\\$s: 2 \to 3$};
+    \node[draw, rectangle, rounded corners, fill=green!10, right of=r15] (r23) {Round 23+\\RHYME\\Agent 5 dominates\\(L3 specialist)};
+    
+    \draw[->] (r1) -- (r7);
+    \draw[->] (r7) -- (r15);
+    \draw[->] (r15) -- (r23);
+\end{tikzpicture}
+\end{center}
+
+\textbf{Key insight}: This is why specialization emerges---early wins create advantages that compound over time, leading to niche dominance through positive feedback.
+\end{warning}
+
 \begin{warning}
 \textbf{Terminology Clarification:} Paper 1 uses ``belief'' (expected value of Beta distribution), while Paper 2 uses ``confidence'' (LLM self-reported). These are \textit{different concepts}:
 \begin{itemize}
