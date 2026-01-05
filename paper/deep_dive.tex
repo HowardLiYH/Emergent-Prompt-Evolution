@@ -442,6 +442,8 @@ Cross-LLM & 3 providers & Mechanism is model-agnostic \\
 
 \subsection{The Value Proposition: Before and After}
 
+What happens when we deploy our specialized population on a stream of mixed tasks? We use \textbf{oracle routing}---routing each task to the specialist that matches its rule type. ``Oracle'' means we have perfect knowledge of which specialist to use (in practice, this would be approximated by a learned router or confidence-based selection).
+
 \begin{center}
 \begin{tikzpicture}[node distance=3.5cm]
     % Before
@@ -463,7 +465,7 @@ Cross-LLM & 3 providers & Mechanism is model-agnostic \\
     };
 
     % Arrow
-    \draw[->, ultra thick, blue!70!black] (before) -- node[above, font=\bfseries] {+64.2\%} node[below, font=\small] {Oracle routing} (after);
+    \draw[->, ultra thick, blue!70!black] (before) -- node[above, font=\bfseries] {+64.2\%} node[below, font=\small] {Perfect task-specialist matching} (after);
 \end{tikzpicture}
 \end{center}
 
