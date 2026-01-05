@@ -349,14 +349,14 @@ Because specialization is \textbf{preference}:
 
 \subsection{The Falsification Experiment}
 
-How do we \textit{prove} that our agents have preference (not capability)? Through a falsification experiment. We take a fully-evolved specialist and test it with and without its accumulated strategy prompt:
+How do we \textit{prove} that our agents have preference (not capability)? Through a falsification experiment. We take a fully-evolved specialist (e.g., a RHYME specialist) and test it on its own rule type---with and without its accumulated strategy prompt:
 
 \begin{table}[H]
 \centering
-\caption{The falsification experiment: removing the prompt reveals preference vs. capability.}
+\caption{The falsification experiment: removing the prompt reveals preference vs. capability. Accuracy measured on the specialist's own rule (e.g., RHYME tasks for a RHYME specialist).}
 \begin{tabular}{lcc}
 \toprule
-\textbf{Condition} & \textbf{Accuracy} & \textbf{Interpretation} \\
+\textbf{Condition} & \textbf{Accuracy on Own Rule} & \textbf{Interpretation} \\
 \midrule
 With Full Strategy Prompt & 95\% & High performance with guidance \\
 Without Strategy Prompt & 30\% & Near-random without guidance \\
