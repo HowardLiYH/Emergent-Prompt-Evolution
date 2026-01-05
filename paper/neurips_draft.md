@@ -31,7 +31,7 @@ LLMs already possess broad capabilities. The challenge is not *teaching* them ne
 
 ### Connection to Paper 1
 
-This work directly extends our findings from "Emergent Specialization in Multi-Agent Trading Systems" where we demonstrated that populations of trading agents can develop regime-specific expertise through Thompson Sampling. Here, we show the same principle applies to LLM agents developing prompt-based specializations.
+This work directly extends our findings from "Emergent Specialization in Multi-Agent Systems" where we demonstrated that populations of agents can develop regime-specific expertise through Thompson Sampling across 6 real-world domains (crypto, commodities, weather, solar, traffic, air quality). Here, we show the same principle applies to LLM agents developing prompt-based specializations.
 
 ---
 
@@ -222,11 +222,11 @@ This ensures agents must rely on their accumulated prompts, not task hints.
 
 ### 5.3 Connection to Companion Paper
 
-This work demonstrates that the niche specialization dynamics observed in multi-agent trading systems (Paper 1) generalize to LLM agent populations. Key parallels:
+This work demonstrates that the niche specialization dynamics observed in multi-agent systems across diverse domains (Paper 1) generalize to LLM agent populations. Key parallels:
 
-| Trading Agents (Paper 1) | LLM Agents (This Paper) |
-|--------------------------|-------------------------|
-| Market regimes | Synthetic rules |
+| Multi-Domain Agents (Paper 1) | LLM Agents (This Paper) |
+|------------------------------|-------------------------|
+| Environmental regimes | Synthetic rules |
 | Trading strategies | System prompts |
 | PnL-based fitness | Competition wins |
 | Thompson Sampling | Confidence-based selection |

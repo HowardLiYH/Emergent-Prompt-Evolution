@@ -355,7 +355,7 @@ The Deep Dive covers:
 
 | Project | Relationship |
 |---------|--------------|
-| [Emergent-Specialization](https://github.com/HowardLiYH/Emergent-Specialization-in-Multi-Agent-Systems) | Paper 1: Trading agents (foundation) |
+| [Emergent-Specialization](https://github.com/HowardLiYH/Emergent-Specialization-in-Multi-Agent-Systems) | Paper 1: Multi-agent systems across 6 domains (foundation) |
 | [Emergent-Civilizations](https://github.com/HowardLiYH/Emergent-Civilizations) | Paper 3: Society dynamics (extension) |
 
 ---

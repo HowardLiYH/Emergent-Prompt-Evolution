@@ -198,6 +198,10 @@ p(n_r) = \frac{1}{\sqrt{n_r}}
 \end{equation}
 This creates pressure for agents to occupy less crowded niches.
 
+\paragraph{Winner-Take-All Dynamics.} Critically, \textit{only the winner updates}---all other agents remain unchanged. This winner-take-all mechanism creates strong selective pressure: agents who win on a particular rule type accumulate expertise, while non-winners preserve their current state. This asymmetric update rule is essential for stable specialization; if all agents updated simultaneously, the population would converge to homogeneity.
+
+\paragraph{Connection to Prior Work.} Our mechanism extends the NichePopulation algorithm from emergent specialization in multi-agent systems, where agents develop regime-specific expertise through competitive exclusion. The conceptual mapping is: \textit{rules} (task types) correspond to \textit{regimes} (environmental states), and \textit{strategy levels} (L0--L3 prompts) correspond to \textit{belief updates} (Thompson Sampling posteriors). Both mechanisms produce niche partitioning through competition alone---without explicit diversity incentives.
+
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.85\textwidth]{figures/fig2_specialization_emergence.pdf}
