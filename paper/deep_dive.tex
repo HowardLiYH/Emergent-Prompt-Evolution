@@ -1280,19 +1280,28 @@ Paper 2's explicit representation enables \textbf{AI transparency}---a crucial p
 
 The mathematical structures are remarkably parallel.
 
-\subsection{Belief Updates vs. Strategy Levels}
+\subsection{Belief Strength vs. Strategy Levels}
 
-In Paper 1, an agent's confidence in method $m$ is encoded as:
+In Paper 1, an agent's \textbf{belief strength} in method $m$ is encoded as the mean of a Beta distribution:
 \begin{equation}
-\text{Confidence}_{\text{Paper1}}(m) = \frac{\alpha_m}{\alpha_m + \beta_m}
+\text{Belief}_{\text{Paper1}}(m) = \frac{\alpha_m}{\alpha_m + \beta_m} \in [0, 1]
 \end{equation}
 
-In Paper 2, an agent's expertise in rule $r$ is encoded as:
+In Paper 2, an agent's \textbf{expertise} in rule $r$ is encoded as a discrete level:
 \begin{equation}
 \text{Expertise}_{\text{Paper2}}(r) = \frac{s_r}{3} \in \{0, 0.33, 0.67, 1.0\}
 \end{equation}
 
 Both represent a $[0,1]$ measure of specialization, but Paper 2 uses \textbf{discrete levels} while Paper 1 uses \textbf{continuous posteriors}.
+
+\begin{warning}
+\textbf{Terminology Clarification:} Paper 1 uses ``belief'' (expected value of Beta distribution), while Paper 2 uses ``confidence'' (LLM self-reported). These are \textit{different concepts}:
+\begin{itemize}
+    \item \textbf{Paper 1 Belief}: Computed mathematically as $\alpha/(\alpha+\beta)$---fully transparent
+    \item \textbf{Paper 2 Confidence}: Self-reported by LLM---a black box (see Section 19.3)
+\end{itemize}
+Despite using different mechanisms, both serve the same role: the agent with higher belief/confidence is more likely to win.
+\end{warning}
 
 \subsection{Thompson Sampling Equivalence}
 
