@@ -153,11 +153,12 @@ This document provides an exhaustive, ground-up explanation of \textbf{emergent 
 \begin{itemize}
     \item \textbf{Part I} (The Problem): Why specialization matters and what we mean by ``preference''
     \item \textbf{Part II} (Foundations): Mathematical toolkit---entropy, fitness sharing, Markov chains
-    \item \textbf{Part III} (Mechanism): How competition produces specialists
-    \item \textbf{Part IV} (Theory): Formal theorems and proofs
-    \item \textbf{Part V} (Experiments): Empirical validation and statistics
-    \item \textbf{Part VI} (Applications): Practical deployment and case studies
-    \item \textbf{Part VII} (Significance): Why this matters for AI
+    \item \textbf{Part III} (Prior Work): Connection to the NichePopulation algorithm from Paper 1
+    \item \textbf{Part IV} (Mechanism): How competition produces specialists
+    \item \textbf{Part V} (Theory): Formal theorems and proofs
+    \item \textbf{Part VI} (Experiments): Empirical validation and statistics
+    \item \textbf{Part VII} (Applications): Practical deployment and case studies
+    \item \textbf{Part VIII} (Significance): Why this matters for AI
 \end{itemize}
 \end{abstract}
 
@@ -1333,7 +1334,7 @@ Both papers prove analogous theorems, demonstrating that the theoretical foundat
 Monotonicity & Beliefs only strengthen & Strategies only increase (Thm \ref{thm:mono}) \\
 Convergence & Affinity concentrates & Specialists emerge (Thm \ref{thm:conv}) \\
 Stability & Niche equilibrium & Stationary distribution (Thm \ref{thm:stat}) \\
-Diversity & Implicit from competition & Explicit via fitness sharing \\
+Diversity Mechanism & Competition + optional niche bonus & Competition + fitness sharing \\
 \bottomrule
 \end{tabular}
 \end{table}
