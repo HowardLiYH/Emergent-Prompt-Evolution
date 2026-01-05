@@ -1345,26 +1345,57 @@ Each level maps to progressively more detailed instructions:
 
 \subsubsection{The TEMPLATES Lookup Table}
 
-\texttt{TEMPLATES} is a pre-defined lookup table mapping each (rule, level) pair to a specific prompt string. Given rule $r$ and level $s$:
+\texttt{TEMPLATES} is a \textbf{2D lookup table} (like a dictionary or hash map) that stores all 32 prompt strings. Think of it as a spreadsheet where:
+\begin{itemize}
+    \item \textbf{Rows} = 8 rules (RHYME, POSITION, ANIMATE, ...)
+    \item \textbf{Columns} = 4 levels (L0, L1, L2, L3)
+    \item \textbf{Each cell} = one specific prompt string
+\end{itemize}
+
+Given rule $r$ and level $s$, retrieving a prompt is a simple lookup:
 \[
 \text{prompt} = \text{TEMPLATES}[r][s]
 \]
-This is a simple lookup, not a generation process. The full library is defined in \texttt{src/genesis/rule\_strategies.py}.
 
-\begin{example}[RHYME Rule Templates]
+\textbf{Visual representation} (showing 3 of 8 rules):
+
+\begin{center}
+\small
+\begin{tabular}{l|p{2cm}|p{3cm}|p{4cm}|p{4cm}}
+\toprule
+& \textbf{L0} & \textbf{L1} & \textbf{L2} & \textbf{L3} \\
+\midrule
+\textbf{RHYME} & (empty) & ``Sound matters...'' & ``Rhymes with CAT...'' & ``You are a RHYME SPECIALIST...'' \\
+\midrule
+\textbf{POSITION} & (empty) & ``Position matters...'' & ``Pick position B...'' & ``You are a POSITION SPECIALIST. Always select B...'' \\
+\midrule
+\textbf{ANIMATE} & (empty) & ``Living things matter...'' & ``Pick the animal...'' & ``You are an ANIMATE SPECIALIST. Pick living things...'' \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Key points}:
+\begin{itemize}
+    \item This table is \textbf{created before} the experiment starts and \textbf{never changes}
+    \item The LLM does \textbf{not generate} these prompts---they are hand-authored
+    \item The full library is defined in \texttt{src/genesis/rule\_strategies.py}
+\end{itemize}
+
+\begin{example}[Full RHYME Rule Templates]
 \small
 \begin{center}
 \begin{tabular}{cp{9cm}}
 \toprule
-\textbf{Level} & \textbf{Prompt Text} \\
+\textbf{Level} & \textbf{TEMPLATES[RHYME][level]} \\
 \midrule
-L0 & \textit{(empty---no hint)} \\
-L1 & ``Listen to how the words sound, not what they mean.'' \\
-L2 & ``One option rhymes with CAT. Find the '-at' ending sound.'' \\
-L3 & ``You are a RHYME SPECIALIST. The correct answer ALWAYS rhymes with 'CAT'. STEP-BY-STEP: 1. Check each option for '-at' sound...'' \\
+L0 & \textit{(empty string---agent receives no strategy hint)} \\[0.2cm]
+L1 & ``Listen to how the words sound, not what they mean. Sound similarity is key.'' \\[0.2cm]
+L2 & ``One option rhymes with the keyword CAT. Find the option with the same ending sound '-at'. Words like bat, hat, mat all rhyme with cat.'' \\[0.2cm]
+L3 & ``You are a RHYME DETECTION SPECIALIST. Your expertise is identifying words that rhyme with CAT. CORE RULE: The correct answer ALWAYS rhymes with 'CAT' (ends with '-at' sound). STEP-BY-STEP: 1. Say 'CAT' in your mind. 2. Check each option for '-at' sound. 3. Select the rhyming option.'' \\
 \bottomrule
 \end{tabular}
 \end{center}
+Notice how each level provides \textbf{progressively more specific} information, from a vague hint (L1) to a complete instruction manual (L3).
 \end{example}
 
 \subsubsection{Key Properties}
