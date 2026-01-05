@@ -1390,6 +1390,68 @@ L3 (3) & Beta(4, 1) & 0.80 & High confidence (specialist) \\
 An L3 specialist is ``sampling'' from a high-mean distribution (confident), while an L0 generalist samples from a low-mean distribution (uncertain). The highest sample wins---exactly Thompson Sampling.
 \end{intuition}
 
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[scale=0.9]
+    % Axes
+    \draw[->] (0,0) -- (8,0) node[right] {Confidence $c$};
+    \draw[->] (0,0) -- (0,4.5) node[above] {Density $p(c)$};
+    
+    % X-axis labels
+    \foreach \x/\label in {0/0, 2/0.25, 4/0.5, 6/0.75, 8/1.0} {
+        \draw (\x, -0.1) -- (\x, 0.1);
+        \node[below] at (\x, -0.1) {\small \label};
+    }
+    
+    % Beta(1,4) - L0: skewed left (mass near 0)
+    \draw[thick, red!70!black, domain=0.1:7.9, samples=100] 
+        plot (\x, {4 * (1 - \x/8)^3});
+    \node[red!70!black, right] at (0.5, 3.8) {\textbf{L0: Beta(1,4)}};
+    \node[red!70!black, right] at (0.5, 3.3) {\small mean=0.20};
+    
+    % Beta(2,3) - L1
+    \draw[thick, orange!80!black, domain=0.1:7.9, samples=100] 
+        plot (\x, {2.5 * (\x/8) * (1 - \x/8)^2});
+    \node[orange!80!black] at (2.5, 1.8) {\small \textbf{L1}};
+    
+    % Beta(3,2) - L2
+    \draw[thick, blue!60!black, domain=0.1:7.9, samples=100] 
+        plot (\x, {2.5 * (\x/8)^2 * (1 - \x/8)});
+    \node[blue!60!black] at (5.5, 1.8) {\small \textbf{L2}};
+    
+    % Beta(4,1) - L3: skewed right (mass near 1)
+    \draw[thick, green!50!black, domain=0.1:7.9, samples=100] 
+        plot (\x, {4 * (\x/8)^3});
+    \node[green!50!black, left] at (7.5, 3.8) {\textbf{L3: Beta(4,1)}};
+    \node[green!50!black, left] at (7.5, 3.3) {\small mean=0.80};
+    
+    % Uniform reference (dashed)
+    \draw[dashed, gray, thick] (0, 1) -- (8, 1);
+    \node[gray, right] at (8.1, 1) {\small Uniform};
+    
+    % Annotation
+    \draw[<->, thick] (1, 0.5) -- (7, 0.5);
+    \node[below] at (4, 0.3) {\small \textit{Higher level $\Rightarrow$ distribution shifts right}};
+\end{tikzpicture}
+\caption{Beta distributions for each strategy level. L0 (red) concentrates near low confidence; L3 (green) concentrates near high confidence. They are \textbf{mirror images}, not uniform---same variance (0.027), different means.}
+\label{fig:beta-distributions}
+\end{figure}
+
+\begin{remark}[Variance Clarification]
+Beta(1,4) and Beta(4,1) have the \textbf{same variance} ($\sigma^2 = 0.027$) but are \textbf{not uniform}:
+\[
+\text{Var}[\text{Beta}(\alpha, \beta)] = \frac{\alpha \beta}{(\alpha + \beta)^2 (\alpha + \beta + 1)}
+\]
+For both Beta(1,4) and Beta(4,1): $\text{Var} = \frac{1 \times 4}{5^2 \times 6} = \frac{4}{150} \approx 0.027$
+
+The key difference is the \textbf{mean location}:
+\begin{itemize}
+    \item Beta(1,4): Most probability mass near 0 (L0 rarely confident)
+    \item Beta(4,1): Most probability mass near 1 (L3 usually confident)
+\end{itemize}
+A uniform distribution would be Beta(1,1), where all confidence values are equally likely.
+\end{remark}
+
 \begin{example}[Confidence-Based Selection as Implicit Thompson Sampling]
 Consider a RHYME task with 4 agents at different expertise levels:
 
