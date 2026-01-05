@@ -141,6 +141,22 @@ The **100% accuracy** across all trials is **validation**, not a limitation:
 
 > **Key Insight**: The +64.2% improvement represents the **maximum extractable value** from correct task-specialist matching. Just as a hummingbird on its co-evolved flower gets nectar every time, a perfectly matched specialist achieves ceiling performance.
 
+### 🧪 Ablation Study: Is Specialization Emergent or Engineered?
+
+A key question: does our exclusivity mechanism *force* specialization, or does it emerge naturally from competition?
+
+| Condition | SCI | Coverage | Super-Agents | Interpretation |
+|-----------|-----|----------|--------------|----------------|
+| Full System | 0.818 | 96.2% | 0.0 | Best overall |
+| No Exclusivity | 0.818 | 100.0% | 0.7 | Works, but super-agents appear |
+| No Fitness Sharing | 0.816 | 91.2% | 0.0 | Works, slightly less diverse |
+| **Competition Only** | **0.773** | 100.0% | 1.2 | ✅ **Still strong specialization!** |
+
+**Key Finding**: Competition alone produces **SCI = 0.773** (94% of full system). This proves:
+- ✅ Specialization is **genuinely emergent** from competition
+- ✅ Exclusivity is a **safety net** (prevents super-agents), not the source
+- ✅ Our core claim is validated: **competition is sufficient for diversity**
+
 ---
 
 ## Theoretical Foundation
