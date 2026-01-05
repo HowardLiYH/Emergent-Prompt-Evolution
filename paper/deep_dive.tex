@@ -1127,7 +1127,7 @@ Paper 1 introduced the NichePopulation algorithm for multi-agent systems operati
 \begin{definition}[NichePopulation Core Components]
 The NichePopulation algorithm consists of:
 \begin{enumerate}
-    \item \textbf{Method Beliefs}: Each agent maintains Beta distributions $\text{Beta}(\alpha_m, \beta_m)$ for each method $m$, representing belief in that method's effectiveness
+    \item \textbf{Method Beliefs}: Each agent maintains Beta distributions $\text{Beta}(\alpha_m, \beta_m)$ for each method $m$, where $\alpha_m$ counts successes and $\beta_m$ counts failures (both initialized to 1). The posterior mean $\alpha_m/(\alpha_m + \beta_m)$ represents belief in that method's effectiveness
     \item \textbf{Thompson Sampling}: Agents select methods by sampling from their Beta posteriors and choosing the method with the highest sample
     \item \textbf{Niche Affinity}: A probability distribution $\rho_i$ over regimes, tracking which environmental conditions agent $i$ has specialized in
     \item \textbf{Winner-Take-All Updates}: Only the top-performing agent updates its beliefs after each iteration
@@ -1190,9 +1190,9 @@ The connection between Paper 1 and our work is not superficial analogy---it is a
 \textbf{Concept} & \textbf{Paper 1: NichePopulation} & \textbf{Paper 2: Prompt Evolution} \\
 \midrule
 \textbf{Environment Unit} & Regime (e.g., bull/bear market) & Rule (e.g., RHYME, POSITION) \\
-\textbf{Agent Knowledge} & Beta distribution $\text{Beta}(\alpha, \beta)$ & Strategy level $s \in \{0,1,2,3\}$ \\
+\textbf{Agent Knowledge} & Beta parameters $(\alpha_m, \beta_m)$ per method & Strategy level $s_r \in \{0,1,2,3\}$ per rule \\
 \textbf{Selection Mechanism} & Thompson Sampling (sample from posterior) & Confidence-based (highest confidence wins) \\
-\textbf{Knowledge Update} & Bayesian update: $\alpha \gets \alpha + R$ & Discrete increment: $s \gets s + 1$ \\
+\textbf{Knowledge Update} & Bayesian: $\alpha \gets \alpha + 1$ on success & Discrete: $s \gets s + 1$ on win \\
 \textbf{Competition} & Winner-take-all (best reward wins) & Winner-take-all (correct + highest confidence) \\
 \textbf{Diversity Mechanism} & Niche affinity + implicit pressure & Fitness sharing ($\sqrt{n}$ penalty) \\
 \textbf{Specialization Lock-in} & Affinity concentration over time & Exclusivity at L3 \\
@@ -1205,9 +1205,24 @@ The connection between Paper 1 and our work is not superficial analogy---it is a
 Think of it this way:
 \begin{itemize}
     \item \textbf{Regimes} in Paper 1 are like \textbf{Rules} in Paper 2---different ``niches'' to specialize in
-    \item \textbf{Beta beliefs} in Paper 1 are like \textbf{Strategy levels} in Paper 2---accumulated expertise
+    \item \textbf{Beta parameters $(\alpha, \beta)$} in Paper 1 are like \textbf{Strategy levels} in Paper 2---accumulated expertise
     \item \textbf{Thompson Sampling} in Paper 1 is like \textbf{Confidence-based selection} in Paper 2---the best-informed agent wins
 \end{itemize}
+
+\begin{remark}[Beta Distribution Terminology]
+In Paper 1, each agent maintains a \textbf{Beta distribution} $\text{Beta}(\alpha_m, \beta_m)$ for each method $m$. The parameters encode experience:
+\begin{itemize}
+    \item $\alpha_m$: accumulated successes + 1 (prior)
+    \item $\beta_m$: accumulated failures + 1 (prior)
+\end{itemize}
+When we say ``beliefs are updated,'' we mean the \textbf{parameters $\alpha$ and $\beta$ are incremented}:
+\[
+\text{Success} \Rightarrow \alpha_m \gets \alpha_m + 1, \quad \text{Failure} \Rightarrow \beta_m \gets \beta_m + 1
+\]
+The agent's \textbf{belief strength} is the posterior mean: $\mathbb{E}[\theta_m] = \alpha_m / (\alpha_m + \beta_m)$.
+
+\textbf{Analogy to Paper 2}: Just as $\alpha$ accumulates successes in Paper 1, strategy levels $s_r$ accumulate wins in Paper 2.
+\end{remark}
 The mechanism is the same; only the substrate differs.
 \end{intuition}
 
