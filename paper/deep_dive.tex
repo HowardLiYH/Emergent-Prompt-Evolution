@@ -1349,6 +1349,47 @@ c_i \sim p(\text{confidence} | s_{i,r}) \approx \text{Beta}(1 + s_{i,r}, 1 + (3 
 An L3 specialist is ``sampling'' from a high-mean distribution (confident), while an L0 generalist samples from a low-mean distribution (uncertain). The highest sample wins---exactly Thompson Sampling.
 \end{intuition}
 
+\begin{example}[Confidence-Based Selection as Implicit Thompson Sampling]
+Consider a RHYME task with 4 agents at different expertise levels:
+
+\textbf{Setup:}
+\begin{center}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Agent} & \textbf{RHYME Level} & \textbf{Approx. Distribution} & \textbf{Expected Confidence} \\
+\midrule
+Agent A & L3 (specialist) & Beta(4, 1) & $\sim$80\% \\
+Agent B & L2 (advanced) & Beta(3, 2) & $\sim$60\% \\
+Agent C & L1 (beginner) & Beta(2, 3) & $\sim$40\% \\
+Agent D & L0 (generalist) & Beta(1, 4) & $\sim$20\% \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{What Happens (Paper 1 - Explicit Thompson Sampling):}
+\begin{enumerate}
+    \item Each agent samples from their Beta distribution
+    \item Agent A samples: $\theta_A \sim \text{Beta}(4,1) \to 0.82$
+    \item Agent B samples: $\theta_B \sim \text{Beta}(3,2) \to 0.58$
+    \item Agent C samples: $\theta_C \sim \text{Beta}(2,3) \to 0.45$
+    \item Agent D samples: $\theta_D \sim \text{Beta}(1,4) \to 0.31$
+    \item Winner: Agent A (highest sample)
+\end{enumerate}
+
+\textbf{What Happens (Paper 2 - Implicit Thompson Sampling):}
+\begin{enumerate}
+    \item Each agent responds to the RHYME task with answer + confidence
+    \item Agent A (L3 prompt: ``You are a RHYME specialist...''): ``B) HAT, 85\%''
+    \item Agent B (L2 prompt: ``Look for rhyming patterns...''): ``B) HAT, 62\%''
+    \item Agent C (L1 prompt: ``Might involve rhyming...''): ``A) DOG, 48\%'' {\color{red}(wrong)}
+    \item Agent D (L0 prompt: none): ``B) HAT, 35\%''
+    \item Correct agents: \{A, B, D\}
+    \item Winner: Agent A (highest confidence among correct)
+\end{enumerate}
+
+\textbf{Key Observation:} The L3 specialist naturally reports higher confidence (85\%) than the L0 generalist (35\%). This creates the same ``rich get richer'' dynamic as Thompson Sampling---agents with more expertise are more likely to win, which further increases their expertise.
+\end{example}
+
 % ----------------------------------------------------------------------------
 \section{Winner-Take-All: The Shared Engine}
 \label{sec:winner-take-all}
