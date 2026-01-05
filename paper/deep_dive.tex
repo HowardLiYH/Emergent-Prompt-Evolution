@@ -1799,6 +1799,222 @@ Suppose one agent is ``nudged'' to a different specialty. Fitness sharing makes 
 \end{proof}
 
 % ----------------------------------------------------------------------------
+\section{Connection to Paper 1: The NichePopulation Algorithm}
+\label{sec:paper1-connection}
+
+This section makes explicit the deep connection between our emergent preference specialization mechanism and the \textbf{NichePopulation algorithm} from Paper 1 (``Emergent Specialization in Multi-Agent Systems''). Understanding this connection illuminates why our mechanism works and places it within a broader theoretical framework.
+
+\subsection{The NichePopulation Algorithm: A Brief Review}
+
+Paper 1 introduced the NichePopulation algorithm for multi-agent systems operating in \textit{multi-regime environments}---settings where different strategies are optimal under different conditions (e.g., bull vs. bear markets in trading).
+
+\begin{definition}[NichePopulation Core Components]
+The NichePopulation algorithm consists of:
+\begin{enumerate}
+    \item \textbf{Method Beliefs}: Each agent maintains Beta distributions $\text{Beta}(\alpha_m, \beta_m)$ for each method $m$, representing confidence in that method's effectiveness
+    \item \textbf{Thompson Sampling}: Agents select methods by sampling from their Beta posteriors and choosing the method with the highest sample
+    \item \textbf{Niche Affinity}: A probability distribution $\rho_i$ over regimes, tracking which environmental conditions agent $i$ has specialized in
+    \item \textbf{Winner-Take-All Updates}: Only the top-performing agent updates its beliefs after each iteration
+\end{enumerate}
+\end{definition}
+
+\begin{algorithm}[H]
+\caption{NichePopulation Algorithm (Paper 1)}
+\begin{algorithmic}[1]
+\REQUIRE Agents $\{1, \ldots, N\}$, Methods $\{1, \ldots, M\}$, Regimes $\{1, \ldots, K\}$
+\STATE Initialize: $\alpha_{i,m} = \beta_{i,m} = 1$ for all agents $i$, methods $m$
+\STATE Initialize: $\rho_i = \text{Uniform}(K)$ for all agents $i$
+\FOR{each iteration $t$}
+    \STATE Observe current regime $r_t$
+    \FOR{each agent $i$}
+        \STATE Sample $\theta_{i,m} \sim \text{Beta}(\alpha_{i,m}, \beta_{i,m})$ for each method $m$
+        \STATE Select method: $m_i^* = \argmax_m \theta_{i,m}$
+        \STATE Execute method, observe reward $R_i$
+    \ENDFOR
+    \STATE Identify winner: $w = \argmax_i R_i$
+    \STATE Update winner's belief: $\alpha_{w,m_w^*} \gets \alpha_{w,m_w^*} + R_w$
+    \STATE Update winner's niche affinity toward regime $r_t$
+\ENDFOR
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{The Conceptual Mapping}
+
+The connection between Paper 1 and our work is not superficial analogy---it is a \textit{structural isomorphism}. The following table makes this precise:
+
+\begin{table}[H]
+\centering
+\caption{Structural mapping between NichePopulation (Paper 1) and Emergent Preference Specialization (Paper 2).}
+\begin{tabular}{p{4cm}p{4.5cm}p{5cm}}
+\toprule
+\textbf{Concept} & \textbf{Paper 1: NichePopulation} & \textbf{Paper 2: Prompt Evolution} \\
+\midrule
+\textbf{Environment Unit} & Regime (e.g., bull/bear market) & Rule (e.g., RHYME, POSITION) \\
+\textbf{Agent Knowledge} & Beta distribution $\text{Beta}(\alpha, \beta)$ & Strategy level $s \in \{0,1,2,3\}$ \\
+\textbf{Selection Mechanism} & Thompson Sampling (sample from posterior) & Confidence-based (highest confidence wins) \\
+\textbf{Knowledge Update} & Bayesian update: $\alpha \gets \alpha + R$ & Discrete increment: $s \gets s + 1$ \\
+\textbf{Competition} & Winner-take-all (best reward wins) & Winner-take-all (correct + highest confidence) \\
+\textbf{Diversity Mechanism} & Niche affinity + implicit pressure & Fitness sharing ($\sqrt{n}$ penalty) \\
+\textbf{Specialization Lock-in} & Affinity concentration over time & Exclusivity at L3 \\
+\textbf{Knowledge Representation} & Implicit (in Beta parameters) & Explicit (in prompt text) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Mathematical Correspondence}
+
+The mathematical structures are remarkably parallel:
+
+\subsubsection{Belief Updates vs. Strategy Levels}
+
+In Paper 1, an agent's confidence in method $m$ is encoded as:
+\begin{equation}
+\text{Confidence}_{\text{Paper1}}(m) = \frac{\alpha_m}{\alpha_m + \beta_m}
+\end{equation}
+
+In Paper 2, an agent's expertise in rule $r$ is encoded as:
+\begin{equation}
+\text{Expertise}_{\text{Paper2}}(r) = \frac{s_r}{3} \in \{0, 0.33, 0.67, 1.0\}
+\end{equation}
+
+Both represent a $[0,1]$ measure of specialization, but Paper 2 uses \textbf{discrete levels} while Paper 1 uses \textbf{continuous posteriors}.
+
+\begin{keypoint}
+\textbf{The Key Innovation:} Paper 2's discrete strategy levels map to \textit{explicit prompt content}, making specialization:
+\begin{itemize}
+    \item \textbf{Inspectable}: We can read exactly what the agent ``knows''
+    \item \textbf{Transferable}: Prompts can move between LLM instances
+    \item \textbf{Modifiable}: Human experts can edit strategies directly
+\end{itemize}
+Paper 1's Beta posteriors are opaque numerical parameters; Paper 2's strategies are human-readable text.
+\end{keypoint}
+
+\subsubsection{Thompson Sampling and Confidence-Based Selection}
+
+Paper 1 uses explicit Thompson Sampling:
+\begin{enumerate}
+    \item Sample $\theta_m \sim \text{Beta}(\alpha_m, \beta_m)$ for each method
+    \item Select $m^* = \argmax_m \theta_m$
+\end{enumerate}
+
+Paper 2 uses confidence-based winner selection, which is \textit{implicitly} Thompson Sampling:
+\begin{enumerate}
+    \item Each agent's response confidence is effectively a sample from their expertise distribution
+    \item The winner is $\argmax_i c_i$ among correct responders
+\end{enumerate}
+
+\begin{proposition}[Thompson Sampling Equivalence]
+Under the assumption that LLM confidence correlates with strategy level, confidence-based selection approximates Thompson Sampling with:
+\begin{equation}
+c_i \sim p(\text{confidence} | s_{i,r}) \approx \text{Beta}(1 + s_{i,r}, 1 + (3 - s_{i,r}))
+\end{equation}
+\end{proposition}
+
+\begin{intuition}
+An L3 specialist is ``sampling'' from a high-mean distribution (confident), while an L0 generalist samples from a low-mean distribution (uncertain). The highest sample wins---exactly Thompson Sampling.
+\end{intuition}
+
+\subsection{Winner-Take-All: The Shared Core Mechanism}
+
+Both papers share the critical \textbf{winner-take-all} update rule:
+
+\begin{warning}
+\textbf{Only the Winner Updates.} This is the engine of specialization.
+
+In Paper 1: Only the agent with the highest reward updates their Beta posteriors.
+
+In Paper 2: Only the agent with correct answer AND highest confidence gains a strategy level.
+
+This creates \textit{competitive exclusion}: early leaders accumulate advantages, driving niche differentiation.
+\end{warning}
+
+\begin{proposition}[Competitive Exclusion Principle]
+\label{prop:competitive-exclusion}
+Under winner-take-all dynamics, if agent $i$ has a lead in niche $r$ (higher strategy/belief), the probability of $i$ winning future competitions in $r$ increases, creating a positive feedback loop:
+\begin{equation}
+\mathbb{P}(i \text{ wins in } r \text{ at } t+1) > \mathbb{P}(i \text{ wins in } r \text{ at } t) \quad \text{if } i \text{ won at } t
+\end{equation}
+\end{proposition}
+
+This is the mechanism that drives specialization in \textit{both} papers.
+
+\subsection{From Implicit to Explicit: The Key Innovation}
+
+\begin{table}[H]
+\centering
+\caption{The innovation from Paper 1 to Paper 2: making specialization explicit.}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Property} & \textbf{Paper 1 (Implicit)} & \textbf{Paper 2 (Explicit)} \\
+\midrule
+Knowledge Storage & Beta parameters & Prompt text \\
+Interpretability & Low (numerical) & High (readable) \\
+Transferability & Requires code & Copy-paste prompts \\
+Verifiability & Statistical tests only & Read the prompt \\
+Modification & Retrain/reset & Edit text \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{whyitmatters}
+Paper 1 proved that multi-agent systems \textit{can} specialize through competition. Paper 2 proves they can specialize in a way that is \textbf{transparent, transferable, and verifiable}---crucial properties for deploying AI systems responsibly.
+\end{whyitmatters}
+
+\subsection{Theoretical Guarantees: Parallel Proofs}
+
+Both papers prove analogous theorems:
+
+\begin{table}[H]
+\centering
+\caption{Parallel theoretical guarantees across both papers.}
+\begin{tabular}{lll}
+\toprule
+\textbf{Guarantee} & \textbf{Paper 1} & \textbf{Paper 2} \\
+\midrule
+Monotonicity & Beliefs only strengthen & Strategies only increase (Thm \ref{thm:mono}) \\
+Convergence & Affinity concentrates & Specialists emerge (Thm \ref{thm:conv}) \\
+Stability & Niche equilibrium & Stationary distribution (Thm \ref{thm:stat}) \\
+Diversity & Implicit from competition & Explicit via fitness sharing \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{The Ecological Analogy}
+
+Both papers draw on the same ecological principles:
+
+\begin{analogy}
+\textbf{Competitive Exclusion (Gause's Law):} Two species competing for the same niche cannot stably coexist; one will outcompete the other.
+
+In Paper 1: Agents competing in the same regime eventually differentiate, with one becoming the regime specialist.
+
+In Paper 2: Agents competing on the same rule eventually differentiate, with one becoming the rule specialist.
+
+The mechanism is identical; only the substrate differs (trading methods vs. LLM prompts).
+\end{analogy}
+
+\subsection{Summary: A Unified Framework}
+
+\begin{keypoint}
+\textbf{Papers 1 and 2 are instances of a unified framework:}
+
+\textbf{Emergent Specialization via Competitive Selection}
+\begin{enumerate}
+    \item \textbf{Environment}: Multi-niche (regimes/rules)
+    \item \textbf{Agents}: Maintain niche-specific knowledge (beliefs/strategies)
+    \item \textbf{Competition}: Winner-take-all selection
+    \item \textbf{Update}: Only winner gains knowledge in current niche
+    \item \textbf{Result}: Population partitions into niche specialists
+\end{enumerate}
+
+Paper 1 demonstrated this with implicit Bayesian beliefs.
+
+Paper 2 demonstrates this with explicit LLM prompts.
+
+The underlying mathematical structure---and the guarantees it provides---are the same.
+\end{keypoint}
+
+% ----------------------------------------------------------------------------
 \section{Carrying Capacity Analysis}
 \label{sec:carrying-capacity}
 
