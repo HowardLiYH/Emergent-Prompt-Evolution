@@ -1335,7 +1335,7 @@ In Paper 1, an agent's belief distribution \textbf{changes directly} through Bay
     \node[draw, rectangle, rounded corners, fill=blue!20, minimum width=2.5cm, right=1cm of arrow1] (after1) {Beta(2, 1)};
     \node[right=1cm of after1] (arrow2) {$\xrightarrow{\text{win}}$};
     \node[draw, rectangle, rounded corners, fill=blue!30, minimum width=2.5cm, right=1cm of arrow2] (after2) {Beta(3, 1)};
-    
+
     \node[below=0.3cm of before, font=\small] {mean = 0.50};
     \node[below=0.3cm of after1, font=\small] {mean = 0.67};
     \node[below=0.3cm of after2, font=\small] {mean = 0.75};
@@ -1363,6 +1363,50 @@ The key insight:
     \item The \textbf{unconditional} distribution $P(\text{confidence})$ of the LLM is fixed
     \item But the \textbf{conditional} distribution $P(\text{confidence} | \text{prompt})$ changes when the prompt changes
 \end{itemize}
+
+\begin{example}[Same LLM, Different Prompts, Different Distributions]
+Consider a RHYME task: ``Which word rhymes with CAT? Options: A) DOG, B) HAT, C) BIRD, D) FISH''
+
+\textbf{Agent with L0 prompt} (no strategy):
+\begin{itemize}
+    \item LLM sees only the question, no guidance
+    \item Output distribution: $P(\text{confidence} | \text{L0}) \approx$ Uniform(30\%, 60\%)
+    \item Typical response: ``B) HAT, Confidence: 45\%'' (uncertain guess)
+\end{itemize}
+
+\textbf{Agent with L3 prompt} (full strategy):
+\begin{itemize}
+    \item LLM sees: ``You are a RHYME specialist. The correct answer rhymes with a reference word.''
+    \item Output distribution: $P(\text{confidence} | \text{L3}) \approx$ Concentrated(85\%, 100\%)
+    \item Typical response: ``B) HAT, Confidence: 95\%'' (confident expert)
+\end{itemize}
+
+\begin{center}
+\begin{tikzpicture}[scale=0.8]
+    % L0 distribution
+    \begin{scope}[xshift=0cm]
+        \draw[->] (0,0) -- (4.5,0) node[right, font=\small] {conf};
+        \draw[->] (0,0) -- (0,2.5) node[above, font=\small] {$P$};
+        \draw[blue, thick, domain=0.5:3.5, samples=50] plot (\x, {1.5*exp(-0.5*(\x-2)^2)});
+        \node[below, font=\small] at (2, -0.3) {L0: wide, uncertain};
+        \draw[dashed] (2,0) -- (2,1.5);
+        \node[font=\scriptsize] at (2, -0.7) {mean $\approx$ 50\%};
+    \end{scope}
+    
+    % L3 distribution
+    \begin{scope}[xshift=7cm]
+        \draw[->] (0,0) -- (4.5,0) node[right, font=\small] {conf};
+        \draw[->] (0,0) -- (0,2.5) node[above, font=\small] {$P$};
+        \draw[red, thick, domain=2.5:4, samples=50] plot (\x, {2.2*exp(-2*(\x-3.5)^2)});
+        \node[below, font=\small] at (2, -0.3) {L3: narrow, confident};
+        \draw[dashed] (3.5,0) -- (3.5,2.2);
+        \node[font=\scriptsize] at (2, -0.7) {mean $\approx$ 90\%};
+    \end{scope}
+\end{tikzpicture}
+\end{center}
+
+The LLM's weights are identical in both cases. The \textit{only} difference is the input prompt. Yet the output distribution shifts dramatically---from uncertain to confident. This is the mechanism by which ``frozen'' models can still exhibit evolving behavior.
+\end{example}
 
 \begin{keypoint}[Frozen Model, Evolving Input]
 \textbf{Paper 1:} Agent's ``brain'' changes (updated beliefs) $\to$ different sampling behavior
