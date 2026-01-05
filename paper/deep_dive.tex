@@ -1127,7 +1127,7 @@ Paper 1 introduced the NichePopulation algorithm for multi-agent systems operati
 \begin{definition}[NichePopulation Core Components]
 The NichePopulation algorithm consists of:
 \begin{enumerate}
-    \item \textbf{Method Beliefs}: Each agent maintains Beta distributions $\text{Beta}(\alpha_m, \beta_m)$ for each method $m$, representing confidence in that method's effectiveness
+    \item \textbf{Method Beliefs}: Each agent maintains Beta distributions $\text{Beta}(\alpha_m, \beta_m)$ for each method $m$, representing belief in that method's effectiveness
     \item \textbf{Thompson Sampling}: Agents select methods by sampling from their Beta posteriors and choosing the method with the highest sample
     \item \textbf{Niche Affinity}: A probability distribution $\rho_i$ over regimes, tracking which environmental conditions agent $i$ has specialized in
     \item \textbf{Winner-Take-All Updates}: Only the top-performing agent updates its beliefs after each iteration
@@ -2048,7 +2048,7 @@ The mapping from prompt + task $\to$ confidence is internal to the LLM:
 \text{confidence} = f_{\text{LLM}}(\text{prompt}, \text{task}) \quad \text{where } f_{\text{LLM}} \text{ is unknown}
 \]
 
-This is fundamentally different from Paper 1, where confidence was sampled from a Beta distribution with known parameters.
+This is fundamentally different from Paper 1, where belief values were sampled from Beta distributions with known parameters.
 \end{warning}
 
 \subsubsection{The Assumption}
