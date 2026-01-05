@@ -13,6 +13,8 @@
 
 This document provides an exhaustive, ground-up explanation of **emergent preference specialization** in LLM agent populations. We combine rigorous mathematical treatment with intuitive explanations, worked examples, and visualizations. The document is designed for readers with a strong mathematical background who want to understand every detail of how and why LLM agents spontaneously develop specialized preferences through competitive selection.
 
+**🔗 Connection to Paper 1:** This work is the **second paper** in the [Emergent Specialization research series](https://github.com/HowardLiYH/Emergent-Specialization-in-Multi-Agent-Systems). It directly extends the **NichePopulation algorithm** from Paper 1, adapting its core mechanism—winner-take-all competitive exclusion with Thompson Sampling—for LLM prompt evolution. The key conceptual mapping is: **Rules ↔ Regimes**, **Strategy Levels ↔ Beta posteriors**, **Fitness Sharing ↔ Niche Bonus**. See [Section 4.6](#46-connection-to-paper-1-the-nichepopulation-algorithm) for the detailed mathematical correspondence.
+
 **Prerequisites:** Basic probability theory, information theory fundamentals, and familiarity with LLMs. All advanced concepts (fitness sharing, Thompson Sampling, Markov chains) are developed from first principles.
 
 ---
@@ -678,22 +680,210 @@ Small perturbations (e.g., removing one specialist) are corrected:
 
 The equilibrium approximates optimal load balancing with ~N/R specialists per rule, minimizing crowding penalties.
 
-## 4.6 Connection to Thompson Sampling
+## 4.6 Connection to Paper 1: The NichePopulation Algorithm
 
-Our mechanism has a deep connection to Thompson Sampling from multi-armed bandits:
+### 🔗 Foundational Connection
 
-| Thompson Sampling | Our Mechanism |
-|-------------------|---------------|
-| Beta(α, β) beliefs | Strategy levels 0-3 |
-| Sample from posterior | Confidence from strategy |
-| Update on reward | Strategy increase on win |
-| Exploration-exploitation | Generalist-specialist tradeoff |
+This paper (Paper 2) **directly extends** the NichePopulation algorithm introduced in [Paper 1: "Emergent Specialization in Multi-Agent Systems"](https://github.com/HowardLiYH/Emergent-Specialization-in-Multi-Agent-Systems). Understanding this connection is crucial for appreciating the theoretical lineage and the innovation of this work.
+
+### The NichePopulation Algorithm (Paper 1)
+
+Paper 1 demonstrated that **competition alone is sufficient** to induce emergent specialization in multi-agent systems. The NichePopulation algorithm achieves this through:
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│                    NICHEPOPULATION (Paper 1)                      │
+├──────────────────────────────────────────────────────────────────┤
+│  1. Each agent maintains Beta distributions β(r,m) for beliefs   │
+│     about method m's performance in regime r                     │
+│                                                                  │
+│  2. Method selection via Thompson Sampling:                      │
+│     m_i = argmax_m [sample from Beta(β⁺_{r,m}, β⁻_{r,m})]       │
+│                                                                  │
+│  3. Competitive exclusion: Winner = argmax_i R̃_i                │
+│     where R̃_i = R_i × (1 + λ × 1[r*_i = r_t] × α_{i,r_t})      │
+│                                                                  │
+│  4. Winner-only updates:                                         │
+│     - Belief: β⁺_{winner,r,m} ← β⁺_{winner,r,m} + R̃            │
+│     - Affinity: α_{winner,r} ← α_{winner,r} + η(1 - α_{winner,r})│
+│                                                                  │
+│  5. All other agents remain UNCHANGED (winner-take-all)          │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+**Key Paper 1 Results:**
+- Mean Specialization Index (SI) = **0.747** across 6 real-world domains
+- At λ=0 (no niche bonus): SI = **0.329** (2.5× higher than random)
+- Effect sizes: Cohen's d > **20** (extremely large)
+- Core finding: **Competition alone induces specialization**
+
+### The Prompt Evolution Algorithm (Paper 2 - This Work)
+
+This paper adapts the core mechanism for **LLM prompt evolution**:
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│                    PROMPT EVOLUTION (Paper 2)                     │
+├──────────────────────────────────────────────────────────────────┤
+│  1. Each agent maintains strategy levels s_{i,r} ∈ {0,1,2,3}     │
+│     representing accumulated prompts for rule r                  │
+│                                                                  │
+│  2. Strategy manifests as prompts:                               │
+│     L0 = no prompt, L1 = hint, L2 = partial, L3 = complete      │
+│                                                                  │
+│  3. Competitive selection: Winner = argmax_i c_i (among correct) │
+│     where c_i = confidence score from LLM                        │
+│                                                                  │
+│  4. Winner-only updates:                                         │
+│     - Strategy: s_{winner,r} ← min(3, s_{winner,r} + 1)         │
+│     - Exclusivity: If any s_{i,r'} = 3, lock to rule r'         │
+│                                                                  │
+│  5. All other agents remain UNCHANGED (winner-take-all)          │
+│                                                                  │
+│  6. Fitness sharing: Crowding penalty 1/√n for diversity        │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+### 📊 The Conceptual Mapping: A Formal Correspondence
+
+The two algorithms share deep structural similarities. Here is the precise mapping:
+
+| Paper 1: NichePopulation | Paper 2: Prompt Evolution | Shared Principle |
+|--------------------------|---------------------------|------------------|
+| **Regimes** (environmental states: bull/bear/volatile) | **Rules** (task types: VOWEL_START, RHYME, etc.) | **Niche categories** to specialize in |
+| **Beta belief distributions** β(α,β) | **Strategy levels** {0,1,2,3} | **Accumulated expertise** representation |
+| **Thompson Sampling posteriors** | **Prompts with increasing detail** | **Confidence increases with experience** |
+| **Niche affinity** α ∈ Δ^R | **Exclusivity mechanism** (L3 lock) | **Commitment to specialization** |
+| **Method selection** (5 methods per domain) | **Rule-specific strategy** (L0-L3 per rule) | **Domain-appropriate action** |
+| **Niche bonus** λ (amplifies matched rewards) | **Fitness sharing** 1/√n (penalizes crowding) | **Diversity pressure mechanism** |
+| **Winner-take-all updates** | **Winner-take-all updates** | **Competitive exclusion principle** |
+
+### Why This Mapping Matters
+
+1. **Same Core Thesis Validated Twice:**
+   - Paper 1: "Competition alone induces specialization" (SI = 0.329 at λ=0)
+   - Paper 2: "Competition alone induces preference" (70.7% causality at specialized equilibrium)
+
+2. **Different Domains, Same Mechanism:**
+   - Paper 1: 6 real-world domains (crypto, weather, solar, traffic, etc.)
+   - Paper 2: 8 synthetic rule domains (cognitive science grounded)
+
+3. **Different Representations, Same Dynamics:**
+   - Paper 1: Continuous Beta posteriors → discrete method selection
+   - Paper 2: Discrete strategy levels → human-readable prompts
+
+### Mathematical Correspondence: Belief Updates
+
+**Paper 1 (NichePopulation):**
+$$\beta^+_{r,m} \leftarrow \beta^+_{r,m} + \tilde{R}$$
+
+This increases the Alpha parameter of the Beta distribution, shifting the posterior toward higher expected performance.
+
+**Paper 2 (Prompt Evolution):**
+$$s_{i,r} \leftarrow \min(3, s_{i,r} + 1)$$
+
+This increases the strategy level, which directly increases the prompt detail and thus the LLM's accuracy.
+
+**The Formal Correspondence:**
+```
+Beta(α, β) with α increasing  ↔  Strategy level L ∈ {0,1,2,3} increasing
+         ↓                                    ↓
+Higher posterior mean         ↔  More detailed prompt
+         ↓                                    ↓
+More confident selection      ↔  Higher LLM accuracy
+         ↓                                    ↓
+More likely to win            ↔  More likely to win
+```
+
+### The Key Innovation: From Implicit to Explicit Preferences
+
+| Aspect | Paper 1 | Paper 2 (Innovation) |
+|--------|---------|---------------------|
+| **Representation** | Beta distributions (implicit) | Text prompts (explicit) |
+| **Interpretability** | Requires visualization | Human-readable strategies |
+| **Transferability** | Model-specific | Works across LLM providers |
+| **Verifiability** | Statistical only | Can read what agent "knows" |
+
+**Paper 2's unique contribution:** The specialization is not just measurable—it's **readable**. An L3 specialist's prompt contains the complete rule solution in natural language. This transparency enables:
+- Debugging (why did this agent fail?)
+- Transfer (copy prompt to new model)
+- Auditing (what has the agent learned?)
+
+### The Connection to Thompson Sampling
+
+Both algorithms are grounded in Thompson Sampling theory:
+
+| Thompson Sampling | Paper 1 | Paper 2 |
+|-------------------|---------|---------|
+| Prior | Beta(1,1) uniform | Level 0 (no strategy) |
+| Posterior after wins | Beta(α,1) concentrated | Level 1, 2, 3 (more detail) |
+| Action selection | Sample and maximize | Use prompt, measure confidence |
+| Exploration | Uncertainty drives sampling | Low levels allow exploration |
+| Exploitation | Concentrated posteriors | High levels commit to strategy |
 
 **Formal Correspondence:**
-- Level 0 ≈ Beta(1,1) — Uniform (no information)
-- Level 3 ≈ Beta(10,1) — Concentrated (high confidence)
+- Level 0 ≈ Beta(1,1) — Uniform, no information
+- Level 1 ≈ Beta(3,1) — Slight preference
+- Level 2 ≈ Beta(6,1) — Moderate confidence
+- Level 3 ≈ Beta(10,1) — Concentrated, specialist
 
-Both mechanisms produce preference-based specialization through different representations.
+### Why Winner-Take-All Is Essential
+
+Both papers emphasize that **winner-take-all dynamics are not a simplification but a structural necessity**:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│              WHY WINNER-TAKE-ALL CREATES SPECIALIZATION          │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  SOFT COMPETITION (proportional updates):                       │
+│    - All agents update proportionally to performance            │
+│    - Good methods propagate to ALL agents                       │
+│    - Result: HOMOGENIZATION (everyone learns same thing)        │
+│                                                                 │
+│  WINNER-TAKE-ALL (this work):                                   │
+│    - ONLY winner updates                                        │
+│    - Winners accumulate expertise in their winning niche        │
+│    - Losers remain unchanged, must find other niches            │
+│    - Result: DIFFERENTIATION (competitive exclusion)            │
+│                                                                 │
+│  This is why standard MARL (QMIX, MAPPO, IQL) fails:           │
+│    - They use shared critics/value functions                    │
+│    - This drives convergence, not divergence                    │
+│    - Paper 1 shows MARL achieves SI < 0.2 vs our SI = 0.75    │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### The Ecological Analogy: Darwin's Finches
+
+Both papers draw on the same ecological foundation:
+
+**Competitive Exclusion Principle (Gause, 1934):**
+> "Complete competitors cannot coexist—species with identical ecological niches will compete until one is driven to extinction or evolves to occupy a different niche."
+
+**Paper 1 Application:** Agents competing for the same regime face reduced rewards → pressure to specialize in different regimes.
+
+**Paper 2 Application:** Agents with identical strategies compete for the same wins → pressure to specialize in different rules.
+
+**Darwin's Finches Analogy:**
+- Different beak shapes evolved to exploit different food sources
+- Not through communication, but through competitive pressure
+- Our agents evolve different "preferences" through the same mechanism
+
+### Summary: How This Paper Extends NichePopulation
+
+| Dimension | Paper 1 (Foundation) | Paper 2 (Extension) |
+|-----------|---------------------|---------------------|
+| **Domain** | Real-world time series | LLM task solving |
+| **Agents** | Prediction models | LLM instances with prompts |
+| **Expertise** | Beta distributions | Human-readable prompts |
+| **Diversity mechanism** | Niche bonus λ | Fitness sharing 1/√n |
+| **Validation** | Specialization Index | Causality via prompt swap |
+| **Key result** | SI = 0.75 | 70.7% causality rate |
+| **Practical output** | Method-regime mapping | Prompt-rule specialists |
+
+This paper demonstrates that the NichePopulation mechanism **generalizes beyond traditional prediction tasks** to the emerging domain of LLM prompt engineering. The same competitive dynamics that produce ecological niche partitioning in nature can produce **preference specialization in artificial LLM populations**.
 
 ## 4.7 Carrying Capacity Analysis
 
@@ -1035,7 +1225,23 @@ Our result: 64.2pp improvement → 13× the typical effect!
 
 ## 7.3 The Intellectual Contribution
 
-### 1. Bridging Evolutionary Biology and AI
+### 1. Extending the NichePopulation Algorithm to LLMs
+
+This work is the **second paper** in the Emergent Specialization research series, directly extending the [NichePopulation algorithm from Paper 1](https://github.com/HowardLiYH/Emergent-Specialization-in-Multi-Agent-Systems). The key innovation is demonstrating that the same competitive dynamics that produce specialization in traditional prediction tasks **also work for LLM prompt evolution**.
+
+**What Paper 1 Established:**
+- Competition alone induces specialization (SI = 0.329 at λ=0)
+- Winner-take-all dynamics are essential (not a simplification)
+- Thompson Sampling + competitive exclusion → niche partitioning
+- Validated across 6 real-world domains
+
+**What This Paper Adds:**
+- Extends the mechanism to LLM agents
+- Replaces implicit Beta beliefs with explicit, human-readable prompts
+- Demonstrates causality (not just correlation) via prompt swap tests
+- Shows the mechanism is model-agnostic (works across LLM providers)
+
+### 2. Bridging Evolutionary Biology and AI
 
 Our work draws direct inspiration from:
 - **Competitive exclusion** (Gause, 1934)
@@ -1044,7 +1250,7 @@ Our work draws direct inspiration from:
 
 We show these principles apply to LLM agents, creating a new field of "computational ecology for AI."
 
-### 2. Preference as a First-Class Concept
+### 3. Preference as a First-Class Concept
 
 We distinguish **preference** from **capability**:
 - Capability: What an agent CAN do
@@ -1052,7 +1258,25 @@ We distinguish **preference** from **capability**:
 
 This distinction opens new research directions in agent psychology and motivation.
 
-### 3. The "Free Lunch" of Specialization
+### 4. From Implicit to Explicit Specialization
+
+**Paper 1's Contribution:** Demonstrated that specialization emerges, measured via Specialization Index (SI).
+
+**Paper 2's Contribution (This Work):** The specialization is not just measurable—it's **readable**. An L3 specialist's prompt contains the complete rule solution in natural language:
+
+```
+Paper 1 Specialist: Beta(10.5, 1.2) for regime "volatile" with method "mean_revert"
+  → Requires visualization to interpret
+
+Paper 2 Specialist: "VOWEL_START RULE SPECIALIST STRATEGY: The correct answer
+  ALWAYS starts with a vowel: A, E, I, O, or U. PROCEDURE: 1. Read all options.
+  2. Check first letter. 3. Select vowel-starting option."
+  → Human-readable, transferable, auditable
+```
+
+This transparency enables debugging, transfer across model instances, and auditing of agent knowledge.
+
+### 5. The "Free Lunch" of Specialization
 
 Traditional wisdom: Specialization requires expensive training.
 Our insight: Specialization can emerge from competition alone.

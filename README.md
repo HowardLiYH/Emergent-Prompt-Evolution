@@ -161,6 +161,53 @@ We provide a complete theoretical framework with three proven theorems:
 - **Thompson Sampling Connection**: Links to Paper 1's belief-based mechanism
 - **Carrying Capacity**: Optimal N* ≈ 3R (24-32 agents for 8 rules)
 
+---
+
+## 🔗 Connection to Paper 1: NichePopulation Algorithm
+
+This paper **directly extends** the [NichePopulation algorithm](https://github.com/HowardLiYH/Emergent-Specialization-in-Multi-Agent-Systems) from Paper 1 of this research series. Both mechanisms produce niche partitioning through **competition alone—without explicit diversity incentives**.
+
+### Conceptual Mapping
+
+| Paper 1: NichePopulation | Paper 2: Prompt Evolution |
+|--------------------------|---------------------------|
+| **Regimes** (environmental states) | **Rules** (task types) |
+| **Beta belief distributions** | **Strategy levels** (L0–L3 prompts) |
+| **Thompson Sampling posteriors** | **Accumulated prompt knowledge** |
+| **Niche affinity** α ∈ Δ^R | **Exclusivity** (L3 lock) |
+| **Niche bonus** λ | **Fitness sharing** 1/√n |
+| **Winner-take-all updates** | **Winner-take-all updates** |
+
+### Why Winner-Take-All Dynamics Are Essential
+
+Both papers demonstrate that **strict competitive exclusion is a structural necessity**:
+
+```
+Soft Competition (proportional updates):
+  → All agents update proportionally to performance
+  → Good strategies propagate to ALL agents
+  → Result: HOMOGENIZATION
+
+Winner-Take-All (this work):
+  → Only winner updates beliefs/strategies
+  → Winners accumulate expertise in winning niche
+  → Losers unchanged, must find other niches
+  → Result: DIFFERENTIATION (emergent specialization)
+```
+
+This explains why standard MARL methods (QMIX, MAPPO, IQL) fail to induce specialization: they use shared critics/value functions that drive convergence rather than divergence. Paper 1 shows MARL achieves SI < 0.2 versus our SI = 0.75.
+
+### Key Innovation: From Implicit to Explicit Preferences
+
+| Aspect | Paper 1 | Paper 2 (Innovation) |
+|--------|---------|---------------------|
+| Representation | Beta distributions (implicit) | Text prompts (explicit) |
+| Interpretability | Requires visualization | **Human-readable strategies** |
+| Transferability | Model-specific | Works across LLM providers |
+| Verifiability | Statistical only | Can read what agent "knows" |
+
+**See the [Deep Dive](docs/DEEP_DIVE.md#46-connection-to-paper-1-the-nichepopulation-algorithm) for the complete mathematical correspondence.**
+
 ### Core Reasoning: Why Competition Produces Complete Specialists
 
 ```
@@ -353,10 +400,37 @@ The Deep Dive covers:
 
 ## Related Projects
 
-| Project | Relationship |
-|---------|--------------|
-| [Emergent-Specialization](https://github.com/HowardLiYH/Emergent-Specialization-in-Multi-Agent-Systems) | Paper 1: Multi-agent systems across 6 domains (foundation) |
-| [Emergent-Civilizations](https://github.com/HowardLiYH/Emergent-Civilizations) | Paper 3: Society dynamics (extension) |
+| Paper | Project | Relationship |
+|-------|---------|--------------|
+| **Paper 1** | [Emergent-Specialization](https://github.com/HowardLiYH/Emergent-Specialization-in-Multi-Agent-Systems) | **Foundation**: Introduces NichePopulation algorithm with Thompson Sampling + competitive exclusion. Validated across 6 real-world domains (crypto, weather, solar, traffic, air quality, commodities). Mean SI = 0.747, Cohen's d > 20. **This paper directly extends its mechanism.** |
+| **Paper 2** | This Repository | **Extension**: Adapts NichePopulation for LLM prompt evolution. Rules↔Regimes, Strategy Levels↔Beta posteriors. Produces human-readable specialists with 70.7% causality validation. |
+| **Paper 3** | [Emergent-Civilizations](https://github.com/HowardLiYH/Emergent-Civilizations) | **Extension**: Applies emergent specialization to society-level dynamics and governance systems. |
+
+### The Research Series
+
+```
+Paper 1: NichePopulation (Foundation)
+   ├── Domain: Real-world time series prediction
+   ├── Agents: Beta-belief models
+   ├── Result: Competition induces specialization (SI=0.75)
+   │
+   ├──────────────────────────────────────────────────────┐
+   │  KEY MECHANISM: Winner-take-all competitive exclusion │
+   │  This transfers to Paper 2:                          │
+   │    Regimes → Rules                                   │
+   │    Beta posteriors → Strategy levels (L0-L3)         │
+   │    Niche bonus λ → Fitness sharing 1/√n             │
+   └──────────────────────────────────────────────────────┘
+   │
+Paper 2: Prompt Evolution (This Work)
+   ├── Domain: LLM task specialization
+   ├── Agents: LLM instances with accumulating prompts
+   ├── Result: Prompts cause preference (70.7% causality)
+   │
+Paper 3: Civilizations (Extension)
+   ├── Domain: Society-level dynamics
+   └── Status: In development
+```
 
 ---
 
