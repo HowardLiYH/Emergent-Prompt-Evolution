@@ -1319,6 +1319,76 @@ Paper 1 proved that multi-agent systems \textit{can} specialize through competit
 \end{whyitmatters}
 
 % ----------------------------------------------------------------------------
+\section{Distribution Evolution: A Fundamental Difference}
+\label{sec:distribution-evolution}
+
+A subtle but important distinction between Papers 1 and 2 concerns \textbf{how the agent's ``sampling distribution'' evolves}.
+
+\subsection{Paper 1: Direct Distribution Updates}
+
+In Paper 1, an agent's belief distribution \textbf{changes directly} through Bayesian updates:
+
+\begin{center}
+\begin{tikzpicture}
+    \node[draw, rectangle, rounded corners, fill=blue!10, minimum width=2.5cm] (before) {Beta(1, 1)};
+    \node[right=1cm of before] (arrow1) {$\xrightarrow{\text{win}}$};
+    \node[draw, rectangle, rounded corners, fill=blue!20, minimum width=2.5cm, right=1cm of arrow1] (after1) {Beta(2, 1)};
+    \node[right=1cm of after1] (arrow2) {$\xrightarrow{\text{win}}$};
+    \node[draw, rectangle, rounded corners, fill=blue!30, minimum width=2.5cm, right=1cm of arrow2] (after2) {Beta(3, 1)};
+    
+    \node[below=0.3cm of before, font=\small] {mean = 0.50};
+    \node[below=0.3cm of after1, font=\small] {mean = 0.67};
+    \node[below=0.3cm of after2, font=\small] {mean = 0.75};
+\end{tikzpicture}
+\end{center}
+
+The agent's internal state (the Beta parameters $\alpha$, $\beta$) changes, which directly shifts the sampling distribution.
+
+\subsection{Paper 2: Indirect Distribution Changes via Prompts}
+
+In Paper 2, the \textbf{LLM model is frozen}---its weights never change. What changes is the \textbf{prompt} (the input to the model):
+
+\begin{center}
+\begin{tikzpicture}
+    \node[draw, rectangle, rounded corners, fill=green!10, minimum width=2.5cm, align=center] (l0) {L0 Prompt\\(no hint)};
+    \node[right=0.8cm of l0] (arrow1) {$\xrightarrow{\text{win}}$};
+    \node[draw, rectangle, rounded corners, fill=green!20, minimum width=2.5cm, align=center, right=0.8cm of arrow1] (l1) {L1 Prompt\\(hint)};
+    \node[right=0.8cm of l1] (arrow2) {$\xrightarrow{\text{win}}$};
+    \node[draw, rectangle, rounded corners, fill=green!30, minimum width=2.5cm, align=center, right=0.8cm of arrow2] (l2) {L2/L3 Prompt\\(full strategy)};
+\end{tikzpicture}
+\end{center}
+
+The key insight:
+\begin{itemize}
+    \item The \textbf{unconditional} distribution $P(\text{confidence})$ of the LLM is fixed
+    \item But the \textbf{conditional} distribution $P(\text{confidence} | \text{prompt})$ changes when the prompt changes
+\end{itemize}
+
+\begin{keypoint}[Frozen Model, Evolving Input]
+\textbf{Paper 1:} Agent's ``brain'' changes (updated beliefs) $\to$ different sampling behavior
+
+\textbf{Paper 2:} Agent's ``instructions'' change (updated prompts), but the ``brain'' (LLM weights) stays the same $\to$ same model, different input $\to$ different output distribution
+
+This is precisely why Paper 2's specialization is \textbf{preference} (encoded in prompts) rather than \textbf{capability} (encoded in weights). The LLM itself doesn't learn---only what we \textit{ask} it to do evolves.
+\end{keypoint}
+
+\subsection{Tie-Breaking: Random Selection in Both Papers}
+
+Both papers face the possibility of \textbf{tied scores} (multiple agents with identical performance). Both resolve ties through \textbf{random selection}:
+
+\textbf{Paper 1:} When multiple agents achieve the same reward, one is selected uniformly at random.
+
+\textbf{Paper 2:} When multiple correct responders have the same confidence:
+\begin{lstlisting}[language=Python, basicstyle=\ttfamily\small]
+# From competition_v3.py
+tied_winners = [r for r in correct if r.confidence == max_conf]
+if len(tied_winners) > 1:
+    winner = random.choice(tied_winners)
+\end{lstlisting}
+
+Paper 2's two-layer selection (correct $\to$ highest confidence) reduces but does not eliminate ties, since LLM confidence values come from a discrete distribution (typically reported as integers 0-100\%).
+
+% ----------------------------------------------------------------------------
 \section{Parallel Theoretical Guarantees}
 \label{sec:parallel-guarantees}
 
