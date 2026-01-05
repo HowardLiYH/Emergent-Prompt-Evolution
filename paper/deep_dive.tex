@@ -1868,6 +1868,109 @@ Round 80 & All 8 rules have at least one L3 & \textbf{Full coverage achieved} \\
 Fitness sharing discourages crowding but doesn't prevent it entirely. With $N=12$ agents and $R=8$ rules, the expected equilibrium is $\sim$1.5 specialists per rule.
 \end{warning}
 
+\subsection{Critical Discussion: Is Exclusivity ``Cheating''?}
+\label{sec:exclusivity-discussion}
+
+A legitimate concern arises: \textit{If exclusivity forces agents to specialize, is specialization really ``emergent''? Or have we simply engineered the outcome?}
+
+\subsubsection{The Design vs. Emergence Tension}
+
+\begin{center}
+\begin{tabular}{lp{5cm}p{5cm}}
+\toprule
+\textbf{Extreme} & \textbf{Description} & \textbf{Problem} \\
+\midrule
+Too Much Design & Exclusivity forces specialization & ``You engineered the result'' \\
+Too Little Design & No constraints, chaos & Super-agent dominates, no diversity \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsubsection{What Happens Without Exclusivity?}
+
+Without the exclusivity constraint, a ``super-agent'' could emerge:
+
+\begin{center}
+\begin{tikzpicture}[scale=0.8]
+    % Timeline
+    \draw[->, thick] (0,0) -- (12,0) node[right] {Rounds};
+    
+    % Without exclusivity
+    \node[above, font=\bfseries] at (6, 3) {Without Exclusivity: Super-Agent Emergence};
+    
+    \node[draw, rectangle, rounded corners, fill=red!20, minimum width=2cm] at (2, 1.5) {Agent 1: L3 RHYME};
+    \node[draw, rectangle, rounded corners, fill=red!20, minimum width=2cm] at (5, 1.5) {+ L2 POSITION};
+    \node[draw, rectangle, rounded corners, fill=red!20, minimum width=2cm] at (8, 1.5) {+ L3 POSITION};
+    \node[draw, rectangle, rounded corners, fill=red!30, minimum width=2.5cm] at (11, 1.5) {L3 in ALL rules};
+    
+    \draw[->, thick] (3, 1.5) -- (3.8, 1.5);
+    \draw[->, thick] (6.2, 1.5) -- (6.8, 1.5);
+    \draw[->, thick] (9.2, 1.5) -- (9.6, 1.5);
+\end{tikzpicture}
+\end{center}
+
+The winner-take-all dynamic creates a positive feedback loop. Without exclusivity, the first strong agent keeps winning across \textit{all} domains, eventually dominating everything.
+
+\subsubsection{What IS and IS NOT Emergent?}
+
+\begin{table}[H]
+\centering
+\caption{Distinguishing designed constraints from emergent outcomes.}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Aspect} & \textbf{Designed?} & \textbf{Emergent?} \\
+\midrule
+Agents must specialize (exclusivity) & \checkmark & \\
+\textit{Which} agent specializes in \textit{which} rule & & \checkmark \\
+Specialists achieve 100\% accuracy & & \checkmark \\
+Prompts encode correct rule knowledge & & \checkmark \\
+Prompts transfer across different LLMs & & \checkmark \\
+Causality (prompts cause performance) & & \checkmark \\
+Natural niche partitioning & & \checkmark \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{The Paper 1 Precedent}
+
+Paper 1 established a key result: \textbf{At $\lambda = 0$ (no niche bonus), specialization still emerges} with SI $> 0.30$. This proves that competition alone, without diversity incentives, produces specialization.
+
+Paper 2's analogous claim should be: \textbf{Even without exclusivity, does competition produce some specialization?}
+
+\begin{keypoint}[The Core Claim]
+\textbf{Exclusivity is a safety net, not the source of specialization.}
+
+The \textit{source} of specialization is:
+\begin{itemize}
+    \item Winner-take-all competition
+    \item First-mover advantage
+    \item Strategy accumulation through winning
+\end{itemize}
+
+Exclusivity \textit{guarantees} the outcome that competition \textit{tends to produce anyway}. It prevents pathological cases (super-agents) but is not what \textit{causes} diversity.
+\end{keypoint}
+
+\subsubsection{Proposed Ablation Study}
+
+To validate the claim that exclusivity is not the source of specialization, an ablation study could test:
+
+\begin{table}[H]
+\centering
+\caption{Proposed ablation conditions to test the role of exclusivity.}
+\begin{tabular}{llp{6cm}}
+\toprule
+\textbf{Condition} & \textbf{Exclusivity} & \textbf{Expected Result} \\
+\midrule
+Full system & Yes & Strong specialization, guaranteed diversity \\
+No exclusivity & No & Some specialization, but risk of super-agent \\
+No fitness sharing & Yes & Specialization, but crowded niches \\
+Competition only & No & Key test: does specialization still emerge? \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+If the ``competition only'' condition still produces meaningful specialization (even if weaker), this would validate the core claim that \textbf{competition is the source of diversity}.
+
 % ----------------------------------------------------------------------------
 \section{Synthetic Rule Domains}
 \label{sec:synthetic-rules}
