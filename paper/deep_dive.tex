@@ -1814,6 +1814,60 @@ Exclusivity & L3 locks specialty & Force commitment \\
 \end{tabular}
 \end{table}
 
+\subsection{How Diversity Is Guaranteed: The Multi-Layer Defense}
+
+A natural question arises: \textit{What prevents all agents from reaching L3 in the same rule?} If that happened, there would be no specialization.
+
+The answer is a \textbf{multi-layer defense} that makes mono-specialization extremely unlikely:
+
+\begin{enumerate}
+    \item \textbf{Seeded Initialization}: Each agent starts with L1 in a \textit{different random rule}. This seeds diversity from the beginning---agents don't all start competing for the same niche.
+
+    \item \textbf{Random Rule Selection}: Each round samples a rule uniformly at random. Over 100 generations, agents are exposed to all 8 rules roughly equally, giving specialists in different niches opportunities to emerge.
+
+    \item \textbf{First-Mover Advantage + Exclusivity}: This is the key mechanism. Once an agent reaches L3 in rule A:
+    \begin{itemize}
+        \item They are \textbf{locked} into rule A
+        \item They \textbf{cannot} become L3 in rules B, C, D, ...
+        \item This \textbf{opens the door} for other agents to specialize in those rules
+    \end{itemize}
+
+    \item \textbf{Fitness Sharing}: Even if multiple agents try to crowd into one rule, the $1/\sqrt{n}$ penalty reduces their expected rewards, making uncrowded niches more attractive.
+\end{enumerate}
+
+\begin{example}[Natural Partitioning Through Lock-In]
+Consider the evolution of a 12-agent population:
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+\textbf{Round} & \textbf{Event} & \textbf{Effect} \\
+\midrule
+Round 10 & Agent 1 reaches L3 in RHYME & Agent 1 locked $\to$ cannot compete for other rules \\
+Round 15 & Agent 2 reaches L3 in POSITION & Agent 2 locked $\to$ POSITION ``claimed'' \\
+Round 20 & Agent 3 reaches L3 in MATH\_MOD & Agent 3 locked $\to$ MATH\_MOD ``claimed'' \\
+Round 25 & Agent 4 reaches L3 in RHYME & Allowed (multiple L3 per rule is OK) \\
+Round 30 & Agent 5 reaches L3 in VOWEL & Agent 5 locked $\to$ VOWEL ``claimed'' \\
+\vdots & \vdots & \vdots \\
+Round 80 & All 8 rules have at least one L3 & \textbf{Full coverage achieved} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Key insight}: Once Agent 1 is locked into RHYME, they are ``out of the race'' for other rules. This creates opportunities for Agents 2, 3, 5, ... to claim those niches. The combination of lock-in + first-mover advantage naturally partitions the population.
+\end{example}
+
+\begin{warning}
+\textbf{Multiple L3 Specialists per Rule}: Exclusivity does \textit{not} prevent multiple agents from reaching L3 in the same rule. What it prevents is \textit{one agent} from being L3 in \textit{multiple rules}.
+
+\begin{itemize}
+    \item \textbf{Allowed}: Agent 1 = L3 in RHYME, Agent 2 = L3 in RHYME (both specialists in RHYME)
+    \item \textbf{Prevented}: Agent 1 = L3 in RHYME \textit{and} L3 in POSITION (multi-specialist)
+\end{itemize}
+
+Fitness sharing discourages crowding but doesn't prevent it entirely. With $N=12$ agents and $R=8$ rules, the expected equilibrium is $\sim$1.5 specialists per rule.
+\end{warning}
+
 % ----------------------------------------------------------------------------
 \section{Synthetic Rule Domains}
 \label{sec:synthetic-rules}
