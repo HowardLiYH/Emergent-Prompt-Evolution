@@ -1472,6 +1472,68 @@ The underlying mathematical structure---and the guarantees it provides---are the
     \item \textbf{Fitness Sharing}: Crowding penalty applied for diversity
 \end{enumerate}
 
+\subsection{Algorithm Pseudocode}
+
+\begin{algorithm}[H]
+\caption{Emergent Preference Specialization (Paper 2)}
+\label{alg:eps}
+\begin{algorithmic}[1]
+\REQUIRE Population size $N$, Rule count $R$, Generations $T$, Fitness sharing $\gamma$
+\ENSURE Specialized agents with strategy vectors $\{\mathbf{s}_i\}_{i=1}^N$
+
+\STATE \textbf{// Initialization}
+\FOR{each agent $i = 1, \ldots, N$}
+    \STATE $s_{i,r} \gets 0$ for all rules $r \in \{1, \ldots, R\}$
+    \STATE $r^* \gets \text{RandomChoice}(\{1, \ldots, R\})$ \COMMENT{Seeded initialization}
+    \STATE $s_{i,r^*} \gets 1$ \COMMENT{Start with L1 hint in random rule}
+\ENDFOR
+
+\STATE \textbf{// Evolution Loop}
+\FOR{generation $t = 1, \ldots, T$}
+    \STATE $r \gets \text{UniformSample}(\{1, \ldots, R\})$ \COMMENT{Random rule selection}
+    \STATE $\tau \gets \text{GenerateTask}(r)$ \COMMENT{Create multiple-choice question}
+
+    \STATE \textbf{// Competition Phase}
+    \STATE $\mathcal{C} \gets \emptyset$ \COMMENT{Set of correct responders}
+    \FOR{each agent $i = 1, \ldots, N$}
+        \STATE $\text{prompt}_i \gets \text{BuildPrompt}(s_{i,r})$ \COMMENT{L0/L1/L2/L3 strategy text}
+        \STATE $(a_i, c_i) \gets \text{LLM}(\tau, \text{prompt}_i)$ \COMMENT{Answer and confidence}
+        \IF{$a_i = \text{CorrectAnswer}(\tau)$}
+            \STATE $\mathcal{C} \gets \mathcal{C} \cup \{(i, c_i)\}$
+        \ENDIF
+    \ENDFOR
+
+    \STATE \textbf{// Winner Selection and Update}
+    \IF{$\mathcal{C} \neq \emptyset$}
+        \STATE $w \gets \argmax_{(i, c_i) \in \mathcal{C}} c_i$ \COMMENT{Highest confidence wins}
+        \STATE \textbf{// Exclusivity Check}
+        \IF{$\max_{r'} s_{w,r'} < 3$ \OR $s_{w,r} > 0$}
+            \STATE $s_{w,r} \gets \min(s_{w,r} + 1, 3)$ \COMMENT{Increment strategy level}
+        \ENDIF
+    \ENDIF
+
+    \STATE \textbf{// Fitness Sharing (for selection pressure)}
+    \FOR{each rule $r' = 1, \ldots, R$}
+        \STATE $n_{r'} \gets |\{i : s_{i,r'} = 3\}|$ \COMMENT{Count L3 specialists}
+        \STATE $\text{penalty}_{r'} \gets n_{r'}^{-\gamma}$ \COMMENT{Crowding penalty, $\gamma = 0.5$}
+    \ENDFOR
+\ENDFOR
+
+\RETURN $\{\mathbf{s}_i\}_{i=1}^N$ \COMMENT{Specialized agent population}
+\end{algorithmic}
+\end{algorithm}
+
+\begin{keypoint}
+\textbf{Key Differences from Paper 1's NichePopulation:}
+\begin{itemize}
+    \item \textbf{Knowledge Representation}: Discrete levels $s \in \{0,1,2,3\}$ instead of Beta distributions
+    \item \textbf{Explicit Prompts}: Strategy levels map to readable prompt text
+    \item \textbf{Confidence Selection}: LLM confidence replaces reward-based selection
+    \item \textbf{Fitness Sharing}: Crowding penalty (Paper 2) vs. niche bonus (Paper 1)
+    \item \textbf{Exclusivity}: Hard constraint at L3 forces commitment
+\end{itemize}
+\end{keypoint}
+
 \subsection{Key Design Decisions}
 
 \begin{table}[H]
