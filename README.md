@@ -381,6 +381,22 @@ All results include complete statistical analysis:
 
 ---
 
+## Metrics & Literature Grounding
+
+All metrics used in this work are grounded in established literature:
+
+| Metric | Formula | Origin | Citation |
+|--------|---------|--------|----------|
+| **SCI** (Strategy Concentration Index) | `1 - H/H_max` | **1 - Pielou's Evenness** | Pielou (1966); Shannon (1948) |
+| **Gini Coefficient** | Lorenz curve area | Economics/Inequality | Gini (1912) |
+| **Shannon Entropy** | `-Σ p log(p)` | Information Theory | Shannon (1948) |
+| **HHI** (Herfindahl-Hirschman) | `Σ p_i²` | Economics/Concentration | US DOJ standard |
+| **Fitness Sharing** | `f' = f/√n` | Evolutionary Computation | Goldberg & Richardson (1987) |
+
+> **Note on SCI**: The Strategy Concentration Index is mathematically equivalent to **1 - Pielou's Evenness Index** (Pielou, 1966). The formula `1 - H/H_max` is a standard entropy-based concentration measure. Our contribution is the *naming* and *application* to LLM agent specialization, not the formula itself.
+
+---
+
 ## 📚 Deep Dive: Understanding the Method
 
 **New to this project?** Read our comprehensive **[Deep Dive Document](docs/DEEP_DIVE.md)** — a ground-up mathematical explanation of the entire methodology.
