@@ -1310,30 +1310,18 @@ In Paper 2, an agent's \textbf{expertise} in rule $r$ is encoded as a discrete l
 Both represent a $[0,1]$ measure of specialization, but Paper 2 uses \textbf{discrete levels} while Paper 1 uses \textbf{continuous posteriors}.
 
 \begin{remark}[Normalization is for Comparison Only]
-The normalization $s_r/3$ is used here \textit{purely for conceptual comparison} with Paper 1. In the actual implementation, strategy levels are used directly as discrete integers:
-\[
-s_r \in \{0, 1, 2, 3\} \quad \text{(raw levels, not normalized)}
-\]
-Each level maps to a specific prompt template:
-\begin{center}
-\begin{tabular}{cl}
-\toprule
-\textbf{Level} & \textbf{Prompt Content} \\
-\midrule
-$s = 0$ & No hint (generalist) \\
-$s = 1$ & Vague hint (``might involve rhyming...'') \\
-$s = 2$ & Partial strategy (``look for rhyming patterns'') \\
-$s = 3$ & Full strategy (``You are a RHYME specialist. Always pick...'') \\
-\bottomrule
-\end{tabular}
-\end{center}
-The code never computes $s/3$---it simply uses the integer level to select the appropriate prompt.
+The normalization $s_r/3$ is used here \textit{purely for conceptual comparison} with Paper 1. In the actual implementation, strategy levels are used directly as discrete integers: $s_r \in \{0, 1, 2, 3\}$. The code never computes $s/3$---it simply uses the integer level to select the appropriate prompt.
 \end{remark}
 
-\begin{keypoint}[The Prompt Inventory: Fixed, Finite, and Shared]
-\textbf{How many prompts exist?}
+% ============================================================================
+\subsection{The Prompt Template System}
+\label{sec:prompt-templates}
 
-The prompt system is a \textbf{fixed inventory} of pre-defined templates:
+This section explains how strategy levels translate into actual prompts.
+
+\subsubsection{Inventory Overview}
+
+The prompt system is a \textbf{fixed inventory} of 32 pre-defined templates:
 
 \begin{center}
 \begin{tabular}{lc}
@@ -1347,168 +1335,156 @@ Strategy levels per rule & $4$ (L0, L1, L2, L3) \\
 \end{tabular}
 \end{center}
 
-\textbf{What is TEMPLATES?}
+Each level maps to progressively more detailed instructions:
+\begin{itemize}
+    \item \textbf{L0}: No hint (generalist baseline)
+    \item \textbf{L1}: Vague hint ($\sim$100 characters)
+    \item \textbf{L2}: Partial strategy ($\sim$250 characters)
+    \item \textbf{L3}: Full instruction with examples ($\sim$500+ characters)
+\end{itemize}
 
-\texttt{TEMPLATES} is a pre-defined lookup table mapping each (rule, level) pair to a specific prompt string. It is defined \textit{before} the experiment runs and never changes during evolution.
+\subsubsection{The TEMPLATES Lookup Table}
 
-\begin{example}[TEMPLATES for RHYME Rule]
-\begin{center}
+\texttt{TEMPLATES} is a pre-defined lookup table mapping each (rule, level) pair to a specific prompt string. Given rule $r$ and level $s$:
+\[
+\text{prompt} = \text{TEMPLATES}[r][s]
+\]
+This is a simple lookup, not a generation process. The full library is defined in \texttt{src/genesis/rule\_strategies.py}.
+
+\begin{example}[RHYME Rule Templates]
 \small
-\begin{tabular}{cp{10cm}}
+\begin{center}
+\begin{tabular}{cp{9cm}}
 \toprule
-\textbf{Level} & \textbf{TEMPLATES[RHYME][level]} \\
+\textbf{Level} & \textbf{Prompt Text} \\
 \midrule
-L0 & \textit{(empty string---no hint given)} \\[0.3cm]
-L1 & ``Listen to how the words sound, not what they mean. Sound similarity is key.'' \\[0.3cm]
-L2 & ``One option rhymes with the keyword CAT. Find the option with the same ending sound '-at'. Words like bat, hat, mat, rat all rhyme with cat.'' \\[0.3cm]
-L3 & ``You are a RHYME DETECTION SPECIALIST. Your expertise is identifying words that rhyme with CAT. CORE RULE: The correct answer ALWAYS rhymes with 'CAT' (ends with '-at' sound). STEP-BY-STEP: 1. Say 'CAT' out loud in your mind. 2. Check if each option ends with '-at' sound. 3. Select the option that rhymes. EXAMPLES: fish, bat, tree $\to$ bat...'' \\
+L0 & \textit{(empty---no hint)} \\
+L1 & ``Listen to how the words sound, not what they mean.'' \\
+L2 & ``One option rhymes with CAT. Find the '-at' ending sound.'' \\
+L3 & ``You are a RHYME SPECIALIST. The correct answer ALWAYS rhymes with 'CAT'. STEP-BY-STEP: 1. Check each option for '-at' sound...'' \\
 \bottomrule
 \end{tabular}
 \end{center}
 \end{example}
 
-The full template library is defined in \texttt{src/genesis/rule\_strategies.py} with 8 rules $\times$ 4 levels = 32 unique prompt strings.
+\subsubsection{Key Properties}
 
-\textbf{Key Properties:}
+\textbf{1. Deterministic mapping}: Same (rule, level) always produces the same prompt.
+
+\textbf{2. Shared prompts}: Multiple agents at the same level receive identical prompts.
+
+\textbf{3. Pre-authored}: Prompts are handcrafted before experiments, ensuring controlled conditions.
+
+\textbf{4. Agent state}: Each agent's full state is a vector $\mathbf{s}_i = (s_{i,1}, \ldots, s_{i,R})$, yielding $4^8 = 65{,}536$ possible configurations.
+
+\clearpage
+% ============================================================================
+\subsection{Prompt Assignment Mechanics}
+\label{sec:prompt-mechanics}
+
+A common misconception is that prompts are randomly assigned each round. They are not.
+
+\subsubsection{How Prompt Assignment Works}
+
+Prompts are \textbf{deterministically derived from accumulated levels}:
 \begin{enumerate}
-    \item \textbf{Deterministic mapping}: Given (rule $r$, level $s$), the prompt is uniquely determined:
-    \[
-    \text{prompt} = \text{TEMPLATES}[r][s]
-    \]
-    This is a simple lookup, not a generation process.
-
-    \item \textbf{Shared prompts}: Yes! Multiple agents can have the \textbf{same prompt} if they're at the same level for the same rule. For example, if Agent 1 and Agent 7 both have $s_{\text{RHYME}} = 2$, they receive identical prompts.
-
-    \item \textbf{Pre-authored, not generated}: Prompts are handcrafted by the experimenter, not generated by the LLM. This ensures controlled experiments:
-    \begin{itemize}
-        \item L1: $\sim$100 characters (vague hint)
-        \item L2: $\sim$250 characters (partial strategy)
-        \item L3: $\sim$500+ characters (full instruction with examples)
-    \end{itemize}
-
-    \item \textbf{Agent state = vector of levels}: An agent's full prompt state is a vector $\mathbf{s}_i = (s_{i,1}, \ldots, s_{i,R})$. The number of possible agent states is $4^8 = 65{,}536$.
-\end{enumerate}
-
-\textbf{Example}: Two agents with identical RHYME expertise:
-\begin{center}
-\begin{tabular}{lll}
-\toprule
-Agent & $s_{\text{RHYME}}$ & Prompt received for RHYME task \\
-\midrule
-Agent 3 & 2 & ``Rhymes with CAT. Find the option with '-at' sound...'' \\
-Agent 9 & 2 & ``Rhymes with CAT. Find the option with '-at' sound...'' \textit{(identical!)} \\
-\bottomrule
-\end{tabular}
-\end{center}
-
-\textbf{Why fixed prompts?} This design:
-\begin{itemize}
-    \item Ensures \textbf{reproducibility}: Same level → same prompt → same expected behavior
-    \item Enables \textbf{causality testing}: Swap tests are meaningful because prompts are identical
-    \item Matches Paper 1's \textbf{method library}: Fixed set of methods available to all agents
-\end{itemize}
-\end{keypoint}
-
-\begin{remark}[On the Credibility of Pre-Authored Prompts]
-\textbf{Potential concern}: ``The prompts are hand-designed---doesn't this undermine the emergence claim?''
-
-\textbf{Answer}: No, and here's why:
-
-\textbf{1. Rules are grounded in cognitive science:}
-\begin{center}
-\small
-\begin{tabular}{lp{8cm}}
-\toprule
-\textbf{Rule} & \textbf{Cognitive Science Foundation} \\
-\midrule
-ANIMATE & Category-specific processing (Warrington \& Shallice 1984; Caramazza \& Shelton 1998) \\
-RHYME & Phonological awareness (Goswami 2001; Wagner et al. 1987) \\
-VOWEL\_START & Phonemic awareness (Treiman \& Zukowski 1991; Adams 1990) \\
-PATTERN & Gestalt pattern recognition (Wertheimer 1923) \\
-POSITION & Spatial reasoning (Johnson-Laird 1983) \\
-MATH\_MOD & Numerical cognition (Dehaene 1997) \\
-\bottomrule
-\end{tabular}
-\end{center}
-
-\textbf{2. Prompts follow pedagogical principles:}
-\begin{itemize}
-    \item L1 $\to$ L2 $\to$ L3 mirrors \textbf{scaffolded learning}: hint $\to$ partial $\to$ full
-    \item This is standard instructional design, not arbitrary wording
-\end{itemize}
-
-\textbf{3. Prompts are a controlled variable, not the finding:}
-\begin{itemize}
-    \item We don't claim to \textit{discover} prompts
-    \item We claim agents \textit{differentially acquire} prompts through competition
-    \item The \textbf{mechanism} (specialization via competition) is the contribution
-\end{itemize}
-
-\textbf{4. Ablation validates emergence, not prompt quality:}
-\begin{itemize}
-    \item Competition-only produces SCI = 0.773 (without changing prompts)
-    \item This proves specialization is emergent, not engineered via prompt design
-\end{itemize}
-
-\textbf{5. Cross-LLM validation:}
-\begin{itemize}
-    \item Same prompts work across Gemini, GPT-4, and Claude
-    \item Prompt effectiveness is not model-specific
-\end{itemize}
-
-\textbf{Future work}: Explore automated prompt generation (e.g., PromptBreeder) to remove human authoring entirely. However, for controlled experiments, pre-authored prompts are \textit{preferable} because they isolate the variable of interest (specialization mechanism).
-\end{remark}
-
-\begin{warning}[Common Misconception: Prompts Are NOT Randomly Assigned]
-Prompts are \textbf{deterministically derived from accumulated levels}, not randomly assigned each round.
-
-\textbf{How it works:}
-\begin{enumerate}
-    \item Each agent maintains a \textbf{persistent strategy vector} $\mathbf{s}_i = (s_{i,1}, \ldots, s_{i,R})$
+    \item Each agent maintains a \textbf{persistent strategy vector} $\mathbf{s}_i$
     \item When rule $r$ is selected, agent $i$ receives the prompt for level $s_{i,r}$
     \item Higher levels = better prompts = advantage in competition
 \end{enumerate}
 
-\textbf{Example: Round 23, RHYME task selected}
-
+\begin{example}[Round 23: RHYME Task]
 \begin{center}
 \begin{tabular}{lcll}
 \toprule
 \textbf{Agent} & $s_{\text{RHYME}}$ & \textbf{Prompt Received} & \textbf{Advantage} \\
 \midrule
-Agent 5 & 3 & ``You are a RHYME specialist. Always pick...'' & Expert \\
-Agent 8 & 2 & ``Look for '-at' rhyming patterns...'' & Moderate \\
-Agent 2 & 0 & (no strategy hint) & None \\
+Agent 5 & 3 & Full specialist prompt & Expert \\
+Agent 8 & 2 & Partial strategy & Moderate \\
+Agent 2 & 0 & No hint & None \\
+\bottomrule
+\end{tabular}
+\end{center}
+Agent 5's advantage is \textbf{earned through previous wins}, not randomly assigned.
+\end{example}
+
+\subsubsection{Expertise Accumulation Over Time}
+
+\begin{center}
+\begin{tikzpicture}[>=stealth, node distance=2.8cm, scale=0.9, transform shape]
+    \node[draw, rectangle, rounded corners, fill=red!10, align=center] (r1) {Round 1\\Agent 5 wins\\$s: 0 \to 1$};
+    \node[draw, rectangle, rounded corners, fill=orange!10, right of=r1, align=center] (r7) {Round 7\\Agent 5 wins\\$s: 1 \to 2$};
+    \node[draw, rectangle, rounded corners, fill=yellow!10, right of=r7, align=center] (r15) {Round 15\\Agent 5 wins\\$s: 2 \to 3$};
+    \node[draw, rectangle, rounded corners, fill=green!10, right of=r15, align=center] (r23) {Round 23+\\Agent 5\\dominates};
+
+    \draw[->, thick] (r1) -- (r7);
+    \draw[->, thick] (r7) -- (r15);
+    \draw[->, thick] (r15) -- (r23);
+\end{tikzpicture}
+\end{center}
+
+\begin{keypoint}[Positive Feedback Loop]
+Early wins create advantages that compound over time, leading to niche dominance. This is why specialization \textit{emerges}---it's not designed in, but arises from competitive dynamics.
+\end{keypoint}
+
+\clearpage
+% ============================================================================
+\subsection{Validity of Pre-Authored Prompts}
+\label{sec:prompt-validity}
+
+\textbf{Potential concern}: ``The prompts are hand-designed---doesn't this undermine the emergence claim?''
+
+\textbf{Answer}: No. Here's why:
+
+\subsubsection{1. Rules Are Grounded in Cognitive Science}
+
+\begin{center}
+\small
+\begin{tabular}{lp{7cm}}
+\toprule
+\textbf{Rule} & \textbf{Scientific Foundation} \\
+\midrule
+ANIMATE & Category-specific processing (Caramazza \& Shelton 1998) \\
+RHYME & Phonological awareness (Goswami 2001) \\
+VOWEL\_START & Phonemic awareness (Treiman \& Zukowski 1991) \\
+PATTERN & Gestalt recognition (Wertheimer 1923) \\
+MATH\_MOD & Numerical cognition (Dehaene 1997) \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-Agent 5 has the ``headstart'' because they \textbf{won previous RHYME competitions}---the advantage is \textbf{earned through competition}, not randomly assigned.
+\subsubsection{2. Prompts Follow Pedagogical Principles}
 
-\textbf{Timeline of expertise accumulation:}
-\begin{center}
-\begin{tikzpicture}[>=stealth, node distance=2.5cm]
-    \node[draw, rectangle, rounded corners, fill=red!10] (r1) {Round 1\\RHYME\\Agent 5 wins\\$s: 0 \to 1$};
-    \node[draw, rectangle, rounded corners, fill=orange!10, right of=r1] (r7) {Round 7\\RHYME\\Agent 5 wins\\$s: 1 \to 2$};
-    \node[draw, rectangle, rounded corners, fill=yellow!10, right of=r7] (r15) {Round 15\\RHYME\\Agent 5 wins\\$s: 2 \to 3$};
-    \node[draw, rectangle, rounded corners, fill=green!10, right of=r15] (r23) {Round 23+\\RHYME\\Agent 5 dominates\\(L3 specialist)};
+The L1 $\to$ L2 $\to$ L3 progression mirrors \textbf{scaffolded learning}---a well-established instructional design principle, not arbitrary wording.
 
-    \draw[->] (r1) -- (r7);
-    \draw[->] (r7) -- (r15);
-    \draw[->] (r15) -- (r23);
-\end{tikzpicture}
-\end{center}
+\subsubsection{3. Prompts Are a Controlled Variable}
 
-\textbf{Key insight}: This is why specialization emerges---early wins create advantages that compound over time, leading to niche dominance through positive feedback.
-\end{warning}
+We don't claim to \textit{discover} prompts. We claim agents \textit{differentially acquire} them through competition. The \textbf{mechanism} is the contribution, not the prompt content.
 
-\begin{warning}
-\textbf{Terminology Clarification:} Paper 1 uses ``belief'' (expected value of Beta distribution), while Paper 2 uses ``confidence'' (LLM self-reported). These are \textit{different concepts}:
+\subsubsection{4. Ablation Validates Emergence}
+
+Competition-only produces SCI = 0.773 without changing prompts. This proves specialization is emergent, not engineered via prompt design.
+
+\subsubsection{5. Cross-LLM Validation}
+
+The same prompts work across Gemini, GPT-4, and Claude, demonstrating robustness.
+
+\begin{remark}[Future Work]
+Automated prompt generation (e.g., PromptBreeder) could remove human authoring. However, for controlled experiments, pre-authored prompts \textit{isolate the variable of interest}.
+\end{remark}
+
+\clearpage
+% ============================================================================
+\subsection{Terminology: Belief vs. Confidence}
+\label{sec:terminology}
+
+\begin{warning}[Critical Distinction]
+Paper 1 and Paper 2 use different terms for similar concepts:
 \begin{itemize}
-    \item \textbf{Paper 1 Belief}: Computed mathematically as $\alpha/(\alpha+\beta)$---fully transparent
-    \item \textbf{Paper 2 Confidence}: Self-reported by LLM---a black box (see Section 19.3)
+    \item \textbf{Paper 1 ``Belief''}: Computed mathematically as $\alpha/(\alpha+\beta)$---fully transparent
+    \item \textbf{Paper 2 ``Confidence''}: Self-reported by LLM---a black box
 \end{itemize}
-Despite using different mechanisms, both serve the same role: the agent with higher belief/confidence is more likely to win.
+Despite different mechanisms, both serve the same role: the agent with higher belief/confidence is more likely to win.
 \end{warning}
 
 \subsection{Thompson Sampling Equivalence}
