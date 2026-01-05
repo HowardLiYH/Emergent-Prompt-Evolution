@@ -1419,7 +1419,7 @@ Agent 5 has the ``headstart'' because they \textbf{won previous RHYME competitio
     \node[draw, rectangle, rounded corners, fill=orange!10, right of=r1] (r7) {Round 7\\RHYME\\Agent 5 wins\\$s: 1 \to 2$};
     \node[draw, rectangle, rounded corners, fill=yellow!10, right of=r7] (r15) {Round 15\\RHYME\\Agent 5 wins\\$s: 2 \to 3$};
     \node[draw, rectangle, rounded corners, fill=green!10, right of=r15] (r23) {Round 23+\\RHYME\\Agent 5 dominates\\(L3 specialist)};
-    
+
     \draw[->] (r1) -- (r7);
     \draw[->] (r7) -- (r15);
     \draw[->] (r15) -- (r23);
@@ -1491,47 +1491,55 @@ An L3 specialist is ``sampling'' from a high-mean distribution (confident), whil
 
 \begin{figure}[H]
 \centering
-\begin{tikzpicture}[scale=0.9]
-    % Axes
-    \draw[->] (0,0) -- (8,0) node[right] {Confidence $c$};
-    \draw[->] (0,0) -- (0,4.5) node[above] {Density $p(c)$};
+\begin{tikzpicture}[scale=1.0]
+    % Axes with more space
+    \draw[->] (0,0) -- (10,0) node[right] {\textbf{Confidence} $c$};
+    \draw[->] (0,0) -- (0,5) node[above] {\textbf{Density} $p(c)$};
 
-    % X-axis labels
-    \foreach \x/\label in {0/0, 2/0.25, 4/0.5, 6/0.75, 8/1.0} {
-        \draw (\x, -0.1) -- (\x, 0.1);
-        \node[below] at (\x, -0.1) {\small \label};
+    % X-axis labels (moved down for clarity)
+    \foreach \x/\label in {0/0, 2.5/0.25, 5/0.5, 7.5/0.75, 10/1.0} {
+        \draw (\x, -0.15) -- (\x, 0.15);
+        \node[below] at (\x, -0.3) {\label};
     }
 
     % Beta(1,4) - L0: skewed left (mass near 0)
-    \draw[thick, red!70!black, domain=0.1:7.9, samples=100]
-        plot (\x, {4 * (1 - \x/8)^3});
-    \node[red!70!black, right] at (0.5, 3.8) {\textbf{L0: Beta(1,4)}};
-    \node[red!70!black, right] at (0.5, 3.3) {\small mean=0.20};
-
+    \draw[very thick, red!80!black, domain=0.1:9.9, samples=100]
+        plot (\x, {4.5 * (1 - \x/10)^3});
+    
     % Beta(2,3) - L1
-    \draw[thick, orange!80!black, domain=0.1:7.9, samples=100]
-        plot (\x, {2.5 * (\x/8) * (1 - \x/8)^2});
-    \node[orange!80!black] at (2.5, 1.8) {\small \textbf{L1}};
-
+    \draw[very thick, orange!90!black, domain=0.1:9.9, samples=100]
+        plot (\x, {3 * (\x/10) * (1 - \x/10)^2});
+    
     % Beta(3,2) - L2
-    \draw[thick, blue!60!black, domain=0.1:7.9, samples=100]
-        plot (\x, {2.5 * (\x/8)^2 * (1 - \x/8)});
-    \node[blue!60!black] at (5.5, 1.8) {\small \textbf{L2}};
-
+    \draw[very thick, blue!70!black, domain=0.1:9.9, samples=100]
+        plot (\x, {3 * (\x/10)^2 * (1 - \x/10)});
+    
     % Beta(4,1) - L3: skewed right (mass near 1)
-    \draw[thick, green!50!black, domain=0.1:7.9, samples=100]
-        plot (\x, {4 * (\x/8)^3});
-    \node[green!50!black, left] at (7.5, 3.8) {\textbf{L3: Beta(4,1)}};
-    \node[green!50!black, left] at (7.5, 3.3) {\small mean=0.80};
+    \draw[very thick, green!60!black, domain=0.1:9.9, samples=100]
+        plot (\x, {4.5 * (\x/10)^3});
 
     % Uniform reference (dashed)
-    \draw[dashed, gray, thick] (0, 1) -- (8, 1);
-    \node[gray, right] at (8.1, 1) {\small Uniform};
-
-    % Annotation
-    \draw[<->, thick] (1, 0.5) -- (7, 0.5);
-    \node[below] at (4, 0.3) {\small \textit{Higher level $\Rightarrow$ distribution shifts right}};
+    \draw[dashed, gray, thick] (0, 1) -- (10, 1);
+    
+    % Legend box (outside plot area, top right)
+    \node[draw, fill=white, rounded corners, align=left, font=\small] at (12, 4) {
+        \textcolor{red!80!black}{\rule{0.5cm}{2pt}} \textbf{L0}: Beta(1,4), $\mu$=0.20\\[3pt]
+        \textcolor{orange!90!black}{\rule{0.5cm}{2pt}} \textbf{L1}: Beta(2,3), $\mu$=0.40\\[3pt]
+        \textcolor{blue!70!black}{\rule{0.5cm}{2pt}} \textbf{L2}: Beta(3,2), $\mu$=0.60\\[3pt]
+        \textcolor{green!60!black}{\rule{0.5cm}{2pt}} \textbf{L3}: Beta(4,1), $\mu$=0.80\\[3pt]
+        \textcolor{gray}{- - -} Uniform
+    };
+    
 \end{tikzpicture}
+
+\vspace{0.3cm}
+\begin{center}
+\fbox{\parbox{0.8\textwidth}{
+\centering
+\textbf{Key Insight}: Higher strategy level $\Rightarrow$ distribution shifts right $\Rightarrow$ higher expected confidence $\Rightarrow$ more likely to win
+}}
+\end{center}
+
 \caption{Beta distributions for each strategy level. L0 (red) concentrates near low confidence; L3 (green) concentrates near high confidence. They are \textbf{mirror images}, not uniform---same variance (0.027), different means.}
 \label{fig:beta-distributions}
 \end{figure}
