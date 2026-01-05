@@ -1409,6 +1409,56 @@ Agent 9 & 2 & ``Rhymes with CAT. Find the option with '-at' sound...'' \textit{(
 \end{itemize}
 \end{keypoint}
 
+\begin{remark}[On the Credibility of Pre-Authored Prompts]
+\textbf{Potential concern}: ``The prompts are hand-designed---doesn't this undermine the emergence claim?''
+
+\textbf{Answer}: No, and here's why:
+
+\textbf{1. Rules are grounded in cognitive science:}
+\begin{center}
+\small
+\begin{tabular}{lp{8cm}}
+\toprule
+\textbf{Rule} & \textbf{Cognitive Science Foundation} \\
+\midrule
+ANIMATE & Category-specific processing (Warrington \& Shallice 1984; Caramazza \& Shelton 1998) \\
+RHYME & Phonological awareness (Goswami 2001; Wagner et al. 1987) \\
+VOWEL\_START & Phonemic awareness (Treiman \& Zukowski 1991; Adams 1990) \\
+PATTERN & Gestalt pattern recognition (Wertheimer 1923) \\
+POSITION & Spatial reasoning (Johnson-Laird 1983) \\
+MATH\_MOD & Numerical cognition (Dehaene 1997) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{2. Prompts follow pedagogical principles:}
+\begin{itemize}
+    \item L1 $\to$ L2 $\to$ L3 mirrors \textbf{scaffolded learning}: hint $\to$ partial $\to$ full
+    \item This is standard instructional design, not arbitrary wording
+\end{itemize}
+
+\textbf{3. Prompts are a controlled variable, not the finding:}
+\begin{itemize}
+    \item We don't claim to \textit{discover} prompts
+    \item We claim agents \textit{differentially acquire} prompts through competition
+    \item The \textbf{mechanism} (specialization via competition) is the contribution
+\end{itemize}
+
+\textbf{4. Ablation validates emergence, not prompt quality:}
+\begin{itemize}
+    \item Competition-only produces SCI = 0.773 (without changing prompts)
+    \item This proves specialization is emergent, not engineered via prompt design
+\end{itemize}
+
+\textbf{5. Cross-LLM validation:}
+\begin{itemize}
+    \item Same prompts work across Gemini, GPT-4, and Claude
+    \item Prompt effectiveness is not model-specific
+\end{itemize}
+
+\textbf{Future work}: Explore automated prompt generation (e.g., PromptBreeder) to remove human authoring entirely. However, for controlled experiments, pre-authored prompts are \textit{preferable} because they isolate the variable of interest (specialization mechanism).
+\end{remark}
+
 \begin{warning}[Common Misconception: Prompts Are NOT Randomly Assigned]
 Prompts are \textbf{deterministically derived from accumulated levels}, not randomly assigned each round.
 
