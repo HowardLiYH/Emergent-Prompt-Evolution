@@ -751,7 +751,7 @@ Fitness Sharing & $f' = f/p(n)$ & Literature & Goldberg \& Richardson (1987) \\
 \end{table}
 
 \begin{keypoint}
-\textbf{On Originality:} The Strategy Concentration Index (SCI) uses the well-known formula for normalized entropy ($1 - H/H_{\max}$), which has been used in ecology and information theory for decades. 
+\textbf{On Originality:} The Strategy Concentration Index (SCI) uses the well-known formula for normalized entropy ($1 - H/H_{\max}$), which has been used in ecology and information theory for decades.
 
 \textbf{Literature Grounding:} SCI is mathematically equivalent to:
 \begin{itemize}
@@ -960,6 +960,19 @@ Think of the population as a ball rolling on a landscape. Markov chain theory te
     \item Whether there are multiple final resting places (multiple equilibria)
 \end{itemize}
 \end{intuition}
+
+\begin{keypoint}[Critical Clarification: What Is and Is Not Markov]
+A common confusion: we are \textbf{not} claiming the environment (rule sequence) is Markov. In fact, rules are drawn \textbf{i.i.d. uniformly at random}---there is no temporal dependence in which rule appears next.
+
+What \textbf{is} Markov is the \textbf{population state}---the collection of all agents' strategy levels. Given the current configuration of all agents, the next configuration depends only on:
+\begin{enumerate}
+    \item Which rule is randomly selected (uniform)
+    \item Which agent wins the competition (determined by current levels + LLM responses)
+    \item How the winner's level updates (deterministic given current level)
+\end{enumerate}
+
+The past history of how agents reached their current levels is irrelevant. This memorylessness is what makes the evolution a Markov chain and allows us to prove that \textbf{convergence to specialists is mathematically guaranteed}---not a hopeful observation, but a theorem.
+\end{keypoint}
 
 \subsection{Basic Definitions}
 
