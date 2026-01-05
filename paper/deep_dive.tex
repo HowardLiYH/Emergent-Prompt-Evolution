@@ -1294,6 +1294,27 @@ In Paper 2, an agent's \textbf{expertise} in rule $r$ is encoded as a discrete l
 
 Both represent a $[0,1]$ measure of specialization, but Paper 2 uses \textbf{discrete levels} while Paper 1 uses \textbf{continuous posteriors}.
 
+\begin{remark}[Normalization is for Comparison Only]
+The normalization $s_r/3$ is used here \textit{purely for conceptual comparison} with Paper 1. In the actual implementation, strategy levels are used directly as discrete integers:
+\[
+s_r \in \{0, 1, 2, 3\} \quad \text{(raw levels, not normalized)}
+\]
+Each level maps to a specific prompt template:
+\begin{center}
+\begin{tabular}{cl}
+\toprule
+\textbf{Level} & \textbf{Prompt Content} \\
+\midrule
+$s = 0$ & No hint (generalist) \\
+$s = 1$ & Vague hint (``might involve rhyming...'') \\
+$s = 2$ & Partial strategy (``look for rhyming patterns'') \\
+$s = 3$ & Full strategy (``You are a RHYME specialist. Always pick...'') \\
+\bottomrule
+\end{tabular}
+\end{center}
+The code never computes $s/3$---it simply uses the integer level to select the appropriate prompt.
+\end{remark}
+
 \begin{warning}
 \textbf{Terminology Clarification:} Paper 1 uses ``belief'' (expected value of Beta distribution), while Paper 2 uses ``confidence'' (LLM self-reported). These are \textit{different concepts}:
 \begin{itemize}
