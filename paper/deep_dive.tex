@@ -559,6 +559,125 @@ This work is Part 2 of a three-part research series:
 If Paper 1 showed that \textit{birds} can specialize through competition, Paper 2 shows that \textit{language agents} can too. The underlying principle---competitive pressure driving niche differentiation---is universal.
 \end{analogy}
 
+% ----------------------------------------------------------------------------
+\section{Scope and Contribution: A Critical Clarification}
+\label{sec:scope}
+
+\begin{warning}[Addressing a Fundamental Question]
+\textbf{``Why not just manually assign each agent a different prompt? Isn't that simpler?''}
+
+This is an excellent challenge that gets to the heart of what this research contributes. Let us address it directly.
+\end{warning}
+
+\subsection{The Naive Alternative}
+
+Yes, you could manually create specialists in 5 minutes:
+\begin{verbatim}
+Agent 1 → L3 RHYME prompt
+Agent 2 → L3 POSITION prompt
+Agent 3 → L3 ANIMATE prompt
+...
+\end{verbatim}
+
+\textbf{Time}: 5 minutes. \textbf{Cost}: \$0. \textbf{Result}: 8 perfect specialists.
+
+Our evolution approach takes 100 generations and thousands of API calls to achieve the same result.
+
+\textbf{So what's the point?}
+
+\subsection{What This Work Claims (and Doesn't Claim)}
+
+\begin{table}[H]
+\centering
+\caption{Clarifying the contribution.}
+\begin{tabular}{p{6cm}cc}
+\toprule
+\textbf{Claim} & \textbf{Manual} & \textbf{Evolution} \\
+\midrule
+``I can create specialists'' & Yes ✅ & Yes ✅ \\
+``Specialists can \textit{emerge} from competition'' & Not tested & \textbf{Proven ✅} \\
+``Competition drives differentiation'' & Not tested & \textbf{Proven ✅} \\
+``This is the fastest deployment method'' & Yes ✅ & No \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{keypoint}[The Core Contribution]
+This is a \textbf{scientific question}, not an engineering one.
+
+We are \textbf{not} claiming that evolution is the most efficient way to create specialists.
+
+We are \textbf{proving} that specialization is an \textbf{emergent property of competitive dynamics}.
+\end{keypoint}
+
+\subsection{When Evolution Matters (and When It Doesn't)}
+
+\begin{table}[H]
+\centering
+\caption{When to use each approach.}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Scenario} & \textbf{Manual Assignment} & \textbf{Evolution} \\
+\midrule
+Known, fixed categories & Better ✅ & Overkill \\
+Unknown categories & Impossible & Works ✅ \\
+Categories change over time & Constant redesign & Automatic ✅ \\
+Discovering optimal allocation & Guesswork & Emerges naturally ✅ \\
+Building scientific theory & Doesn't help & The whole point ✅ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Why the ``Fabricated Environment'' is Necessary}
+
+The synthetic rules are not a weakness---they are \textbf{methodologically essential}:
+
+\begin{enumerate}
+    \item \textbf{Controlled experiments}: Synthetic rules ensure LLMs have no prior knowledge. We're testing the \textit{mechanism}, not the LLM's training data.
+
+    \item \textbf{Isolating variables}: We need to prove \textit{competition} causes specialization, not confounding factors.
+
+    \item \textbf{Reproducibility}: Anyone can replicate with the same synthetic rules.
+
+    \item \textbf{Scientific validity}: In medicine, we use synthetic environments (cell cultures, animal models) to understand mechanisms before applying to humans. Same principle.
+\end{enumerate}
+
+\subsection{The Ablation Study as Proof}
+
+Our ablation study provides the critical evidence:
+
+\begin{center}
+\begin{tabular}{lcp{7cm}}
+\toprule
+\textbf{Condition} & \textbf{SCI} & \textbf{What It Proves} \\
+\midrule
+Competition only & 0.773 & \textbf{Competition alone produces 94\% of specialization} \\
+Full system & 0.818 & Exclusivity adds safety, not the core effect \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+This proves specialization is \textbf{genuinely emergent from competition}, not engineered by our environment design.
+
+\subsection{The Bigger Picture}
+
+\begin{keypoint}[Why This Matters Beyond Deployment]
+Understanding \textit{why} specialization emerges has implications beyond this paper:
+
+\begin{itemize}
+    \item \textbf{AI Safety}: If we understand how preferences form, we can better control them
+    \item \textbf{Multi-Agent Design}: Principles for building diverse AI teams
+    \item \textbf{Theoretical Foundation}: Connects LLM behavior to ecological dynamics
+    \item \textbf{Emergent Behavior}: Proof that complex outcomes arise from simple rules
+\end{itemize}
+
+Manual assignment creates specialists. Evolution \textit{explains} why specialists exist.
+\end{keypoint}
+
+\begin{analogy}
+Consider Darwin's finches. You could \textit{design} birds with different beaks (manual assignment). But Darwin's insight was that different beaks \textit{emerge naturally} from competition for food sources. The scientific value is in understanding the \textbf{mechanism of emergence}, not in claiming evolution is faster than design.
+\end{analogy}
+
 % ============================================================================
 % PART II: MATHEMATICAL FOUNDATIONS
 % ============================================================================
