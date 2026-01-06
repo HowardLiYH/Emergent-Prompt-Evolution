@@ -1568,6 +1568,28 @@ L3 & ``You are a RHYME DETECTION SPECIALIST. Your expertise is identifying words
 Notice how each level provides \textbf{progressively more specific} information, from a vague hint (L1) to a complete instruction manual (L3).
 \end{example}
 
+\begin{warning}[Prompts Are NOT Cumulative]
+``Progressively more specific'' does \textbf{not} mean prompts are concatenated. An agent at L2 receives \textbf{only} the L2 prompt---not ``L0 + L1 + L2''.
+
+\textbf{What actually happens:}
+\begin{center}
+\begin{tabular}{cl}
+\toprule
+\textbf{Agent Level} & \textbf{Prompt Received} \\
+\midrule
+L0 & Empty string (no hint) \\
+L1 & Only L1 text \\
+L2 & Only L2 text \\
+L3 & Only L3 text \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Why this works}: Each higher-level prompt is designed to be \textbf{self-contained and complete}. L3 doesn't need L1 or L2 because it already includes all necessary information in a more comprehensive form. Think of it like textbook chapters: Chapter 3 builds on concepts from Chapters 1-2 but you read \textit{only} Chapter 3, not all three concatenated.
+
+\textbf{Code reference}: See \texttt{get\_level()} in \texttt{src/genesis/rule\_strategies.py}---it returns a single prompt string, not a concatenation.
+\end{warning}
+
 \subsubsection{Key Properties}
 
 \textbf{1. Deterministic mapping}: Same (rule, level) always produces the same prompt.
@@ -1599,6 +1621,8 @@ Identical prompts do \textbf{not} produce identical outcomes because:
 \textbf{3. Pre-authored}: Prompts are handcrafted before experiments, ensuring controlled conditions.
 
 \textbf{4. Agent state}: Each agent's full state is a vector $\mathbf{s}_i = (s_{i,1}, \ldots, s_{i,R})$.
+
+\textbf{5. Self-contained (not cumulative)}: Each prompt level is a standalone instruction. An L3 agent receives \textit{only} the L3 prompt---not L0+L1+L2+L3 concatenated. Higher levels are designed to be complete on their own, incorporating all necessary information in a more comprehensive form. (See warning box above for details.)
 
 \begin{remark}[Why $4^8 = 65{,}536$, not $4 \times 8 = 32$]
 These are different quantities:
