@@ -1123,6 +1123,45 @@ This naturally \textbf{pushes agents toward empty niches} without explicit coord
 \end{keypoint}
 \end{example}
 
+\begin{warning}[Winning $\neq$ Guaranteed Level-Up]
+This is a crucial point that often causes confusion:
+
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Niche Crowding} & \textbf{Specialists} & \textbf{Level-Up Probability} \\
+\midrule
+Uncrowded & 1--2 & $\sim$100\% (almost guaranteed) \\
+Moderate & 4 & 50\% (coin flip) \\
+Crowded & 9 & 33\% (unlikely) \\
+Very crowded & 16 & 25\% (rare) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{The double penalty of crowded niches:}
+\begin{enumerate}
+    \item \textbf{Hard to win}: More specialists competing $\to$ lower chance of being the winner
+    \item \textbf{Hard to level up}: Even if you win, the fitness sharing penalty may block your level-up
+\end{enumerate}
+
+\textbf{The double benefit of empty niches:}
+\begin{enumerate}
+    \item \textbf{Easy to win}: Fewer specialists competing $\to$ higher chance of winning
+    \item \textbf{Guaranteed level-up}: No crowding penalty $\to$ 100\% level-up on win
+\end{enumerate}
+\end{warning}
+
+\begin{analogy}[Job Market Saturation]
+Fitness sharing models \textbf{market saturation}:
+\begin{itemize}
+    \item \textbf{Crowded field} (e.g., becoming a lawyer): Even if you're the best candidate, there are so many applicants competing for limited positions that you might not get hired.
+    \item \textbf{Niche field} (e.g., rare medical specialty): If you're qualified, you almost certainly get the position---demand exceeds supply.
+\end{itemize}
+
+Our agents experience the same dynamic: crowded niches have diminishing returns, pushing rational agents toward underserved areas.
+\end{analogy}
+
 \subsection{Game-Theoretic Interpretation}
 
 \begin{definition}[Evolutionarily Stable Strategy (ESS)]
