@@ -2408,6 +2408,131 @@ The underlying mathematical structure---and the guarantees it provides---are the
 \end{itemize}
 \end{keypoint}
 
+\subsubsection{Line-by-Line Algorithm Explanation}
+
+\textbf{Lines 1--6: Initialization Phase}
+
+\begin{center}
+\small
+\begin{tabular}{cp{10cm}}
+\toprule
+\textbf{Line} & \textbf{Explanation} \\
+\midrule
+2--6 & \textbf{For each agent}: Initialize their state \\
+3 & Set ALL strategy levels to 0: $\mathbf{s}_i = [0, 0, 0, 0, 0, 0, 0, 0]$ (pure generalist) \\
+4 & Pick ONE random rule $r^*$ to ``seed'' this agent (e.g., RHYME) \\
+5 & Set that ONE rule to Level 1: $\mathbf{s}_i = [1, 0, 0, 0, 0, 0, 0, 0]$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{remark}[Why Seeded Initialization?]
+This is called \textbf{``Option B+''} in the codebase (see \texttt{create\_population()} in \texttt{preference\_agent.py}).
+
+\textbf{Why not start everyone at pure L0?}
+\begin{itemize}
+    \item \textbf{Cold start problem}: With all zeros, the first rounds are pure luck---no agent has any advantage
+    \item \textbf{Symmetry breaking}: Seeding creates initial differentiation
+    \item \textbf{Ecological parallel}: Like organisms inheriting slight genetic predispositions that get amplified or suppressed by environmental pressures
+\end{itemize}
+
+\textbf{Is this ``unfair''?}
+\begin{itemize}
+    \item Each agent gets exactly ONE L1 seed in ONE random rule
+    \item Rules are tested uniformly at random---no rule is systematically favored
+    \item Over many rounds, initial seeds become less important than earned wins
+    \item Experiments show agents frequently \textit{switch} from their seeded rule to a different specialization (see seed-switching analysis)
+\end{itemize}
+\end{remark}
+
+\textbf{Lines 7--33: Evolution Loop}
+
+\begin{center}
+\small
+\begin{tabular}{cp{10cm}}
+\toprule
+\textbf{Line} & \textbf{Explanation} \\
+\midrule
+8 & \textbf{For each generation}: One round of competition \\
+9 & Environment randomly picks a rule $r$ (e.g., POSITION). \textbf{Agents do NOT choose.} \\
+10 & Generate a multiple-choice question for that rule \\
+\midrule
+\multicolumn{2}{l}{\textit{Competition Phase (Lines 11--19)}} \\
+12 & Initialize empty set of correct responders \\
+13 & \textbf{For each agent}: Query the LLM \\
+14 & Build the prompt based on agent's level \textit{for this specific rule}: \\
+   & $\quad$ If $s_{i,r} = 0$: empty prompt (no hint) \\
+   & $\quad$ If $s_{i,r} = 1$: vague hint \\
+   & $\quad$ If $s_{i,r} = 2$: partial strategy \\
+   & $\quad$ If $s_{i,r} = 3$: full specialist instructions \\
+15 & Query LLM with task + prompt $\to$ get answer $a_i$ and confidence $c_i$ \\
+16--18 & If answer is correct, add $(i, c_i)$ to the set of candidates \\
+\midrule
+\multicolumn{2}{l}{\textit{Winner Selection (Lines 20--27)}} \\
+21 & If at least one agent answered correctly: \\
+22 & Winner = agent with \textbf{highest confidence} among correct responders \\
+   & $\quad$ (Ties broken randomly---see \texttt{competition\_v3.py}) \\
+23--26 & \textbf{Exclusivity check}: Can winner update? \\
+24 & Condition: Winner hasn't hit L3 in any rule yet, OR winner already has progress in this rule \\
+25 & If allowed: increment winner's level for this rule (capped at 3) \\
+\midrule
+\multicolumn{2}{l}{\textit{Fitness Sharing (Lines 28--32)}} \\
+29--32 & For each rule, count how many L3 specialists exist \\
+31 & Compute crowding penalty: $\text{penalty} = n^{-0.5}$ \\
+   & $\quad$ (This penalty affects selection pressure, not shown in simplified pseudocode) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Line 34: Return}
+
+After $T$ generations, return the final population with their specialized strategy vectors.
+
+\begin{example}[Worked Example: One Generation]
+\textbf{Setup}: 3 agents, Round 50, Environment picks RHYME
+
+\textbf{Agent states}:
+\begin{itemize}
+    \item Agent 1: $\mathbf{s}_1 = [2, 0, 0, 0, 0, 0, 0, 0]$ (L2 in RHYME)
+    \item Agent 2: $\mathbf{s}_2 = [0, 3, 0, 0, 0, 0, 0, 0]$ (L3 in POSITION---locked!)
+    \item Agent 3: $\mathbf{s}_3 = [1, 0, 0, 0, 0, 0, 0, 0]$ (L1 in RHYME)
+\end{itemize}
+
+\textbf{Line 14}: Prompts assigned:
+\begin{itemize}
+    \item Agent 1 $\to$ L2 RHYME prompt (partial strategy)
+    \item Agent 2 $\to$ L0 RHYME prompt (no hint---they're a POSITION specialist)
+    \item Agent 3 $\to$ L1 RHYME prompt (vague hint)
+\end{itemize}
+
+\textbf{Line 15}: LLM responses:
+\begin{itemize}
+    \item Agent 1: Answer=``bat'' (correct), Confidence=0.82
+    \item Agent 2: Answer=``cat'' (wrong)
+    \item Agent 3: Answer=``bat'' (correct), Confidence=0.65
+\end{itemize}
+
+\textbf{Line 22}: Winner = Agent 1 (highest confidence among correct: 0.82 > 0.65)
+
+\textbf{Line 24}: Exclusivity check for Agent 1:
+\begin{itemize}
+    \item $\max_{r'} s_{1,r'} = 2 < 3$ $\checkmark$ (not locked yet)
+\end{itemize}
+
+\textbf{Line 25}: Update: $s_{1,\text{RHYME}} = \min(2+1, 3) = 3$
+
+\textbf{Result}: Agent 1 is now an L3 RHYME specialist!
+\end{example}
+
+\begin{warning}[Code Reference]
+This pseudocode matches the implementation in:
+\begin{itemize}
+    \item \texttt{src/genesis/preference\_agent.py}: \texttt{create\_population()} (lines 205--247)
+    \item \texttt{src/genesis/competition\_v3.py}: \texttt{run\_competition()} (lines 71--147)
+    \item \texttt{experiments/exp\_preference\_main.py}: main evolution loop
+\end{itemize}
+\end{warning}
+
 \subsection{Key Design Decisions}
 
 \begin{table}[H]
