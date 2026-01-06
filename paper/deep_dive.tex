@@ -1679,6 +1679,33 @@ Agent 5's advantage is \textbf{earned through previous wins}, not randomly assig
 Early wins create advantages that compound over time, leading to niche dominance. This is why specialization \textit{emerges}---it's not designed in, but arises from competitive dynamics.
 \end{keypoint}
 
+\begin{remark}[Common Confusion: Who Chooses the Rule?]
+\textbf{The agent does NOT choose which rule to compete on.} The environment randomly selects a rule each round, and \textit{all} agents must compete on that rule.
+
+\textbf{How prompt assignment works:}
+\begin{enumerate}
+    \item Environment randomly picks a rule $r$ for this round (e.g., RHYME)
+    \item Each agent receives the prompt for their level \textit{in that specific rule}: $\text{prompt}_i = \text{TEMPLATES}[r][s_{i,r}]$
+    \item Agents compete; winner gets $s_{i,r} \gets s_{i,r} + 1$
+\end{enumerate}
+
+\textbf{Example:} Agent 7 has strategy vector $\mathbf{s} = [3, 0, 0, 2, 0, 0, 0, 0]$ (RHYME=3, VOWEL=2, rest=0)
+
+\begin{center}
+\begin{tabular}{lcl}
+\toprule
+\textbf{Environment picks...} & \textbf{Agent 7 gets...} & \textbf{Result} \\
+\midrule
+RHYME (rule 1) & L3 prompt (specialist!) & Likely wins \\
+POSITION (rule 2) & L0 prompt (no hint) & Probably loses \\
+VOWEL (rule 4) & L2 prompt (partial) & Might win \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Key insight:} Specialists \textit{dominate when their rule comes up}, but are disadvantaged when other rules are tested. This is why the population needs \textbf{multiple specialists} covering all rules---no single agent can win everything.
+\end{remark}
+
 % ============================================================================
 \subsection{Validity of Pre-Authored Prompts}
 \label{sec:prompt-validity}
