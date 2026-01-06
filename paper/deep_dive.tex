@@ -2655,21 +2655,27 @@ Too Little Design & No constraints, chaos & Super-agent dominates, no diversity 
 Without the exclusivity constraint, a ``super-agent'' could emerge:
 
 \begin{center}
-\begin{tikzpicture}[scale=0.8]
-    % Timeline
-    \draw[->, thick] (0,0) -- (12,0) node[right] {Rounds};
+\textbf{Without Exclusivity: Super-Agent Emergence}
 
-    % Without exclusivity
-    \node[above, font=\bfseries] at (6, 3) {Without Exclusivity: Super-Agent Emergence};
-
-    \node[draw, rectangle, rounded corners, fill=red!20, minimum width=2cm] at (2, 1.5) {Agent 1: L3 RHYME};
-    \node[draw, rectangle, rounded corners, fill=red!20, minimum width=2cm] at (5, 1.5) {+ L2 POSITION};
-    \node[draw, rectangle, rounded corners, fill=red!20, minimum width=2cm] at (8, 1.5) {+ L3 POSITION};
-    \node[draw, rectangle, rounded corners, fill=red!30, minimum width=2.5cm] at (11, 1.5) {L3 in ALL rules};
-
-    \draw[->, thick] (3, 1.5) -- (3.8, 1.5);
-    \draw[->, thick] (6.2, 1.5) -- (6.8, 1.5);
-    \draw[->, thick] (9.2, 1.5) -- (9.6, 1.5);
+\vspace{0.5cm}
+\begin{tikzpicture}[
+    node distance=0.3cm,
+    stage/.style={draw, rectangle, rounded corners, fill=red!20, 
+                  minimum height=1cm, align=center, font=\small}
+]
+    % Stages in sequence
+    \node[stage] (s1) {Agent 1:\\L3 RHYME};
+    \node[stage, right=of s1] (s2) {Wins POSITION\\$\to$ L2};
+    \node[stage, right=of s2] (s3) {Wins again\\$\to$ L3 POSITION};
+    \node[stage, right=of s3, fill=red!40] (s4) {Eventually:\\L3 in ALL rules};
+    
+    % Arrows
+    \draw[->, thick] (s1) -- (s2);
+    \draw[->, thick] (s2) -- (s3);
+    \draw[->, thick] (s3) -- (s4);
+    
+    % Timeline below
+    \draw[->, thick] ([yshift=-1cm]s1.south west) -- ([yshift=-1cm]s4.south east) node[right] {Rounds};
 \end{tikzpicture}
 \end{center}
 
