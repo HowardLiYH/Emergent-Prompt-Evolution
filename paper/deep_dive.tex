@@ -2429,6 +2429,13 @@ The underlying mathematical structure---and the guarantees it provides---are the
 \begin{remark}[Why Seeded Initialization?]
 This is called \textbf{``Option B+''} in the codebase (see \texttt{create\_population()} in \texttt{preference\_agent.py}).
 
+\textbf{What happens:}
+\begin{itemize}
+    \item Agent 1 might get L1 in RHYME $\to$ $[1,0,0,0,0,0,0,0]$
+    \item Agent 2 might get L1 in POSITION $\to$ $[0,1,0,0,0,0,0,0]$
+    \item If Round 1 tests RHYME, Agent 1 has an advantage \textit{by luck}
+\end{itemize}
+
 \textbf{Why not start everyone at pure L0?}
 \begin{itemize}
     \item \textbf{Cold start problem}: With all zeros, the first rounds are pure luck---no agent has any advantage
@@ -2436,13 +2443,33 @@ This is called \textbf{``Option B+''} in the codebase (see \texttt{create\_popul
     \item \textbf{Ecological parallel}: Like organisms inheriting slight genetic predispositions that get amplified or suppressed by environmental pressures
 \end{itemize}
 
-\textbf{Is this ``unfair''?}
+\textbf{Is this ``unfair''?} \textit{No.} Over many rounds:
 \begin{itemize}
-    \item Each agent gets exactly ONE L1 seed in ONE random rule
-    \item Rules are tested uniformly at random---no rule is systematically favored
-    \item Over many rounds, initial seeds become less important than earned wins
-    \item Experiments show agents frequently \textit{switch} from their seeded rule to a different specialization (see seed-switching analysis)
+    \item Rules are selected \textbf{uniformly at random} each round
+    \item Agent 1's RHYME advantage only helps when RHYME is tested ($\sim$12.5\% of rounds)
+    \item Agent 2's POSITION advantage helps when POSITION is tested ($\sim$12.5\% of rounds)
+    \item \textbf{Expected advantage is equal} across all agents
+    \item Experiments show agents frequently \textit{switch} from their seeded rule to a different specialization
 \end{itemize}
+
+\textbf{Ecological Representation:} This actually \textit{does} mirror ecology:
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+\textbf{Ecological Concept} & \textbf{Our System} \\
+\midrule
+Genetic lottery & Random initial seed \\
+Birth location & Different starting niches \\
+Founder effect & Early random advantages can compound \\
+Phenotypic variation & Agents aren't born identical \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+In nature, organisms aren't born with equal capabilities---there's inherent random variation. A bird born near abundant food has an early advantage, just like an agent seeded in a rule that happens to be tested first.
+
+\textbf{The Key Point:} The seeding creates \textbf{initial diversity}, not \textbf{permanent advantage}. An agent seeded in RHYME can still be overtaken by another agent who wins more RHYME rounds later.
 \end{remark}
 
 \textbf{Lines 7--33: Evolution Loop}
