@@ -2782,6 +2782,70 @@ Round 80 & All 8 rules have at least one L3 & \textbf{Full coverage achieved} \\
 Fitness sharing discourages crowding but doesn't prevent it entirely. With $N=12$ agents and $R=8$ rules, the expected equilibrium is $\sim$1.5 specialists per rule.
 \end{warning}
 
+\subsection{What Happens After an Agent Reaches L3?}
+
+A common question: \textit{Once an agent reaches L3 (exclusivity), are they ``out of the game''?}
+
+\textbf{Answer}: Not out of the game---but \textbf{locked into their niche}.
+
+\begin{center}
+\begin{tabular}{lc}
+\toprule
+\textbf{Action} & \textbf{Can L3 Specialist Do It?} \\
+\midrule
+Compete when their rule is tested & \textcolor{green!60!black}{\checkmark} YES \\
+Win their rule & \textcolor{green!60!black}{\checkmark} YES (usually dominate) \\
+Level up in their rule & \textcolor{red!60!black}{$\times$} NO (already at max) \\
+Level up in OTHER rules & \textcolor{red!60!black}{$\times$} NO (exclusivity lock) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{example}[The Lifecycle of Agent 5]
+\textbf{Stage 1: Generalist}
+\[
+\mathbf{s}_5 = [0, 0, 0, 0, 0, 0, 0, 0] \quad \text{(can explore any rule)}
+\]
+
+\textbf{Stage 2: Developing}
+\[
+\mathbf{s}_5 = [2, 1, 0, 0, 0, 0, 0, 0] \quad \text{(gaining expertise, still flexible)}
+\]
+
+\textbf{Stage 3: L3 Specialist} (LOCKED!)
+\[
+\mathbf{s}_5 = [3, 1, 0, 0, 0, 0, 0, 0] \quad \text{(cannot become L3 elsewhere)}
+\]
+
+\textbf{Stage 4: Dominant Expert}
+\[
+\mathbf{s}_5 = [3, 1, 0, 0, 0, 0, 0, 0] \quad \text{(wins RHYME, ``retired'' from others)}
+\]
+\end{example}
+
+\begin{example}[What Agent 5 Experiences After Reaching L3 RHYME]
+\begin{center}
+\begin{tabular}{llp{7cm}}
+\toprule
+\textbf{Round} & \textbf{Rule} & \textbf{What Happens} \\
+\midrule
+Round 50 & RHYME & Agent 5 competes with L3 prompt, \textbf{probably wins} \\
+Round 51 & POSITION & Agent 5 competes with L1 prompt, \textbf{probably loses} \\
+Round 52 & RHYME & Agent 5 wins, but \textbf{can't level up} (already L3) \\
+Round 53 & ANIMATE & Agent 5 loses; \textbf{even if won, can't level up} (exclusivity blocks) \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{example}
+
+\begin{keypoint}[Why Exclusivity Exists]
+\textbf{Without exclusivity}: One agent could become L3 in ALL rules $\to$ dominates everything $\to$ no diversity.
+
+\textbf{With exclusivity}: Once you're L3 in one rule, you're committed $\to$ opens doors for other agents $\to$ niche partitioning.
+
+\textbf{Ecological analogy}: A lion that becomes the apex predator of the savanna doesn't also become the apex predator of the ocean. Specialization requires commitment.
+\end{keypoint}
+
 \subsection{Critical Discussion: Is Exclusivity ``Cheating''?}
 \label{sec:exclusivity-discussion}
 
