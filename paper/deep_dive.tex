@@ -4267,6 +4267,74 @@ With 10 seeds:
 
 We have ample power to detect the observed effect.
 
+\subsection{Common Questions About Statistics}
+
+\subsubsection{What Does ``95\% Confidence Interval'' Mean?}
+
+\textbf{Common misconception:} ``95\% of the data falls in this range.''
+
+\textbf{Correct interpretation:} If we repeated this experiment 100 times, about 95 of those experiments would produce a confidence interval that contains the \textit{true value}.
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+\textbf{Metric} & \textbf{Interpretation of 95\% CI [68.3\%, 73.1\%]} \\
+\midrule
+Point estimate & Our best guess: 70.7\% \\
+Lower bound & We're 95\% confident it's at least 68.3\% \\
+Upper bound & We're 95\% confident it's at most 73.1\% \\
+Width (4.8\%) & How precise our estimate is (narrower = better) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsubsection{What Does ``Statistical Power $> 0.99$'' Mean?}
+
+\textbf{Power} = probability of detecting a real effect if it exists.
+
+\begin{center}
+\begin{tabular}{cl}
+\toprule
+\textbf{Power} & \textbf{Meaning} \\
+\midrule
+0.80 & Standard threshold (80\% chance to detect effect) \\
+0.90 & Strong (90\% chance) \\
+\textbf{0.99} & \textbf{Excellent} (99\% chance---we almost certainly detect it) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+With power $> 0.99$, if specialization is real, we have a 99\%+ chance of detecting it. We did detect it, so this is strong evidence.
+
+\subsubsection{What Is Holm-Bonferroni Correction?}
+
+When you run \textbf{many tests}, some will be ``significant'' by chance (false positives).
+
+\textbf{Example}: If you run 100 tests at $\alpha = 0.05$, you expect $\sim$5 false positives.
+
+Holm-Bonferroni \textbf{adjusts the threshold} to control for this:
+\begin{itemize}
+    \item More tests $\to$ stricter threshold
+    \item Our claims survive this correction $\to$ they're not false positives
+\end{itemize}
+
+\subsubsection{Why Report All These Statistics?}
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+\textbf{Statistic} & \textbf{What It Shows} & \textbf{Why It Matters} \\
+\midrule
+Cohen's $d$ & Effect size & Is the difference meaningful? \\
+95\% CI & Precision & How reliable is our estimate? \\
+Power & Sensitivity & Could we have missed a real effect? \\
+Holm-Bonferroni & False positive control & Are we fooling ourselves? \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Together, these statistics ensure our conclusions are \textbf{robust}, not artifacts of noise or multiple testing.
+
 % ----------------------------------------------------------------------------
 \section{Baseline Comparisons}
 \label{sec:baselines}
