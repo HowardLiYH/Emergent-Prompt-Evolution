@@ -4320,23 +4320,79 @@ Width (4.8\%) & How precise our estimate is (narrower = better) \\
 \end{tabular}
 \end{center}
 
-\subsubsection{What Does ``Statistical Power $> 0.99$'' Mean?}
+\subsubsection{What Is Power Analysis? (Section 32.4 Explained)}
 
-\textbf{Power} = probability of detecting a real effect if it exists.
+\textbf{The Core Question}: ``Did we run enough experiments to detect a real effect?''
+
+\textbf{The Problem}: If your sample size is too small, you might \textit{miss} a real effect---not because the effect doesn't exist, but because you didn't have enough data to see it.
 
 \begin{center}
-\begin{tabular}{cl}
+\begin{tabular}{lp{5cm}p{5cm}}
 \toprule
-\textbf{Power} & \textbf{Meaning} \\
+\textbf{Scenario} & \textbf{What Happens} & \textbf{Conclusion} \\
 \midrule
-0.80 & Standard threshold (80\% chance to detect effect) \\
-0.90 & Strong (90\% chance) \\
-\textbf{0.99} & \textbf{Excellent} (99\% chance---we almost certainly detect it) \\
+Real effect exists, high power & You detect it & Correct! \\
+Real effect exists, \textbf{low power} & You \textbf{miss} it & \textbf{False negative!} \\
+No real effect, any power & You don't detect it & Correct! \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-With power $> 0.99$, if specialization is real, we have a 99\%+ chance of detecting it. We did detect it, so this is strong evidence.
+\textbf{Power} = Probability of detecting a real effect \textit{if it exists}.
+
+\begin{center}
+\begin{tabular}{cll}
+\toprule
+\textbf{Power} & \textbf{Interpretation} & \textbf{Risk of Missing Real Effect} \\
+\midrule
+0.50 & Coin flip & 50\% chance of false negative \\
+0.80 & Standard threshold & 20\% chance of false negative \\
+0.90 & Strong & 10\% chance \\
+\textbf{0.99} & \textbf{Excellent (ours)} & \textbf{1\% chance---almost impossible to miss} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{What Determines Power?}
+
+Power depends on three factors:
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+\textbf{Factor} & \textbf{Effect on Power} & \textbf{Our Value} \\
+\midrule
+Effect size ($d$) & Bigger effect $\to$ easier to detect $\to$ higher power & $d = 2.66$ (huge!) \\
+Sample size ($n$) & More samples $\to$ less noise $\to$ higher power & $n = 10$ seeds \\
+Significance level ($\alpha$) & Stricter threshold $\to$ lower power & $\alpha = 0.05$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Why Our Power Is So High}
+
+Our effect size ($d = 2.66$) is \textbf{enormous}---more than 3$\times$ the ``large effect'' threshold. This means:
+\begin{itemize}
+    \item Even with only 10 seeds, we have power $> 0.99$
+    \item We could have detected this effect with even fewer seeds
+    \item There's virtually no chance we ``missed'' something
+\end{itemize}
+
+\begin{keypoint}
+\textbf{Bottom Line}: Power analysis answers ``Did we run enough experiments?''
+
+With power $> 0.99$, we're 99\%+ confident that:
+\begin{enumerate}
+    \item If specialization is real, we would detect it (and we did!)
+    \item If we had found nothing, it would mean the effect truly doesn't exist
+\end{enumerate}
+\end{keypoint}
+
+\begin{remark}[The Null Hypothesis in Power Analysis]
+In power analysis, the null hypothesis is still ``prompts have no effect.'' Power tells us: \textit{If the null hypothesis is false} (i.e., prompts DO have an effect), how likely are we to correctly reject it?
+
+High power = high likelihood of correctly rejecting a false null hypothesis.
+\end{remark}
 
 \subsubsection{What Is a Null Hypothesis?}
 
