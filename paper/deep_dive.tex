@@ -5040,67 +5040,80 @@ Current routing methods capture only $\sim$10\% of the available value. Building
 \section{Cost-Benefit Analysis}
 \label{sec:cost-benefit}
 
-\subsection{Training Cost}
+\begin{warning}[This Section Is For Paid API Users]
+If you use the \textbf{Gemini free tier}, training costs \$0 and break-even is \textbf{immediate}---skip to the ROI summary at the end.
+
+This analysis is for users of \textbf{paid APIs} (GPT-4, Claude, paid Gemini tiers) who need to justify the training investment.
+\end{warning}
+
+\subsection{Training Cost by API Provider}
 
 \begin{table}[H]
 \centering
-\caption{Training cost breakdown.}
-\begin{tabular}{ll}
+\caption{Training cost breakdown by API provider (9,600 API calls total).}
+\begin{tabular}{lccc}
 \toprule
-\textbf{Component} & \textbf{Value} \\
+\textbf{Provider} & \textbf{Model} & \textbf{Cost per 1K calls} & \textbf{Total Training Cost} \\
 \midrule
-Agents & 12 \\
-Generations & 100 \\
-Rules & 8 \\
-API calls per generation & $\sim$12 (one per agent) \\
-\midrule
-\textbf{Total API calls} & $\sim$9,600 \\
-\textbf{Cost (Gemini free tier)} & \$0.00 \\
+Google & Gemini 2.5 Flash (free tier) & \$0.00 & \cellcolor{green!20}\textbf{\$0.00} \\
+Google & Gemini 2.5 Flash (paid) & \$0.075 & \$0.72 \\
+OpenAI & GPT-4o-mini & \$0.15 & \$1.44 \\
+OpenAI & GPT-4o & \$2.50 & \$24.00 \\
+Anthropic & Claude 3 Haiku & \$0.25 & \$2.40 \\
+Anthropic & Claude 3.5 Sonnet & \$3.00 & \$28.80 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\subsection{Break-Even Analysis}
+\subsection{Break-Even Analysis (Paid APIs Only)}
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.7\textwidth]{figures/fig6_cost_benefit.pdf}
-\caption{\textbf{Cost-benefit analysis.} Specialists (green, 100\%) always outperform generalists (coral, 35.8\%). The shaded region shows \textit{cumulative} benefit (extra correct answers). ``Break-even'' means when this cumulative benefit equals the training investment (9,600 API calls). With free Gemini API, break-even is immediate.}
+\caption{\textbf{Cost-benefit analysis for paid APIs.} Specialists (green, 100\%) always outperform generalists (coral, 35.8\%). The shaded region shows cumulative benefit. ``Break-even'' = when benefit value exceeds training cost.}
 \label{fig:cost-benefit}
 \end{figure}
 
-\begin{remark}[Understanding ``Break-Even'']
-The graph does NOT show the lines crossing---specialists \textit{always} outperform generalists. ``Break-even'' refers to when the \textbf{cumulative benefit} (shaded area) equals the \textbf{training investment}.
+\textbf{Break-even calculation:}
 
-\begin{center}
-\begin{tabular}{ll}
+\begin{enumerate}
+    \item \textbf{Training cost}: $C_{\text{train}}$ (from table above, e.g., \$24 for GPT-4o)
+    \item \textbf{Value per correct answer}: $V$ (e.g., \$5 saved per successful customer interaction)
+    \item \textbf{Extra correct answers per task}: $64.2\%$ (specialist vs generalist)
+    \item \textbf{Value per task}: $0.642 \times V$
+\end{enumerate}
+
+\[
+\text{Break-even tasks} = \frac{C_{\text{train}}}{0.642 \times V}
+\]
+
+\textbf{Example} (GPT-4o, \$5 per correct answer):
+\[
+\text{Break-even} = \frac{\$24}{0.642 \times \$5} = \frac{\$24}{\$3.21} \approx 7.5 \text{ tasks}
+\]
+
+\begin{table}[H]
+\centering
+\caption{Break-even tasks by API and value per correct answer.}
+\begin{tabular}{lcccc}
 \toprule
-\textbf{Concept} & \textbf{Meaning} \\
+\textbf{API} & \textbf{Training Cost} & \textbf{V=\$1} & \textbf{V=\$5} & \textbf{V=\$10} \\
 \midrule
-Training cost & 9,600 API calls ($\sim$2 hours with Gemini free tier) \\
-Per-task benefit & 64.2\% more correct answers \\
-Cumulative benefit & Shaded area = extra correct answers over time \\
-Break-even & When cumulative benefit ``pays back'' training cost \\
+Gemini (free) & \$0 & \cellcolor{green!20}0 & \cellcolor{green!20}0 & \cellcolor{green!20}0 \\
+GPT-4o-mini & \$1.44 & 2 & 1 & 1 \\
+GPT-4o & \$24 & 37 & 8 & 4 \\
+Claude Sonnet & \$28.80 & 45 & 9 & 5 \\
 \bottomrule
 \end{tabular}
-\end{center}
-
-Since training is \textbf{free} with Gemini, break-even is essentially \textbf{immediate}.
-\end{remark}
-
-\textbf{Break-even calculation (if training had cost):}
-
-If training costs 9,600 API calls and each correctly-routed task saves $X$ (e.g., customer service cost):
-\[
-\text{Break-even tasks} = \frac{9600}{64.2\% \times X / X} \approx 5\text{--}7 \text{ tasks}
-\]
+\end{table}
 
 \begin{keypoint}
 \textbf{ROI Summary:}
 \begin{itemize}
-    \item Training is essentially free (within API free tier)
-    \item Break-even in 5-7 tasks with good routing
-    \item Long-term: +64.2\% accuracy improvement indefinitely
+    \item \textbf{Free tier (Gemini)}: No cost, immediate benefit from task \#1
+    \item \textbf{Cheap APIs (GPT-4o-mini)}: Break-even in 1--2 tasks
+    \item \textbf{Premium APIs (GPT-4o, Claude Sonnet)}: Break-even in 5--45 tasks depending on value per correct answer
+    \item \textbf{Long-term}: +64.2\% accuracy improvement indefinitely after break-even
 \end{itemize}
 \end{keypoint}
 
