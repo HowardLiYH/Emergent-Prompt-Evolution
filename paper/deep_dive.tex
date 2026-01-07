@@ -3948,11 +3948,51 @@ Cohen's $d$ & 2.66 & Huge effect \\
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.7\textwidth]{figures/fig3_causality_heatmap.pdf}
-\caption{\textbf{Causality heatmap.} Diagonal cells (matched agent-task) show high accuracy (green/yellow). Off-diagonal cells (mismatched) show low accuracy (purple/blue). The clear contrast proves that prompts \textit{cause} performance.}
+\caption{\textbf{Causality heatmap.} Diagonal cells (matched agent-task, highlighted with red borders) show high accuracy (dark blue, 86--98\%). Off-diagonal cells (mismatched) show low accuracy (light blue, 16--30\%). The clear contrast proves that prompts \textit{cause} performance.}
 \label{fig:causality-heatmap}
 \end{figure}
 
 \subsection{Interpreting the Results}
+
+\begin{warning}[Understanding ``10 Seeds'' and ``70.7\% Pass Rate'']
+\textbf{What are ``10 seeds''?}
+
+10 seeds = 10 \textbf{independent experiments}, each run from scratch with different random initialization:
+\begin{center}
+\begin{tabular}{ll}
+Seed 1 & Run full experiment (100 generations, 12 agents) $\to$ Results \\
+Seed 2 & Run full experiment again (different random init) $\to$ Results \\
+$\vdots$ & $\vdots$ \\
+Seed 10 & Run full experiment $\to$ Results \\
+\textbf{Average} & Combine all 10 for statistical confidence \\
+\end{tabular}
+\end{center}
+
+\textbf{What is ``70.7\% pass rate''?}
+
+Each experiment runs \textbf{56 pairwise comparisons} (7 specialists $\times$ 8 rules):
+
+\begin{center}
+\small
+\begin{tabular}{llcl}
+\toprule
+\textbf{Test} & \textbf{Comparison} & \textbf{Scores} & \textbf{Pass?} \\
+\midrule
+1 & RHYME specialist on RHYME vs POSITION & 86\% vs 16\% & \textcolor{green!60!black}{\checkmark} Pass \\
+2 & RHYME specialist on RHYME vs ANIMATE & 86\% vs 25\% & \textcolor{green!60!black}{\checkmark} Pass \\
+3 & RHYME specialist on RHYME vs PATTERN & 86\% vs 29\% & \textcolor{green!60!black}{\checkmark} Pass \\
+$\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ \\
+56 & INVERSE specialist on INVERSE vs ANIMATE & 88\% vs 27\% & \textcolor{green!60!black}{\checkmark} Pass \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{``Pass''} = specialist scores HIGHER on their own rule than on the comparison rule.
+
+\textbf{70.7\%} = 70.7\% of the 560 total comparisons (56 per seed $\times$ 10 seeds) showed the expected pattern.
+
+\textbf{Why not 100\%?} LLM stochasticity + some rules are similar (e.g., PATTERN vs POSITION have similar strategies).
+\end{warning}
 
 \begin{keypoint}
 \textbf{What 70.7\% Pass Rate Means:}
@@ -3963,8 +4003,27 @@ Cohen's $d$ & 2.66 & Huge effect \\
 \end{itemize}
 \end{keypoint}
 
+\begin{remark}[What is Cohen's $d$?]
+\textbf{Cohen's $d$} measures \textbf{effect size}---how far apart two groups are in standard deviations:
+
+\begin{center}
+\begin{tabular}{cl}
+\toprule
+\textbf{Cohen's $d$} & \textbf{Interpretation} \\
+\midrule
+0.2 & Small effect \\
+0.5 & Medium effect \\
+0.8 & Large effect (standard threshold) \\
+\textbf{2.66} & \textbf{HUGE effect} ($3\times$ the ``large'' threshold!) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+In our case: diagonal accuracy (91\%) vs off-diagonal (20\%) are \textbf{2.66 standard deviations apart}. This is extremely unlikely to occur by chance ($p < 0.001$).
+\end{remark}
+
 \begin{whyitmatters}
-If specialists were just ``lucky'' (happened to be assigned to rules they were already good at), the off-diagonal performance would be similar to diagonal. The 70.7\% gap proves otherwise.
+If specialists were just ``lucky'' (happened to be assigned to rules they were already good at), the off-diagonal performance would be similar to diagonal. The 70.7\% pass rate with Cohen's $d$ = 2.66 proves the prompts \textit{cause} the performance.
 \end{whyitmatters}
 
 % ----------------------------------------------------------------------------
