@@ -4306,23 +4306,43 @@ Specialists get only 20\% on tasks they're NOT trained for (near random) \\
 
 \textbf{Oracle routing} = \textit{perfect routing}---we magically know which specialist to assign to each task.
 
+\textbf{Concrete Example:}
+
+Suppose we have 3 specialists and 3 incoming tasks:
+
 \begin{center}
-\begin{tabular}{lp{5cm}c}
+\begin{tabular}{lccc}
 \toprule
-\textbf{Routing Strategy} & \textbf{How It Works} & \textbf{Accuracy} \\
+& \textbf{RHYME Specialist} & \textbf{POSITION Specialist} & \textbf{ANIMATE Specialist} \\
 \midrule
-Random assignment & Pick any specialist randomly & 35.8\% \\
-\textbf{Oracle routing} & \textbf{Always pick the correct specialist} & \textbf{100\%} \\
-Confidence routing & Pick the most confident specialist & 41.7\% \\
+Task 1 (RHYME) & \cellcolor{green!30}100\% & 20\% & 25\% \\
+Task 2 (POSITION) & 15\% & \cellcolor{green!30}100\% & 18\% \\
+Task 3 (ANIMATE) & 22\% & 16\% & \cellcolor{green!30}100\% \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-\textbf{Why use ``oracle''?} Because in the real world, we don't automatically know which specialist to use. Oracle routing is a \textit{theoretical upper bound}---it shows the maximum possible benefit if we had perfect task classification.
+\textbf{Random Assignment} (pick any specialist):
+\begin{itemize}
+    \item Task 1 $\to$ POSITION specialist $\to$ 20\% accuracy
+    \item Task 2 $\to$ ANIMATE specialist $\to$ 18\% accuracy
+    \item Task 3 $\to$ RHYME specialist $\to$ 22\% accuracy
+    \item \textbf{Average: 20\%} (bad!)
+\end{itemize}
+
+\textbf{Oracle Routing} (always pick the correct specialist):
+\begin{itemize}
+    \item Task 1 (RHYME) $\to$ RHYME specialist $\to$ \textbf{100\%} accuracy
+    \item Task 2 (POSITION) $\to$ POSITION specialist $\to$ \textbf{100\%} accuracy
+    \item Task 3 (ANIMATE) $\to$ ANIMATE specialist $\to$ \textbf{100\%} accuracy
+    \item \textbf{Average: 100\%} (perfect!)
+\end{itemize}
+
+\textbf{The ``oracle'' knows}: ``This is a RHYME task, so send it to the RHYME specialist.''
+
+In the real world, we don't have an oracle---we need to \textit{classify} each task first, which is imperfect. Oracle routing is a \textbf{theoretical upper bound} showing the maximum possible benefit.
 
 \textbf{The +64.2\% practical benefit} = Oracle routing (100\%) $-$ Random assignment (35.8\%) = 64.2\% improvement.
-
-This metric answers: ``If we could perfectly route tasks to specialists, how much would we gain?''
 \end{remark}
 
 \subsubsection{What Does ``95\% Confidence Interval'' Mean?}
