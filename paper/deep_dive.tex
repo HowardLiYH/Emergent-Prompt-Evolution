@@ -3926,9 +3926,35 @@ Each generation, one agent wins (with high probability). To move all $N$ agents 
 \end{tikzpicture}
 \end{center}
 
+\subsection{Results: 10-Seed Unified Validation}
+
+We ran 10 seeds with identical conditions using \texttt{gemini-2.5-flash}:
+
+\begin{table}[H]
+\centering
+\caption{Causality validation results across 10 seeds.}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Metric} & \textbf{Value} & \textbf{Interpretation} \\
+\midrule
+Swap Test Pass Rate & \textbf{70.7\%} & Strong causality \\
+95\% Confidence Interval & [68.3\%, 73.1\%] & Tight bounds (4.8\% width) \\
+Standard Deviation & 1.66\% & Highly consistent \\
+Cohen's $d$ & 2.66 & Huge effect \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{figures/fig3_causality_heatmap.pdf}
+\caption{\textbf{Causality heatmap.} Diagonal cells (matched agent-task, highlighted with red borders) show high accuracy (dark blue, 86--98\%). Off-diagonal cells (mismatched) show low accuracy (light blue, 16--30\%). The clear contrast proves that prompts \textit{cause} performance.}
+\label{fig:causality-heatmap}
+\end{figure}
+
 \subsection{Understanding the Metrics}
 
-Before presenting results, let's clarify exactly what we measure and how.
+The results above may raise questions. This section clarifies exactly what we measure and how.
 
 \subsubsection{What Is ``Accuracy'' Based On?}
 
@@ -4096,31 +4122,44 @@ Seed 2, RHYME specialist:
 \end{itemize}
 \end{keypoint}
 
-\subsection{Results: 10-Seed Unified Validation}
+\subsubsection{What Levels Are Tested? (L3 Only)}
 
-We ran 10 seeds with identical conditions using \texttt{gemini-2.5-flash}:
+The heatmap tests \textbf{only L3 specialists}---not all levels. Each ``specialist'' in the test is created with:
 
-\begin{table}[H]
-\centering
-\caption{Causality validation results across 10 seeds.}
-\begin{tabular}{lcc}
+\begin{center}
+\begin{tabular}{lcccccccc}
 \toprule
-\textbf{Metric} & \textbf{Value} & \textbf{Interpretation} \\
+\textbf{Specialist} & RHYME & POSITION & ANIMATE & PATTERN & VOWEL & ALPHA & MATH & INVERSE \\
 \midrule
-Swap Test Pass Rate & \textbf{70.7\%} & Strong causality \\
-95\% Confidence Interval & [68.3\%, 73.1\%] & Tight bounds (4.8\% width) \\
-Standard Deviation & 1.66\% & Highly consistent \\
-Cohen's $d$ & 2.66 & Huge effect \\
+RHYME specialist & \cellcolor{green!30}\textbf{L3} & L0 & L0 & L0 & L0 & L0 & L0 & L0 \\
+POSITION specialist & L0 & \cellcolor{green!30}\textbf{L3} & L0 & L0 & L0 & L0 & L0 & L0 \\
+ANIMATE specialist & L0 & L0 & \cellcolor{green!30}\textbf{L3} & L0 & L0 & L0 & L0 & L0 \\
+\vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots & \vdots \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{center}
 
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.7\textwidth]{figures/fig3_causality_heatmap.pdf}
-\caption{\textbf{Causality heatmap.} Diagonal cells (matched agent-task, highlighted with red borders) show high accuracy (dark blue, 86--98\%). Off-diagonal cells (mismatched) show low accuracy (light blue, 16--30\%). The clear contrast proves that prompts \textit{cause} performance.}
-\label{fig:causality-heatmap}
-\end{figure}
+\textbf{What each heatmap cell measures:}
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+\textbf{Cell Type} & \textbf{What It Tests} & \textbf{Expected Accuracy} \\
+\midrule
+Diagonal (matched) & L3 specialist on their specialty rule & 86--98\% \\
+Off-diagonal (mismatched) & L3 specialist on a rule they have L0 for & 16--25\% (random) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{warning}[The Heatmap Is L3 vs L0, Not ``All Levels'']
+The test is specifically designed to show the \textbf{maximum contrast}:
+\begin{itemize}
+    \item \textbf{L3} = full strategy knowledge $\to$ high accuracy
+    \item \textbf{L0} = no strategy knowledge $\to$ random guessing ($\sim$25\%)
+\end{itemize}
+This is why the diagonal is so clearly higher than off-diagonal. We are comparing ``knows everything'' vs ``knows nothing'' for each specialist-task pair.
+\end{warning}
 
 \subsection{Interpreting the Results}
 
