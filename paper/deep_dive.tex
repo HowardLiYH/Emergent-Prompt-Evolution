@@ -4269,6 +4269,38 @@ We have ample power to detect the observed effect.
 
 \subsection{Common Questions About Statistics}
 
+\subsubsection{What Do the Metrics in Section 32.2 Mean?}
+
+The table in Section 32.2 reports four key metrics. Here's what each one measures:
+
+\begin{center}
+\begin{tabular}{lp{5cm}p{5cm}}
+\toprule
+\textbf{Metric} & \textbf{What It Measures} & \textbf{How to Interpret} \\
+\midrule
+\textbf{Causality Rate} (70.7\%) & 
+What \% of pairwise comparisons showed specialists performing better on their own rule than on other rules &
+70.7\% of the 560 comparisons (56 per seed $\times$ 10 seeds) passed \\
+\addlinespace
+\textbf{Practical Benefit} (+64.2\%) &
+How much better does oracle routing perform vs random assignment? &
+If you route tasks to the right specialist, accuracy improves by 64.2\% \\
+\addlinespace
+\textbf{Diagonal Accuracy} (91\%) &
+Average accuracy when specialist is tested on their specialty rule (L3 on matched task) &
+Specialists get 91\% correct on tasks they're trained for \\
+\addlinespace
+\textbf{Off-Diagonal Accuracy} (20\%) &
+Average accuracy when specialist is tested on non-specialty rules (L0 on mismatched task) &
+Specialists get only 20\% on tasks they're NOT trained for (near random) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{keypoint}
+\textbf{The key insight}: The 71\% gap between diagonal (91\%) and off-diagonal (20\%) proves that the prompt \textit{causes} the performance, not the agent's inherent capability.
+\end{keypoint}
+
 \subsubsection{What Does ``95\% Confidence Interval'' Mean?}
 
 \textbf{Common misconception:} ``95\% of the data falls in this range.''
