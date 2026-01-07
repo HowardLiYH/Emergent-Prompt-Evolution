@@ -4017,6 +4017,85 @@ Each seed runs \textbf{56 pairwise comparisons} (7 specialists $\times$ 8 rules)
     \item Some ``specialists'' are weak (barely L3)
 \end{itemize}
 
+\begin{remark}[What Is ``Stochasticity''?]
+\textbf{Stochasticity} = \textbf{randomness}. When we say ``LLM stochasticity,'' we mean:
+
+\textit{The same prompt can produce different answers each time you ask.}
+
+\begin{center}
+\begin{tabular}{clcc}
+\toprule
+\textbf{Attempt} & \textbf{Prompt} & \textbf{Response} & \textbf{Confidence} \\
+\midrule
+1 & ``Which rhymes with CAT?'' & B (bat) \checkmark & 85\% \\
+2 & Same prompt & B (bat) \checkmark & 72\% \\
+3 & Same prompt & A (dog) $\times$ & 45\% \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Even with identical input, LLMs give different outputs due to:
+\begin{itemize}
+    \item Temperature setting (randomness parameter)
+    \item Internal sampling from probability distributions
+\end{itemize}
+
+The opposite of \textit{stochastic} is \textit{deterministic} (same input $\to$ always same output).
+\end{remark}
+
+\subsubsection{Why Does the Heatmap Look Like 100\% Success?}
+
+This is a common confusion. The heatmap and the 70.7\% pass rate measure \textit{different things}:
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+& \textbf{Heatmap Figure} & \textbf{70.7\% Pass Rate} \\
+\midrule
+\textbf{Shows} & \textbf{Averaged accuracy} across all seeds & \textbf{Individual comparisons} \\
+\textbf{Granularity} & One number per cell (aggregated) & 560 separate yes/no decisions \\
+\textbf{Pattern} & 100\% clear (diagonal always higher) & 70.7\% individual success \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{The heatmap shows averaged results:}
+
+\begin{center}
+\small
+\begin{tabular}{l|cccc}
+& RHYME & POSITION & ANIMATE & ... \\
+\hline
+RHYME specialist & \cellcolor{green!30}\textbf{86\%} & 16\% & 25\% & ... \\
+POSITION specialist & 18\% & \cellcolor{green!30}\textbf{92\%} & 22\% & ... \\
+ANIMATE specialist & 22\% & 19\% & \cellcolor{green!30}\textbf{88\%} & ... \\
+\end{tabular}
+
+$\uparrow$ \textit{averaged across 10 seeds---pattern is crystal clear}
+\end{center}
+
+\textbf{But individual comparisons have noise:}
+
+\begin{verbatim}
+Seed 1, RHYME specialist:
+  RHYME (78%) vs POSITION (15%)  → 78% > 15%? ✓ Pass
+  RHYME (78%) vs ANIMATE (22%)   → 78% > 22%? ✓ Pass
+  RHYME (78%) vs PATTERN (81%)   → 78% > 81%? ✗ FAIL (similar rules!)
+
+Seed 2, RHYME specialist:
+  RHYME (91%) vs POSITION (18%)  → ✓ Pass
+  ... (and so on for 560 total comparisons)
+\end{verbatim}
+
+\begin{keypoint}
+\textbf{Summary:}
+\begin{itemize}
+    \item \textbf{Heatmap}: Shows the \textit{average} pattern---100\% clear that diagonal $>$ off-diagonal
+    \item \textbf{70.7\%}: Shows \textit{individual} comparison results---396 of 560 passed
+    \item \textbf{Why the gap?}: Averages smooth out noise; individual comparisons expose it
+\end{itemize}
+\end{keypoint}
+
 \subsection{Results: 10-Seed Unified Validation}
 
 We ran 10 seeds with identical conditions using \texttt{gemini-2.5-flash}:
