@@ -4364,7 +4364,29 @@ Width (4.8\%) & How precise our estimate is (narrower = better) \\
 \end{tabular}
 \end{center}
 
-\subsubsection{What Is Power Analysis? (Section 32.4 Explained)}
+\subsubsection{What Is a Null Hypothesis?}
+
+A \textbf{null hypothesis} ($H_0$) is the ``boring'' assumption that \textit{nothing interesting is happening}.
+
+\begin{center}
+\begin{tabular}{lp{6cm}p{5cm}}
+\toprule
+\textbf{Context} & \textbf{Null Hypothesis ($H_0$)} & \textbf{Alternative ($H_1$)} \\
+\midrule
+Our experiment & ``Prompts have NO effect on performance'' & ``Prompts CAUSE performance differences'' \\
+\addlinespace
+Coin flip & ``The coin is fair (50/50)'' & ``The coin is biased'' \\
+\addlinespace
+Medicine trial & ``The drug has no effect'' & ``The drug works'' \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Goal}: We try to \textit{reject} the null hypothesis by showing our data is too extreme to occur by chance.
+
+If $p < 0.05$, we say: ``The probability of seeing this data if $H_0$ were true is less than 5\%. So we reject $H_0$.''
+
+\subsubsection{What Is Power Analysis?}
 
 \textbf{The Core Question}: ``Did we run enough experiments to detect a real effect?''
 
@@ -4438,29 +4460,7 @@ In power analysis, the null hypothesis is still ``prompts have no effect.'' Powe
 High power = high likelihood of correctly rejecting a false null hypothesis.
 \end{remark}
 
-\subsubsection{What Is a Null Hypothesis?}
-
-A \textbf{null hypothesis} ($H_0$) is the ``boring'' assumption that \textit{nothing interesting is happening}.
-
-\begin{center}
-\begin{tabular}{lp{6cm}p{5cm}}
-\toprule
-\textbf{Context} & \textbf{Null Hypothesis ($H_0$)} & \textbf{Alternative ($H_1$)} \\
-\midrule
-Our experiment & ``Prompts have NO effect on performance'' & ``Prompts CAUSE performance differences'' \\
-\addlinespace
-Coin flip & ``The coin is fair (50/50)'' & ``The coin is biased'' \\
-\addlinespace
-Medicine trial & ``The drug has no effect'' & ``The drug works'' \\
-\bottomrule
-\end{tabular}
-\end{center}
-
-\textbf{Goal}: We try to \textit{reject} the null hypothesis by showing our data is too extreme to occur by chance.
-
-If $p < 0.05$, we say: ``The probability of seeing this data if $H_0$ were true is less than 5\%. So we reject $H_0$.''
-
-\subsubsection{What Is Holm-Bonferroni Correction? (Section 32.3 Explained)}
+\subsubsection{What Is Holm-Bonferroni Correction?}
 
 \textbf{The Problem: Multiple Testing Inflates False Positives}
 
