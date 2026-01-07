@@ -140,12 +140,45 @@ University of Pennsylvania\\
 \maketitle
 
 % ============================================================================
+% KEY MESSAGE
+% ============================================================================
+\begin{center}
+\fcolorbox{green!50!black}{green!5}{
+\begin{minipage}{0.95\textwidth}
+\centering
+\vspace{0.5em}
+{\Large \textbf{The Core Finding}}
+\vspace{0.3em}
+
+\textbf{Competition alone produces 94\% of specialization}---diversity genuinely \textit{emerges}.
+
+\vspace{0.5em}
+
+\begin{tabular}{ccc}
+\textbf{Fine-Tuning} & vs & \textbf{Prompt-Based (Ours)} \\
+\$\$\$, slow, permanent & & \$0, instant, reversible \\
+\multicolumn{3}{c}{\textbf{Both achieve 100\% specialist performance}}
+\end{tabular}
+
+\vspace{0.5em}
+
+\textit{``The Darwin's Finches moment for LLM populations.''}
+\vspace{0.3em}
+\end{minipage}
+}
+\end{center}
+
+\vspace{1em}
+
+% ============================================================================
 % ABSTRACT
 % ============================================================================
 \begin{abstract}
 This document provides an exhaustive, ground-up explanation of \textbf{emergent preference specialization} in LLM agent populations. We combine rigorous mathematical treatment with intuitive explanations, worked examples, and visualizations. The document is designed for readers with a strong mathematical background who want to understand every detail of how and why LLM agents spontaneously develop specialized preferences through competitive selection.
 
-\textbf{Key Finding:} Evolved specialists achieve the \textbf{theoretical performance ceiling (100\%)} on matched tasks---demonstrating complete, not partial, specialization. Oracle routing unlocks this value, yielding \textbf{+64.2\% $\pm$ 2.3\% improvement} over generalist baseline ($n=5$, 95\% CI: [61.3, 67.0]). This represents the \textit{maximum extractable value} from correct task-specialist matching.
+\textbf{The Core Discovery:} Ablation studies reveal that \textbf{competition alone produces 94\% of the observed specialization} (SCI=0.773 vs 0.818 full system)---proving that diversity genuinely \textit{emerges} from competitive pressure rather than being engineered through design choices. This is the ``Darwin's Finches moment'' for LLM populations.
+
+\textbf{The Practical Implication:} Evolved specialists achieve the \textbf{theoretical performance ceiling (100\%)} on matched tasks, with oracle routing unlocking \textbf{+64.2\% $\pm$ 2.3\% improvement} over generalist baseline. \textbf{Critically, prompt-based specialization achieves the same ceiling as fine-tuning---but at zero cost, with instant deployment, and full reversibility.}
 
 \textbf{Prerequisites:} Basic probability theory, information theory fundamentals, and familiarity with LLMs. All advanced concepts (fitness sharing, Thompson Sampling, Markov chains) are developed from first principles.
 

@@ -5,6 +5,20 @@
 </p>
 
 <p align="center">
+  <strong>🔬 The Core Discovery:</strong> Competition alone produces <strong>94% of specialization</strong>—diversity genuinely <em>emerges</em>.
+</p>
+
+<p align="center">
+  <strong>💡 The Practical Implication:</strong> Prompt-based specialization achieves the <strong>same 100% ceiling as fine-tuning</strong>—but at <strong>$0 cost</strong>, with <strong>instant deployment</strong>, and <strong>full reversibility</strong>.
+</p>
+
+<p align="center">
+  <em>"The Darwin's Finches moment for LLM populations."</em>
+</p>
+
+---
+
+<p align="center">
   <a href="#overview">Overview</a> •
   <a href="#key-results">Key Results</a> •
   <a href="#theoretical-foundation">Theory</a> •
