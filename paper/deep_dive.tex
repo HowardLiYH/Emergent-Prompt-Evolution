@@ -4301,6 +4301,30 @@ Specialists get only 20\% on tasks they're NOT trained for (near random) \\
 \textbf{The key insight}: The 71\% gap between diagonal (91\%) and off-diagonal (20\%) proves that the prompt \textit{causes} the performance, not the agent's inherent capability.
 \end{keypoint}
 
+\begin{remark}[What Is ``Oracle Routing''?]
+\textbf{Oracle} = a mythical being that knows everything. In our context:
+
+\textbf{Oracle routing} = \textit{perfect routing}---we magically know which specialist to assign to each task.
+
+\begin{center}
+\begin{tabular}{lp{5cm}c}
+\toprule
+\textbf{Routing Strategy} & \textbf{How It Works} & \textbf{Accuracy} \\
+\midrule
+Random assignment & Pick any specialist randomly & 35.8\% \\
+\textbf{Oracle routing} & \textbf{Always pick the correct specialist} & \textbf{100\%} \\
+Confidence routing & Pick the most confident specialist & 41.7\% \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Why use ``oracle''?} Because in the real world, we don't automatically know which specialist to use. Oracle routing is a \textit{theoretical upper bound}---it shows the maximum possible benefit if we had perfect task classification.
+
+\textbf{The +64.2\% practical benefit} = Oracle routing (100\%) $-$ Random assignment (35.8\%) = 64.2\% improvement.
+
+This metric answers: ``If we could perfectly route tasks to specialists, how much would we gain?''
+\end{remark}
+
 \subsubsection{What Does ``95\% Confidence Interval'' Mean?}
 
 \textbf{Common misconception:} ``95\% of the data falls in this range.''
