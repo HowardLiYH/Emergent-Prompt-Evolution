@@ -269,7 +269,7 @@ head -200 CHANGELOG.md
 
 # Run remaining experiments
 cd /Users/yuhaoli/code/MAS_For_Finance/emergent_prompt_evolution
-GEMINI_API_KEY="AIzaSyB2MDz-xtitSwjyHEcXPEY6wKdid32TRuA" python3 experiments/exp_*.py
+GEMINI_API_KEY="REDACTED_KEY" python3 experiments/exp_*.py
 ```
 
 ---

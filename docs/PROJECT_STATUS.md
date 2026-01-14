@@ -177,7 +177,7 @@ cat docs/PROFESSOR_ANALYSIS_LOG.md
 
 All API keys stored in `.env` (not committed to git):
 ```
-GEMINI_API_KEY=AIzaSyB2MDz-xtitSwjyHEcXPEY6wKdid32TRuA
+GEMINI_API_KEY=REDACTED_KEY
 ANTHROPIC_API_KEY=sk-ant-api03-...
 ```
 
