@@ -29,18 +29,18 @@ class DistilledRule:
 class SpecialistDistiller:
     """
     Distill specialist knowledge into deployable artifacts.
-    
+
     After training, extract:
     1. Routing rules (regime -> tool)
     2. Prompt templates (regime -> prompt)
     3. Confidence thresholds (when to use fallback)
-    
+
     Output:
     - Lightweight Python router
     - JSON configuration
     - Performance estimates
     """
-    
+
     def __init__(self, specialists: Dict = None):
         """
         Args:
@@ -49,11 +49,11 @@ class SpecialistDistiller:
         self.specialists = specialists or {}
         self.rules: Dict[str, DistilledRule] = {}
         self.distillation_time: Optional[str] = None
-    
+
     def set_specialists(self, specialists: Dict):
         """Set specialists to distill."""
         self.specialists = specialists
-    
+
     def extract_decision_rules(
         self,
         confidence_threshold: float = 0.7,
@@ -61,20 +61,20 @@ class SpecialistDistiller:
     ) -> Dict[str, DistilledRule]:
         """
         Convert specialist behavior into explicit rules.
-        
+
         Args:
             confidence_threshold: Min confidence to use specialist
             fallback_tool: Tool to use if specialist confidence is low
-        
+
         Returns:
             Dict of DistilledRule per regime
         """
         self.rules = {}
-        
+
         for regime, spec in self.specialists.items():
             # Determine if we should use fallback
             use_fallback = spec.confidence < confidence_threshold
-            
+
             self.rules[regime] = DistilledRule(
                 regime=regime,
                 tool=spec.best_tool,
@@ -83,9 +83,9 @@ class SpecialistDistiller:
                 fallback_tool=fallback_tool if use_fallback else None,
                 estimated_accuracy=spec.win_rate,
             )
-        
+
         return self.rules
-    
+
     def export_lightweight_router(
         self,
         output_path: str,
@@ -93,15 +93,15 @@ class SpecialistDistiller:
     ) -> str:
         """
         Export a minimal router for production deployment.
-        
+
         Generates standalone Python code that can route tasks
         without any dependencies on the training system.
         """
         if not self.rules:
             self.extract_decision_rules()
-        
+
         self.distillation_time = datetime.now().isoformat()
-        
+
         # Generate routing rules as Python dict
         rules_dict = {}
         for regime, rule in self.rules.items():
@@ -112,7 +112,7 @@ class SpecialistDistiller:
                 'fallback': rule.fallback_tool,
                 'accuracy': rule.estimated_accuracy,
             }
-        
+
         # Generate Python code
         router_code = f'''"""
 Lightweight Specialist Router
@@ -121,7 +121,7 @@ Generated: {self.distillation_time}
 
 Usage:
     from router import route_task, get_prompt
-    
+
     result = route_task("What is 2+2?", "code_math")
     prompt = get_prompt("What is 2+2?", "code_math")
 """
@@ -137,16 +137,16 @@ DEFAULT_PROMPT = "{{task}}"
 def route_task(task: str, regime: str) -> dict:
     """
     Route a task to the appropriate specialist.
-    
+
     Args:
         task: The task/question to handle
         regime: The task regime (e.g., 'code_math', 'pure_qa')
-    
+
     Returns:
         Dict with 'tool', 'prompt', and 'confidence'
     """
     rule = SPECIALIST_RULES.get(regime)
-    
+
     if not rule:
         return {{
             "tool": DEFAULT_TOOL,
@@ -154,7 +154,7 @@ def route_task(task: str, regime: str) -> dict:
             "confidence": 0.0,
             "is_fallback": True,
         }}
-    
+
     return {{
         "tool": rule["tool"],
         "prompt": rule["prompt_template"].format(task=task),
@@ -186,7 +186,7 @@ def get_regime_info(regime: str) -> dict:
     return SPECIALIST_RULES.get(regime, {{}})
 
 '''
-        
+
         if include_metrics:
             metrics_code = f'''
 
@@ -203,20 +203,20 @@ def get_metrics() -> dict:
     return TRAINING_METRICS
 '''
             router_code += metrics_code
-        
+
         # Write to file
         os.makedirs(os.path.dirname(output_path) or '.', exist_ok=True)
         with open(output_path, 'w') as f:
             f.write(router_code)
-        
+
         print(f"Lightweight router exported to {output_path}")
         return output_path
-    
+
     def export_config(self, output_path: str) -> str:
         """Export configuration as JSON for other systems."""
         if not self.rules:
             self.extract_decision_rules()
-        
+
         config = {
             'distillation_time': self.distillation_time or datetime.now().isoformat(),
             'n_regimes': len(self.rules),
@@ -232,31 +232,31 @@ def get_metrics() -> dict:
             },
             'supported_tools': list(set(r.tool for r in self.rules.values())),
         }
-        
+
         os.makedirs(os.path.dirname(output_path) or '.', exist_ok=True)
         with open(output_path, 'w') as f:
             json.dump(config, f, indent=2)
-        
+
         print(f"Config exported to {output_path}")
         return output_path
-    
+
     def compute_distillation_savings(self) -> Dict:
         """
         Compare full CSE system vs distilled router costs.
-        
+
         Full CSE: Multiple agent consultations, memory retrieval
         Distilled: Single dictionary lookup + formatted prompt
         """
         # Cost estimates (relative)
         full_cse_overhead = 0.002  # Multiple agents, memory, competition logic
         distilled_overhead = 0.0001  # Dictionary lookup only
-        
+
         # LLM call cost is same for both
         base_llm_cost = 0.001
-        
+
         full_cost = base_llm_cost + full_cse_overhead
         distilled_cost = base_llm_cost + distilled_overhead
-        
+
         return {
             'full_cse_inference_cost': full_cost,
             'distilled_router_cost': distilled_cost,
@@ -264,7 +264,7 @@ def get_metrics() -> dict:
             'total_savings_percent': f"{(1 - distilled_cost/full_cost)*100:.1f}%",
             'note': 'LLM cost dominates; savings are in system overhead',
         }
-    
+
     def validate_distillation(
         self,
         test_tasks: List[Dict],
@@ -272,23 +272,23 @@ def get_metrics() -> dict:
     ) -> Dict:
         """
         Validate distilled router matches original specialist behavior.
-        
+
         Args:
             test_tasks: List of {'task': str, 'regime': str, 'expected': str}
             llm_client: LLM client for testing
-        
+
         Returns:
             Validation results
         """
         if not self.rules:
             return {'error': 'No rules distilled yet'}
-        
+
         results = []
-        
+
         for test in test_tasks:
             regime = test['regime']
             task = test['task']
-            
+
             rule = self.rules.get(regime)
             if not rule:
                 results.append({
@@ -297,15 +297,15 @@ def get_metrics() -> dict:
                     'status': 'no_specialist',
                 })
                 continue
-            
+
             # Generate prompt using distilled template
             prompt = rule.prompt_template.format(task=task)
-            
+
             try:
                 response = llm_client.generate(prompt, max_tokens=200)
                 expected = test.get('expected', '')
                 success = expected.lower() in response.lower() if expected else True
-                
+
                 results.append({
                     'task': task,
                     'regime': regime,
@@ -320,9 +320,9 @@ def get_metrics() -> dict:
                     'status': 'error',
                     'error': str(e),
                 })
-        
+
         success_count = sum(1 for r in results if r.get('success', False))
-        
+
         return {
             'total_tests': len(results),
             'successful': success_count,
@@ -334,10 +334,10 @@ def get_metrics() -> dict:
 if __name__ == "__main__":
     print("Specialist Distillation Module")
     print("=" * 50)
-    
+
     # Example with mock specialists
     from cache import CachedSpecialist
-    
+
     mock_specialists = {
         'pure_qa': CachedSpecialist(
             regime='pure_qa',
@@ -354,13 +354,13 @@ if __name__ == "__main__":
             win_rate=0.82,
         ),
     }
-    
+
     distiller = SpecialistDistiller(mock_specialists)
-    
+
     # Extract rules
     rules = distiller.extract_decision_rules()
     print(f"Extracted {len(rules)} rules")
-    
+
     # Show savings
     savings = distiller.compute_distillation_savings()
     print(f"Savings: {savings['total_savings_percent']}")

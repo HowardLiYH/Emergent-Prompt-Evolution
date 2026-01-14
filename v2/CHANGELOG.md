@@ -8,7 +8,7 @@ All notable changes to the v2 project are documented in this file.
 
 ### Major Pivot
 
-**FROM:** "CSE uses fewer tokens during training"  
+**FROM:** "CSE uses fewer tokens during training"
 **TO:** "CSE achieves lower Total Cost of Ownership at deployment scale"
 
 ### Key Results

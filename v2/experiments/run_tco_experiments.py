@@ -33,7 +33,7 @@ from experiments.architectures.subset_cse import SubsetCSE, IndependentTraining
 from experiments.architectures.dynamic_subset import DynamicSubsetCSE
 from experiments.parallel_training import ParallelTrainer
 from experiments.capability_analysis import (
-    CAPABILITY_TASKS, analyze_capability_unlocking, 
+    CAPABILITY_TASKS, analyze_capability_unlocking,
     summarize_capability_results, save_capability_results
 )
 from experiments.cost_analysis.amortized import (
@@ -41,17 +41,17 @@ from experiments.cost_analysis.amortized import (
     compute_effect_size, save_analysis
 )
 
-# LLM Client
+# LLM Client - Using new google-genai package
 try:
-    import google.generativeai as genai
+    from google import genai
     GEMINI_AVAILABLE = True
 except ImportError:
     GEMINI_AVAILABLE = False
-    print("Warning: google.generativeai not available, using mock LLM")
+    print("Warning: google-genai not available")
 
 
 class LLMClient:
-    """LLM client wrapper for experiments."""
+    """LLM client wrapper using google-genai package."""
     
     def __init__(self, model: str = "gemini-2.5-flash"):
         self.model_name = model
@@ -59,16 +59,17 @@ class LLMClient:
         self.total_calls = 0
         
         if GEMINI_AVAILABLE:
-            api_key = os.getenv('GOOGLE_API_KEY')
+            api_key = os.getenv('GEMINI_API_KEY') or os.getenv('GOOGLE_API_KEY')
             if api_key:
-                genai.configure(api_key=api_key)
-                self.model = genai.GenerativeModel(model)
+                self.client = genai.Client(api_key=api_key)
                 self.is_real = True
+                print(f"Using REAL Gemini API: {model}")
             else:
                 self.is_real = False
-                print("Warning: GOOGLE_API_KEY not set, using mock responses")
+                print("ERROR: No API key found! Set GEMINI_API_KEY in .env")
         else:
             self.is_real = False
+            print("ERROR: google-genai not installed!")
     
     def generate(self, prompt: str, max_tokens: int = 500) -> str:
         """Generate response from LLM."""
@@ -76,9 +77,10 @@ class LLMClient:
         
         if self.is_real:
             try:
-                response = self.model.generate_content(
-                    prompt,
-                    generation_config={'max_output_tokens': max_tokens}
+                response = self.client.models.generate_content(
+                    model=self.model_name,
+                    contents=prompt,
+                    config={'max_output_tokens': max_tokens}
                 )
                 text = response.text
                 # Estimate tokens
@@ -88,10 +90,10 @@ class LLMClient:
                 print(f"LLM Error: {e}")
                 return f"Error: {str(e)}"
         else:
-            # Mock response
+            # Mock response - should never happen with real key
             self.total_tokens += 100
             return f"Mock response for: {prompt[:50]}..."
-    
+
     def get_stats(self) -> Dict:
         return {
             'total_calls': self.total_calls,
@@ -130,15 +132,15 @@ def generate_task(regime: str, rng: random.Random) -> Tuple[str, str]:
             ("What HTTP method retrieves data?", "GET"),
         ],
     }
-    
+
     regime_tasks = tasks.get(regime, [("Generic question", "answer")])
     return rng.choice(regime_tasks)
 
 
 def evaluate_agent(
-    agent, 
-    tool: str, 
-    question: str, 
+    agent,
+    tool: str,
+    question: str,
     expected: str,
     llm_client: LLMClient
 ) -> Tuple[bool, int, str]:
@@ -152,13 +154,13 @@ def evaluate_agent(
         'L4': f"Use real-time data: {question}",
     }
     prompt = prompts.get(tool, f"Answer: {question}")
-    
+
     response = llm_client.generate(prompt, max_tokens=200)
-    
+
     # Check success
     success = expected.lower() in response.lower()
     tokens = len(prompt.split()) + len(response.split())
-    
+
     return success, tokens, response
 
 
@@ -174,41 +176,41 @@ def run_subset_comparison(
     print("\n" + "=" * 60)
     print("EXPERIMENT 1: Subset Competition vs Independent")
     print("=" * 60)
-    
+
     if llm_client is None:
         llm_client = LLMClient()
-    
+
     results = {
         'subset_cse': [],
         'dynamic_cse': [],
         'independent': [],
     }
-    
+
     for seed in range(n_seeds):
         print(f"\nSeed {seed + 1}/{n_seeds}")
         rng = random.Random(seed)
-        
+
         # Initialize systems
         subset_cse = SubsetCSE(n_agents, REGIMES, K=3, epsilon=0.1)
         dynamic_cse = DynamicSubsetCSE(n_agents, REGIMES, K_min=2, K_max=6)
         independent = IndependentTraining(n_agents, REGIMES)
-        
+
         # Run training
         for gen in range(n_generations):
             regime = rng.choice(REGIMES)
             task = generate_task(regime, rng)
-            
+
             # Evaluate function
             def eval_fn(agent, tool, q, a):
                 return evaluate_agent(agent, tool, q, a, llm_client)
-            
+
             subset_cse.train_step(task, regime, rng, eval_fn)
             dynamic_cse.train_step(task, regime, rng, eval_fn)
             independent.train_step(task, regime, rng, eval_fn)
-            
+
             if (gen + 1) % 20 == 0:
                 print(f"  Generation {gen + 1}/{n_generations}")
-        
+
         # Collect metrics
         results['subset_cse'].append({
             'seed': seed,
@@ -217,7 +219,7 @@ def run_subset_comparison(
             'llm_calls': subset_cse.total_llm_calls,
             'failure_rate': subset_cse.get_failure_rate(),
         })
-        
+
         results['dynamic_cse'].append({
             'seed': seed,
             'coverage': dynamic_cse.get_coverage(),
@@ -226,7 +228,7 @@ def run_subset_comparison(
             'failure_rate': dynamic_cse.get_failure_rate(),
             'k_stats': dynamic_cse.get_k_statistics(),
         })
-        
+
         results['independent'].append({
             'seed': seed,
             'coverage': independent.get_coverage(),
@@ -234,7 +236,7 @@ def run_subset_comparison(
             'llm_calls': independent.total_llm_calls,
             'failure_rate': independent.get_failure_rate(),
         })
-    
+
     # Compute summary statistics
     summary = {}
     for method, runs in results.items():
@@ -244,14 +246,14 @@ def run_subset_comparison(
             'mean_failure_rate': sum(r['failure_rate'] for r in runs) / len(runs),
             'n_seeds': len(runs),
         }
-    
+
     print("\n--- Results Summary ---")
     for method, stats in summary.items():
         print(f"{method}:")
         print(f"  Coverage: {stats['mean_coverage']:.2%}")
         print(f"  Tokens: {stats['mean_tokens']:.0f}")
         print(f"  Failure Rate: {stats['mean_failure_rate']:.2%}")
-    
+
     return {'raw': results, 'summary': summary}
 
 
@@ -262,22 +264,22 @@ def run_amortized_analysis(subset_results: Dict) -> Dict:
     print("\n" + "=" * 60)
     print("EXPERIMENT 2: Amortized Cost Analysis")
     print("=" * 60)
-    
+
     # Extract failure rates
     cse_failures = [r['failure_rate'] for r in subset_results['raw']['subset_cse']]
     ind_failures = [r['failure_rate'] for r in subset_results['raw']['independent']]
-    
+
     cse_coverages = [r['coverage'] for r in subset_results['raw']['subset_cse']]
     ind_coverages = [r['coverage'] for r in subset_results['raw']['independent']]
-    
+
     # Training costs (from token counts)
     cse_training = sum(r['tokens'] for r in subset_results['raw']['subset_cse']) / len(subset_results['raw']['subset_cse'])
     ind_training = sum(r['tokens'] for r in subset_results['raw']['independent']) / len(subset_results['raw']['independent'])
-    
+
     # Convert tokens to $ (approx $0.001 per 1000 tokens)
     cse_training_cost = cse_training * 0.001 / 1000
     ind_training_cost = ind_training * 0.001 / 1000
-    
+
     # Run full analysis
     analysis = full_statistical_analysis(
         cse_training=cse_training_cost,
@@ -287,14 +289,14 @@ def run_amortized_analysis(subset_results: Dict) -> Dict:
         cse_coverages=cse_coverages,
         ind_coverages=ind_coverages,
     )
-    
+
     print("\n--- Break-Even Analysis ---")
     print(analysis['breakeven']['interpretation'])
-    
+
     print("\n--- Effect Sizes ---")
     print(f"Failure Rate: Cohen's d = {analysis['effect_sizes']['failure_rate']['cohens_d']}")
     print(f"Coverage: Cohen's d = {analysis['effect_sizes']['coverage']['cohens_d']}")
-    
+
     return analysis
 
 
@@ -305,15 +307,15 @@ def run_parallel_benchmark() -> Dict:
     print("\n" + "=" * 60)
     print("EXPERIMENT 3: Parallel Training Benchmark")
     print("=" * 60)
-    
+
     from experiments.parallel_training import run_parallel_benchmark as bench
-    
+
     results = bench(n_agents=12, n_iterations=50, worker_configs=[1, 2, 4, 8])
-    
+
     print("\n--- Speedup Results ---")
     for config, stats in results.items():
         print(f"{config}: {stats['speedup_factor']}x speedup")
-    
+
     return results
 
 
@@ -321,30 +323,30 @@ def save_all_results(results: Dict, output_dir: str = "results/tco_experiments")
     """Save all experiment results."""
     os.makedirs(output_dir, exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    
+
     # Save each result set
     for name, data in results.items():
         path = f"{output_dir}/{name}_{timestamp}.json"
         with open(path, 'w') as f:
             json.dump(data, f, indent=2, default=str)
         print(f"Saved: {path}")
-    
+
     # Save summary
     summary_path = f"{output_dir}/summary_{timestamp}.json"
     summary = {
         'timestamp': timestamp,
         'experiments': list(results.keys()),
     }
-    
+
     # Extract key metrics
     if 'subset_comparison' in results:
         summary['subset_comparison'] = results['subset_comparison'].get('summary', {})
     if 'amortized' in results:
         summary['breakeven'] = results['amortized'].get('breakeven', {})
-    
+
     with open(summary_path, 'w') as f:
         json.dump(summary, f, indent=2, default=str)
-    
+
     print(f"\nSummary saved: {summary_path}")
     return output_dir
 
@@ -357,22 +359,22 @@ def main():
     parser.add_argument('--full', action='store_true', help='Run full 50-seed validation')
     parser.add_argument('--skip-parallel', action='store_true', help='Skip parallel benchmark')
     args = parser.parse_args()
-    
+
     if args.full:
         args.seeds = 50
-    
+
     print("=" * 60)
     print("TCO EFFICIENCY EXPERIMENTS")
     print(f"Seeds: {args.seeds}, Generations: {args.generations}, Agents: {args.agents}")
     print("=" * 60)
-    
+
     start_time = time.time()
-    
+
     # Initialize LLM
     llm_client = LLMClient()
-    
+
     all_results = {}
-    
+
     # Experiment 1: Subset Comparison
     subset_results = run_subset_comparison(
         n_agents=args.agents,
@@ -381,29 +383,29 @@ def main():
         llm_client=llm_client
     )
     all_results['subset_comparison'] = subset_results
-    
+
     # Experiment 2: Amortized Analysis
     amortized_results = run_amortized_analysis(subset_results)
     all_results['amortized'] = amortized_results
-    
+
     # Experiment 3: Parallel Benchmark
     if not args.skip_parallel:
         parallel_results = run_parallel_benchmark()
         all_results['parallel'] = parallel_results
-    
+
     # LLM Stats
     all_results['llm_stats'] = llm_client.get_stats()
-    
+
     # Save results
     output_dir = save_all_results(all_results)
-    
+
     elapsed = time.time() - start_time
     print(f"\n{'=' * 60}")
     print(f"EXPERIMENTS COMPLETE")
     print(f"Time: {elapsed:.1f}s")
     print(f"Results: {output_dir}")
     print(f"{'=' * 60}")
-    
+
     return all_results
 
 

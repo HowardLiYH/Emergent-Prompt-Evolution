@@ -38,7 +38,7 @@ CAPABILITY_TASKS = {
             ("What is the square root of 144?", "12"),
         ],
     },
-    
+
     # ===== Medium Tasks (Specialists have advantage) =====
     'intermediate_code': {
         'regime': 'code_math',
@@ -58,7 +58,7 @@ CAPABILITY_TASKS = {
             ("Summarize the key points of this report", "Main findings and conclusions"),
         ],
     },
-    
+
     # ===== Hard Tasks (Specialists required) =====
     'complex_code': {
         'regime': 'code_math',
@@ -117,7 +117,7 @@ class CapabilityResult:
 
 def generate_task_for_regime(regime: str, difficulty: float, rng) -> Tuple[str, str]:
     """Generate a task for a specific regime and difficulty."""
-    
+
     if regime == 'pure_qa':
         if difficulty < 0.4:
             questions = [
@@ -130,7 +130,7 @@ def generate_task_for_regime(regime: str, difficulty: float, rng) -> Tuple[str, 
                 ("Explain the difference between mitosis and meiosis", "Cell division types"),
                 ("What are the three branches of US government?", "Executive, Legislative, Judicial"),
             ]
-    
+
     elif regime == 'code_math':
         if difficulty < 0.5:
             questions = [
@@ -142,28 +142,28 @@ def generate_task_for_regime(regime: str, difficulty: float, rng) -> Tuple[str, 
                 ("Write a function to find the nth Fibonacci number", "fib(n) implementation"),
                 ("Implement binary search on a sorted list", "binary_search function"),
             ]
-    
+
     elif regime == 'document_qa':
         questions = [
             ("Given this text, what is the main argument?", "Central thesis"),
             ("Identify the key entities mentioned in this passage", "Named entities"),
         ]
-    
+
     elif regime == 'realtime_data':
         questions = [
             ("What is the current time in UTC?", "Current UTC time"),
             ("Get the latest Bitcoin price in USD", "BTC price"),
         ]
-    
+
     elif regime == 'chart_analysis':
         questions = [
             ("Describe the trend shown in this visualization", "Trend description"),
             ("What percentage increase is shown in the bar chart?", "Percentage"),
         ]
-    
+
     else:
         questions = [("Generic question", "Generic answer")]
-    
+
     return rng.choice(questions)
 
 
@@ -177,13 +177,13 @@ def evaluate_on_task(
 ) -> Tuple[float, int]:
     """
     Evaluate agents on a task multiple times.
-    
+
     Returns:
         Tuple of (accuracy, n_attempts)
     """
     successes = 0
     attempts = 0
-    
+
     for _ in range(n_trials):
         for agent in agents:
             # Specialists use their best tool, generalists use L0
@@ -191,7 +191,7 @@ def evaluate_on_task(
                 tool = agent.select_tool(regime, None)
             else:
                 tool = 'L0'  # Generalist default
-            
+
             # Evaluate
             try:
                 success = evaluate_single(
@@ -203,14 +203,14 @@ def evaluate_on_task(
             except Exception as e:
                 print(f"Evaluation error: {e}")
                 attempts += 1
-    
+
     accuracy = successes / max(1, attempts)
     return accuracy, attempts
 
 
 def evaluate_single(agent, tool, question, expected, llm_client) -> bool:
     """Evaluate a single agent response."""
-    
+
     # Construct prompt based on tool level
     if tool == 'L0':
         prompt = f"Answer this question: {question}"
@@ -222,7 +222,7 @@ def evaluate_single(agent, tool, question, expected, llm_client) -> bool:
         prompt = f"Search relevant documents and answer: {question}"
     else:
         prompt = f"Use web search if needed: {question}"
-    
+
     try:
         response = llm_client.generate(prompt, max_tokens=500)
         # Simple check: does response contain expected answer?
@@ -242,9 +242,9 @@ def analyze_capability_unlocking(
 ) -> List[CapabilityResult]:
     """
     Find tasks where CSE succeeds and Independent fails.
-    
+
     These represent "unlocked capabilities" worth the training cost.
-    
+
     Args:
         cse_agents: Trained CSE specialists
         ind_agents: Independent training agents
@@ -252,52 +252,52 @@ def analyze_capability_unlocking(
         tasks: Task definitions (defaults to CAPABILITY_TASKS)
         n_trials: Number of trials per task
         rng: Random number generator
-    
+
     Returns:
         List of CapabilityResult for each task
     """
     import random
     if rng is None:
         rng = random.Random(42)
-    
+
     if tasks is None:
         tasks = CAPABILITY_TASKS
-    
+
     results = []
-    
+
     for task_name, config in tasks.items():
         regime = config['regime']
         difficulty = config['difficulty']
-        
+
         print(f"Evaluating: {task_name} (difficulty={difficulty})")
-        
+
         # Generate task
         if 'examples' in config and config['examples']:
             task = rng.choice(config['examples'])
         else:
             task = generate_task_for_regime(regime, difficulty, rng)
-        
+
         # Evaluate CSE specialists
         cse_specialists = [
-            a for a in cse_agents 
+            a for a in cse_agents
             if hasattr(a, 'specialty') and a.specialty == regime
         ]
         if not cse_specialists:
             cse_specialists = cse_agents[:3]  # Fallback to top agents
-        
+
         cse_acc, cse_attempts = evaluate_on_task(
             cse_specialists, task, regime, True, llm_client, n_trials
         )
-        
+
         # Evaluate Independent agents
         ind_acc, ind_attempts = evaluate_on_task(
             ind_agents, task, regime, False, llm_client, n_trials
         )
-        
+
         # Determine if capability was unlocked
         capability_unlocked = (cse_acc > 0.7 and ind_acc < 0.5)
         accuracy_delta = cse_acc - ind_acc
-        
+
         # Generate value proposition
         if capability_unlocked:
             value_prop = f"CSE enables {task_name} ({int(cse_acc*100)}% vs {int(ind_acc*100)}%)"
@@ -307,7 +307,7 @@ def analyze_capability_unlocking(
             value_prop = f"CSE marginally improves {task_name}"
         else:
             value_prop = f"No advantage for {task_name}"
-        
+
         results.append(CapabilityResult(
             task_name=task_name,
             regime=regime,
@@ -320,16 +320,16 @@ def analyze_capability_unlocking(
             accuracy_delta=round(accuracy_delta, 3),
             value_proposition=value_prop,
         ))
-    
+
     return results
 
 
 def summarize_capability_results(results: List[CapabilityResult]) -> Dict:
     """Generate summary statistics from capability analysis."""
-    
+
     unlocked = [r for r in results if r.capability_unlocked]
     improved = [r for r in results if r.accuracy_delta > 0.2]
-    
+
     return {
         'total_tasks': len(results),
         'capabilities_unlocked': len(unlocked),
@@ -349,7 +349,7 @@ def save_capability_results(
 ):
     """Save capability analysis results."""
     os.makedirs(output_dir, exist_ok=True)
-    
+
     # Detailed results
     detailed = [
         {
@@ -364,17 +364,17 @@ def save_capability_results(
         }
         for r in results
     ]
-    
+
     with open(f"{output_dir}/detailed_results.json", 'w') as f:
         json.dump(detailed, f, indent=2)
-    
+
     # Summary
     summary = summarize_capability_results(results)
     summary['timestamp'] = datetime.now().isoformat()
-    
+
     with open(f"{output_dir}/summary.json", 'w') as f:
         json.dump(summary, f, indent=2)
-    
+
     print(f"Results saved to {output_dir}/")
     return summary
 

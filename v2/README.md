@@ -111,11 +111,11 @@ CSE achieves **lower deployment costs** despite higher training investment:
 Training Phase:
   CSE (Subset K=3): $0.002
   Independent:      $0.0007
-  
+
 Deployment Phase (per query):
   CSE:         $0.000163 (42% failure × 1.5x retry)
   Independent: $0.000175 (50% failure × 1.5x retry)
-  
+
 Break-even: ~10 queries
 After 1M queries: CSE saves ~$12
 ```
