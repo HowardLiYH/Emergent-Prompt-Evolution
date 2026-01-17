@@ -29,23 +29,23 @@ class StrategyLevel:
 class ProceduralMemory:
     """
     Layer 4: Procedural Memory
-    
+
     Stores "how to" knowledge:
     - Tool preferences (which tool works for which regime)
     - Strategy levels (locked via competition wins)
     - Skill progression
-    
+
     This is the "muscle memory" layer.
     """
-    
+
     LOCK_THRESHOLD = 5  # Wins needed to lock a strategy
-    
+
     def __init__(self):
         """Initialize procedural memory."""
         self.tool_preferences: Dict[str, Dict[str, ToolPreference]] = {}
         self.strategy_levels: Dict[str, StrategyLevel] = {}
         self.skill_history: List[Dict] = []
-    
+
     def update_tool_preference(
         self,
         regime: str,
@@ -54,7 +54,7 @@ class ProceduralMemory:
     ):
         """
         Update tool preference based on outcome.
-        
+
         Args:
             regime: Task regime
             tool: Tool that was used
@@ -62,7 +62,7 @@ class ProceduralMemory:
         """
         if regime not in self.tool_preferences:
             self.tool_preferences[regime] = {}
-        
+
         if tool not in self.tool_preferences[regime]:
             self.tool_preferences[regime][tool] = ToolPreference(
                 tool=tool,
@@ -80,32 +80,32 @@ class ProceduralMemory:
             )
             pref.usage_count += 1
             pref.last_update = datetime.now().isoformat()
-    
+
     def get_best_tool(self, regime: str) -> Optional[str]:
         """
         Get the best tool for a regime based on learned preferences.
-        
+
         Args:
             regime: Task regime
-            
+
         Returns:
             Best tool name or None
         """
         if regime not in self.tool_preferences:
             return None
-        
+
         prefs = self.tool_preferences[regime]
         if not prefs:
             return None
-        
+
         # Find tool with highest success rate (with usage count tie-breaker)
         best = max(
             prefs.values(),
             key=lambda p: (p.success_rate, p.usage_count)
         )
-        
+
         return best.tool
-    
+
     def lock_strategy(
         self,
         regime: str,
@@ -115,9 +115,9 @@ class ProceduralMemory:
     ):
         """
         Lock a strategy level for a regime.
-        
+
         Called when agent has enough wins in a regime.
-        
+
         Args:
             regime: Task regime
             level: Strategy level
@@ -128,14 +128,14 @@ class ProceduralMemory:
             existing = self.strategy_levels[regime]
             if level <= existing.level:
                 return  # Don't downgrade
-        
+
         self.strategy_levels[regime] = StrategyLevel(
             regime=regime,
             level=level,
             description=description,
             locked_by_wins=wins
         )
-        
+
         # Record in skill history
         self.skill_history.append({
             'regime': regime,
@@ -143,11 +143,11 @@ class ProceduralMemory:
             'description': description,
             'timestamp': datetime.now().isoformat()
         })
-    
+
     def get_strategy_level(self, regime: str) -> Optional[StrategyLevel]:
         """Get the current strategy level for a regime."""
         return self.strategy_levels.get(regime)
-    
+
     def check_for_lock(
         self,
         regime: str,
@@ -156,30 +156,30 @@ class ProceduralMemory:
     ) -> bool:
         """
         Check if a strategy should be locked based on wins.
-        
+
         Args:
             regime: Task regime
             wins: Total wins in this regime
             tool: Dominant tool
-            
+
         Returns:
             True if a new lock was created
         """
         if wins < self.LOCK_THRESHOLD:
             return False
-        
+
         # Determine level based on wins
         level = min(3, wins // self.LOCK_THRESHOLD)
-        
+
         current = self.strategy_levels.get(regime)
         if current and current.level >= level:
             return False
-        
+
         description = f"Locked {tool} for {regime} at level {level}"
         self.lock_strategy(regime, level, description, wins)
-        
+
         return True
-    
+
     def get_skill_summary(self) -> Dict:
         """Get a summary of learned skills."""
         return {
@@ -188,7 +188,7 @@ class ProceduralMemory:
             'locked_regimes': list(self.strategy_levels.keys()),
             'total_skill_events': len(self.skill_history),
         }
-    
+
     def export(self) -> Dict:
         """Export to serializable dict."""
         return {
@@ -214,7 +214,7 @@ class ProceduralMemory:
             },
             'skill_history': self.skill_history,
         }
-    
+
     def import_from(self, data: Dict):
         """Import from dict."""
         for regime, prefs in data.get('tool_preferences', {}).items():
@@ -227,7 +227,7 @@ class ProceduralMemory:
                     usage_count=p_data['usage_count'],
                     last_update=p_data.get('last_update', '')
                 )
-        
+
         for regime, sl_data in data.get('strategy_levels', {}).items():
             self.strategy_levels[regime] = StrategyLevel(
                 regime=regime,
@@ -236,5 +236,5 @@ class ProceduralMemory:
                 locked_at=sl_data.get('locked_at', ''),
                 locked_by_wins=sl_data.get('locked_by_wins', 0)
             )
-        
+
         self.skill_history = data.get('skill_history', [])

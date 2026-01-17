@@ -23,28 +23,28 @@ class EmergenceEvent:
 class EmergenceMonitor:
     """
     Monitors for emergent behaviors in the agent population.
-    
+
     Tracks:
     - Positive emergent behaviors (specialization, cooperation)
     - Concerning behaviors (collusion, deception, capability drift)
     """
-    
+
     def __init__(self, n_agents: int, n_regimes: int):
         """
         Initialize emergence monitor.
-        
+
         Args:
             n_agents: Number of agents in population
             n_regimes: Number of task regimes
         """
         self.n_agents = n_agents
         self.n_regimes = n_regimes
-        
+
         self.events: List[EmergenceEvent] = []
         self.specialization_history: List[Dict] = []
         self.win_patterns: Dict[str, List[int]] = defaultdict(list)
         self.agent_behaviors: Dict[int, List[Dict]] = defaultdict(list)
-    
+
     def log_competition(
         self,
         generation: int,
@@ -55,11 +55,11 @@ class EmergenceMonitor:
         """Log a competition round for pattern detection."""
         if winner_id is not None:
             self.win_patterns[regime].append(winner_id)
-        
+
         # Keep only recent history
         if len(self.win_patterns[regime]) > 100:
             self.win_patterns[regime] = self.win_patterns[regime][-100:]
-    
+
     def log_specialization_snapshot(
         self,
         generation: int,
@@ -73,39 +73,39 @@ class EmergenceMonitor:
             'sci': sci,
             'n_specialists': sum(distribution.values())
         })
-    
+
     def check_for_emergent_patterns(self, generation: int) -> List[EmergenceEvent]:
         """
         Check for emergent patterns.
-        
+
         Args:
             generation: Current generation
-            
+
         Returns:
             List of new emergence events
         """
         new_events = []
-        
+
         # Check specialization emergence
         spec_event = self._check_specialization_emergence(generation)
         if spec_event:
             new_events.append(spec_event)
-        
+
         # Check for collusion
         collusion_event = self._check_collusion_patterns(generation)
         if collusion_event:
             new_events.append(collusion_event)
-        
+
         # Check for monopoly
         monopoly_event = self._check_monopoly(generation)
         if monopoly_event:
             new_events.append(monopoly_event)
-        
+
         # Store events
         self.events.extend(new_events)
-        
+
         return new_events
-    
+
     def _check_specialization_emergence(
         self,
         generation: int
@@ -113,10 +113,10 @@ class EmergenceMonitor:
         """Check if specialization has emerged."""
         if len(self.specialization_history) < 2:
             return None
-        
+
         recent = self.specialization_history[-1]
         previous = self.specialization_history[-2] if len(self.specialization_history) > 1 else None
-        
+
         # Check for significant SCI increase
         if previous and recent['sci'] > previous['sci'] + 0.2:
             return EmergenceEvent(
@@ -127,7 +127,7 @@ class EmergenceMonitor:
                 regime=None,
                 generation=generation
             )
-        
+
         # Check for full coverage
         if recent['n_specialists'] == self.n_regimes:
             return EmergenceEvent(
@@ -138,25 +138,25 @@ class EmergenceMonitor:
                 regime=None,
                 generation=generation
             )
-        
+
         return None
-    
+
     def _check_collusion_patterns(
         self,
         generation: int
     ) -> Optional[EmergenceEvent]:
         """Check for collusion-like patterns."""
         from .collusion import detect_collusion
-        
+
         for regime, winners in self.win_patterns.items():
             if len(winners) < 20:
                 continue
-            
+
             # Simple alternating check
             recent = winners[-20:]
             pairs = list(zip(recent[:-1], recent[1:]))
             same = sum(1 for a, b in pairs if a == b)
-            
+
             if same < 2:  # Very few consecutive wins
                 unique = set(recent)
                 if len(unique) <= 3:
@@ -168,9 +168,9 @@ class EmergenceMonitor:
                         regime=regime,
                         generation=generation
                     )
-        
+
         return None
-    
+
     def _check_monopoly(
         self,
         generation: int
@@ -179,11 +179,11 @@ class EmergenceMonitor:
         for regime, winners in self.win_patterns.items():
             if len(winners) < 20:
                 continue
-            
+
             recent = winners[-20:]
             from collections import Counter
             counts = Counter(recent)
-            
+
             # If one agent has >80% of wins
             for agent_id, count in counts.items():
                 if count / len(recent) > 0.8:
@@ -195,18 +195,18 @@ class EmergenceMonitor:
                         regime=regime,
                         generation=generation
                     )
-        
+
         return None
-    
+
     def get_summary(self) -> Dict:
         """Get monitoring summary."""
         event_counts = defaultdict(int)
         for e in self.events:
             event_counts[e.event_type] += 1
-        
+
         critical = sum(1 for e in self.events if e.severity == 'critical')
         warnings = sum(1 for e in self.events if e.severity == 'warning')
-        
+
         return {
             'total_events': len(self.events),
             'critical_events': critical,
@@ -215,7 +215,7 @@ class EmergenceMonitor:
             'latest_sci': self.specialization_history[-1]['sci'] if self.specialization_history else 0,
             'health': 'good' if critical == 0 and warnings < 5 else 'concerning'
         }
-    
+
     def export(self) -> Dict:
         """Export monitor state."""
         return {

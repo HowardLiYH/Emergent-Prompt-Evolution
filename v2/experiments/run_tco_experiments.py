@@ -52,12 +52,12 @@ except ImportError:
 
 class LLMClient:
     """LLM client wrapper using google-genai package."""
-    
+
     def __init__(self, model: str = "gemini-2.5-flash"):
         self.model_name = model
         self.total_tokens = 0
         self.total_calls = 0
-        
+
         if GEMINI_AVAILABLE:
             api_key = os.getenv('GEMINI_API_KEY') or os.getenv('GOOGLE_API_KEY')
             if api_key:
@@ -70,11 +70,11 @@ class LLMClient:
         else:
             self.is_real = False
             print("ERROR: google-genai not installed!")
-    
+
     def generate(self, prompt: str, max_tokens: int = 500) -> str:
         """Generate response from LLM."""
         self.total_calls += 1
-        
+
         if self.is_real:
             try:
                 response = self.client.models.generate_content(

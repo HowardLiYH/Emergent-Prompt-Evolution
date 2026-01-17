@@ -1,6 +1,6 @@
 # TCO Efficiency Results Summary
 
-**Generated:** January 14, 2026  
+**Generated:** January 14, 2026
 **Experiment Version:** v2.3 (TCO Reframe with REAL Gemini API)
 
 ## Executive Summary

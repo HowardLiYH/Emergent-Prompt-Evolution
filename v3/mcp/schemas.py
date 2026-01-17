@@ -26,7 +26,7 @@ class ToolSchema:
     output_schema: Dict[str, Any]
     required_api_keys: List[str] = field(default_factory=list)
     rate_limit: Optional[int] = None  # Requests per minute
-    
+
     def to_dict(self) -> Dict:
         """Convert to MCP-compatible dict."""
         return {
@@ -45,7 +45,7 @@ class ToolResult:
     metadata: Dict[str, Any] = field(default_factory=dict)
     tokens_used: int = 0
     execution_time_ms: float = 0.0
-    
+
     def to_dict(self) -> Dict:
         """Convert to serializable dict."""
         return {

@@ -81,7 +81,7 @@ This work addresses a \textit{scientific} question (``Does specialization emerge
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\textwidth]{figures/fig1_hero_mechanism.pdf}
+\includegraphics[width=\textwidth]{fig1_hero_mechanism.pdf}
 \caption{\textbf{Overview of emergent preference specialization.} (a) Initial population: 12 identical agents with no specialization. (b) Competitive selection: agents compete on tasks; winners accumulate rule-specific strategies. (c) Emerged specialists: after 100 generations, agents have differentiated into distinct rule specialists (colors indicate specialization).}
 \label{fig:hero}
 \end{figure}
@@ -206,7 +206,7 @@ This creates pressure for agents to occupy less crowded niches.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.85\textwidth]{figures/fig2_specialization_emergence.pdf}
+\includegraphics[width=0.85\textwidth]{fig2_specialization_emergence.pdf}
 \caption{\textbf{Emergence of rule specialists over generations.} Each line represents the maximum strategy level achieved for a rule. All rules reach Level~3 (full specialist) by generation 50, with staggered emergence times creating niche diversity. Different colors indicate different rules.}
 \label{fig:emergence}
 \end{figure}
@@ -304,7 +304,7 @@ We validate our theoretical predictions through comprehensive experiments. All e
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.7\textwidth]{figures/fig3_causality_heatmap.pdf}
+\includegraphics[width=0.7\textwidth]{fig3_causality_heatmap.pdf}
 \caption{\textbf{Causality validation heatmap.} Each cell shows accuracy when a specialist (column) is tested on a task type (row). The strong diagonal pattern (85--98\%) vs. off-diagonal (15--30\%) demonstrates that prompts \textit{cause} performance---specialists excel only on their trained rule.}
 \label{fig:causality}
 \end{figure}
@@ -373,7 +373,7 @@ Claude 3 Haiku & Anthropic & 92\% & 45\% & 50.9\% \\
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.85\textwidth]{figures/fig5_crossllm.pdf}
+\includegraphics[width=0.85\textwidth]{fig5_crossllm.pdf}
 \caption{\textbf{Cross-LLM generalization.} The mechanism produces consistent specialization across all three major LLM providers. Green bars show specialist accuracy on their own rule (85--92\%); coral bars show accuracy on other rules (20--45\%). All gaps exceed the 30\% threshold (dashed line).}
 \label{fig:crossllm}
 \end{figure}
@@ -400,7 +400,7 @@ We compare specialized populations against single generalist agents across five 
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.85\textwidth]{figures/fig4_practical_benefit.pdf}
+\includegraphics[width=0.85\textwidth]{fig4_practical_benefit.pdf}
 \caption{\textbf{Practical benefit of specialization.} Oracle routing achieves 100\% accuracy---a +64.2\% improvement over the single generalist baseline (35.8\%). This demonstrates the maximum value extractable from correct task-specialist matching at no additional API cost.}
 \label{fig:practical}
 \end{figure}
@@ -480,7 +480,7 @@ We thank the anonymous reviewers for their constructive feedback.
 % =============================================================================
 % REFERENCES
 % =============================================================================
-\bibliographystyle{plain}
+\bibliographystyle{plainnat}
 \begin{thebibliography}{20}
 
 % Cognitive Science Sources for Rule Design
@@ -869,7 +869,7 @@ Seed 10 & 73.2\% & 41/56 \\
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.85\textwidth]{figures/fig6_cost_benefit.pdf}
+\includegraphics[width=0.85\textwidth]{fig6_cost_benefit.pdf}
 \caption{\textbf{Cost-benefit analysis with break-even point.} The specialist population (green line) outperforms the generalist (coral dashed) after the break-even point (~8 tasks). The shaded region shows the cumulative benefit of specialization. Training cost is amortized as an upfront investment; after break-even, specialists provide strictly better returns.}
 \label{fig:costbenefit}
 \end{figure}
